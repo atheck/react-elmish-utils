@@ -1,5 +1,5 @@
 import { createCmd, UpdateReturnType, MsgSource } from "react-elmish";
-import { IValidationError } from "../Validation";
+import { execValidators, IValidationError, Validator } from "../Validation";
 
 type MessageSource = MsgSource<"Form">;
 
@@ -32,6 +32,7 @@ export type Props<T> = Readonly<{
 
 export type UpdateOptions<T, TModel> = {
     validate?: (model: TModel) => IValidationError [],
+    validators?: Validator [],
     getData: () => T,
     onCancelRequest?: () => UpdateReturnType<TModel, Message>,
 };
@@ -49,19 +50,17 @@ export const init = (): Model => {
 export const update = <T, TModel extends Model>(model: TModel, msg: Message, props: Props<T>, options: UpdateOptions<T, TModel>): UpdateReturnType<TModel, Message> => {
     switch (msg.name) {
         case "ReValidate":
-            if (options.validate && model.validated) {
-                return [{ ...model, errors: options.validate(model) }];
+            if (model.validated) {
+                return [{ ...model, errors: validate(model, options) }];
             }
 
             return [{}];
 
         case "Accept": {
-            if (options.validate) {
-                const errors = options.validate(model);
+            const errors = validate(model, options);
 
-                if (errors.length > 0) {
-                    return [{ ...model, validated: true, errors }];
-                }
+            if (errors.length > 0) {
+                return [{ ...model, validated: true, errors }];
             }
 
             props.onAccept(options.getData());
@@ -81,4 +80,19 @@ export const update = <T, TModel extends Model>(model: TModel, msg: Message, pro
 
             return [{}];
     }
+};
+
+const validate = <T, TModel extends Model>(model: TModel, options: UpdateOptions<T, TModel>): IValidationError [] => {
+    if (options.validators) {
+        const errors = execValidators(...options.validators)
+
+        return errors;
+    }
+    if (options.validate) {
+        const errors = options.validate(model);
+
+        return errors;
+    }
+
+    return [];
 };
