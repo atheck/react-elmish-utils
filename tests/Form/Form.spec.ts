@@ -1,6 +1,8 @@
-import * as Form from "../src/Form/Form";
+import * as Form from "../../src/Form/Form";
 import * as ElmTesting from "react-elmish/dist/Testing";
 import * as TypeMoq from "typemoq";
+
+// TODO: add tests for validation with validate and validators
 
 describe("FormScreen", () => {
     describe("update", () => {
