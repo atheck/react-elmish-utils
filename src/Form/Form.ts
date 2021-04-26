@@ -1,5 +1,5 @@
 import { createCmd, UpdateReturnType, MsgSource } from "react-elmish";
-import { IValidationError } from "./Validation";
+import { IValidationError } from "../Validation";
 
 type MessageSource = MsgSource<"Form">;
 
