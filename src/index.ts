@@ -3,7 +3,7 @@ import { Message as FormMessage, Msg as FormMsg, Model as FormModel, init as ini
 export type { FormMessage, FormModel, FormUpdateOptions };
 export { FormMsg, initForm, updateForm };
 
-import { execValidators, getError, IValidationError, Validator } from "./Validation";
+import { execValidators, getError, IValidationError, Validator, ValidatorFunc } from "./Validation";
 
-export type { IValidationError, Validator };
+export type { IValidationError, Validator, ValidatorFunc };
 export { getError, execValidators };
