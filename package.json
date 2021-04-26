@@ -23,10 +23,12 @@
     "react-elmish": ">=1.0.0"
   },
   "scripts": {
+    "install-peers": "npm install --no-save react-elmish react",
+    "prebuild": "npm run install-peers",
     "build": "npm run build:types && npm run build:js",
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "babel src --out-dir dist --extensions \".ts,.tsx\" --source-maps inline",
-    "pretest": "npm install --no-save react-elmish react",
+    "pretest": "npm run install-peers",
     "test": "jest",
     "test:watch": "jest --watch"
   },
