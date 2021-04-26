@@ -20,13 +20,13 @@
     "typescript": "4.2.4"
   },
   "peerDependencies": {
-    "react": ">=16.8.0",
     "react-elmish": ">=1.0.0"
   },
   "scripts": {
     "build": "npm run build:types && npm run build:js",
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "babel src --out-dir dist --extensions \".ts,.tsx\" --source-maps inline",
+    "pretest": "npm install --no-save react-elmish react",
     "test": "jest",
     "test:watch": "jest --watch"
   },
