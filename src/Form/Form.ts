@@ -6,8 +6,8 @@ type MessageSource = MsgSource<"Form">;
 export type Message =
     | { name: "ReValidate" } & MessageSource
     | { name: "Accept" } & MessageSource
-    | { name: "CancelRequest" } & MessageSource
     | { name: "Cancel" } & MessageSource
+    | { name: "ExecCancel" } & MessageSource
     ;
 
 const Source: MessageSource = { source: "Form" };
@@ -15,8 +15,8 @@ const Source: MessageSource = { source: "Form" };
 export const Msg = {
     reValidate: (): Message => ({ name: "ReValidate", ...Source }),
     accept: (): Message => ({ name: "Accept", ...Source }),
-    cancelRequest: (): Message => ({ name: "CancelRequest", ...Source }),
     cancel: (): Message => ({ name: "Cancel", ...Source }),
+    execCancel: (): Message => ({ name: "ExecCancel", ...Source }),
 };
 
 export type Model = Readonly<{
@@ -31,9 +31,9 @@ export type Props<T> = Readonly<{
 }>;
 
 export type UpdateOptions<T, TModel> = {
+    getData: () => T,
     validate?: (model: TModel) => IValidationError [],
     validators?: Validator [],
-    getData: () => T,
     onCancelRequest?: () => UpdateReturnType<TModel, Message>,
 };
 
@@ -68,14 +68,14 @@ export const update = <T, TModel extends Model>(model: TModel, msg: Message, pro
             return [{}];
         }
 
-        case "CancelRequest":
+        case "Cancel":
             if (model.modified && options.onCancelRequest) {
                 return options.onCancelRequest();
             }
 
-            return [{}, cmd.ofMsg(Msg.cancel())];
+            return [{}, cmd.ofMsg(Msg.execCancel())];
 
-        case "Cancel":
+        case "ExecCancel":
             props.onCancel();
 
             return [{}];

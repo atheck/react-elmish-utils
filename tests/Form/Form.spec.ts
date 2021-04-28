@@ -117,10 +117,10 @@ describe("FormScreen", () => {
             });
         });
 
-        describe("CancelRequest", () => {
+        describe("Cancel", () => {
             it("dispatches Cancel when not modified", () => {
                 // arrange
-                const [model, props, msg] = createMocks(Form.Msg.cancelRequest());
+                const [model, props, msg] = createMocks(Form.Msg.cancel());
 
                 const options: Form.UpdateOptions<number, Form.Model> = {
                     validate: jest.fn(),
@@ -134,12 +134,12 @@ describe("FormScreen", () => {
 
                 // assert
                 expect(newModel).toEqual({});
-                expect(ElmTesting.getOfMsgParams(cmd)).toEqual([Form.Msg.cancel()]);
+                expect(ElmTesting.getOfMsgParams(cmd)).toEqual([Form.Msg.execCancel()]);
             });
 
             it("calls onCancelRequest when modified", async () => {
                 // arrange
-                const [model, props, msg] = createMocks(Form.Msg.cancelRequest());
+                const [model, props, msg] = createMocks(Form.Msg.cancel());
                 const mockCancelRequest = jest.fn().mockReturnValue([{}]);
 
                 const options: Form.UpdateOptions<number, Form.Model> = {
@@ -160,10 +160,10 @@ describe("FormScreen", () => {
             });
         });
 
-        describe("Cancel", () => {
+        describe("ExecCancel", () => {
             it("calls onCancel", () => {
                 // arrange
-                const [model, props, msg] = createMocks(Form.Msg.cancel());
+                const [model, props, msg] = createMocks(Form.Msg.execCancel());
                 const onCancel = jest.fn();
 
                 const options: Form.UpdateOptions<number, Form.Model> = {
