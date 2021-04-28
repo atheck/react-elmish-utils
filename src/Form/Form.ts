@@ -1,5 +1,5 @@
 import { createCmd, UpdateReturnType, MsgSource } from "react-elmish";
-import { execValidators, IValidationError, Validator } from "../Validation";
+import { runValidation, IValidationError, Validator } from "../Validation";
 
 type MessageSource = MsgSource<"Form">;
 
@@ -84,7 +84,7 @@ export const update = <T, TModel extends Model>(model: TModel, msg: Message, pro
 
 const validate = <T, TModel extends Model>(model: TModel, options: UpdateOptions<T, TModel>): IValidationError [] => {
     if (options.validators) {
-        const errors = execValidators(...options.validators)
+        const errors = runValidation(...options.validators)
 
         return errors;
     }

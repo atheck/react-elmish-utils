@@ -10,7 +10,7 @@ export const getError = (key: string, errors: IValidationError []): string | nul
     return errors.find(e => e.key === key)?.message ?? null;
 };
 
-export const execValidators = (...validators: Validator []): IValidationError [] => {
+export const runValidation = (...validators: Validator []): IValidationError [] => {
     const errors = validators
         .map(validator => ({ key: validator[0], message: validator[1]() }))
         .filter(({ message }) => message) as IValidationError [];
