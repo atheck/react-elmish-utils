@@ -1,8 +1,7 @@
 import * as Form from "../../src/Form/Form";
 import * as ElmTesting from "react-elmish/dist/Testing";
 import * as TypeMoq from "typemoq";
-
-// TODO: add tests for validation with validate and validators
+import { Validator } from "../../src/Validation";
 
 describe("FormScreen", () => {
     describe("update", () => {
@@ -182,6 +181,55 @@ describe("FormScreen", () => {
                 expect(newModel).toEqual({});
                 expect(cmd).toBeUndefined();
             });
+        });
+    });
+
+    describe("validate", () => {
+        it("calls the validate function", () => {
+            // arrange
+            const [model, props, msg] = createMocks(Form.Msg.accept());
+
+            const validationErrors = [{ key: "key", message: "message" }];
+
+            const validate = jest.fn().mockReturnValue(validationErrors);
+
+            const options: Form.UpdateOptions<number, Form.Model> = {
+                validate,
+                getData: jest.fn(),
+            };
+
+            // act
+            const [newModel] = Form.update(model.object, msg, props.object, options);
+
+            // assert
+            expect(validate).toBeCalledTimes(1);
+            expect(validate).toBeCalledWith(model.object);
+            expect(newModel.errors).toEqual(validationErrors);
+        });
+
+        it("calls all validators", () => {
+            // arrange
+            const [model, props, msg] = createMocks(Form.Msg.accept());
+            const mock1stValidate =  jest.fn().mockReturnValue("1st error");
+            const mock2ndValidate =  jest.fn().mockReturnValue("2nd error");
+
+            const validators: Validator [] = [
+                ["1st", mock1stValidate],
+                ["2nd", mock2ndValidate],
+            ];
+
+            const options: Form.UpdateOptions<number, Form.Model> = {
+                validators,
+                getData: jest.fn(),
+            };
+
+            // act
+            const [newModel] = Form.update(model.object, msg, props.object, options);
+
+            // assert
+            expect(mock1stValidate).toBeCalledTimes(1);
+            expect(mock2ndValidate).toBeCalledTimes(1);
+            expect(newModel.errors).toEqual([{ key: "1st", message: "1st error" }, { key: "2nd", message: "2nd error" }]);
         });
     });
 });
