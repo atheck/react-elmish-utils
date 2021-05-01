@@ -39,9 +39,10 @@
   },
   "keywords": [
     "react",
-    "elm",
     "elmish",
-    "utilities"
+    "utilities",
+    "form",
+    "validation"
   ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts"
