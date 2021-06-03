@@ -48,6 +48,7 @@ export const Msg = {
 // Add Form model to our model
 export type Model = Readonly<{
     value: string,
+    modified: boolean,
 }> & Form.Model;
 
 // The data to return when the user accepts the form
@@ -76,6 +77,7 @@ export const init = (): [Model, Cmd<Message>] => {
             // Initialize the Form model
             ...form.init(),
             value: "",
+            modified: false,
         },
         cmd.none
     ];
@@ -102,7 +104,7 @@ const localUpdate = (model: Model, msg: LocalMessage): UpdateReturnType<Model, L
 };
 ~~~
 
-In your UI component you can dispatch the `accept` and `cancel` Form messages in the onClick event handlers of the OK or Cancel button.
+In your UI component you can dispatch the `accept` and `cancelRequest` Form messages in the onClick event handlers of the OK or Cancel button.
 
 The `createForm` function takes an `FormOptions` object:
 
@@ -110,7 +112,7 @@ The `createForm` function takes an `FormOptions` object:
 | --- | --- |
 | `getData` | Function to create the form data that is passed to `onAccept`. |
 | `validate` | (optional) Function to validate the data when the user accepts the form. It returns an array of `IValidationError`s. See [Validation](#validation). The `validate` function is not called when `validators` is specified. |
-| `onCancelRequest` | (optional) When this function is specified, it is called when the user cancels the form and the modified flag is set to `true`. You can modify the model and dispatch a message in this function, maybe to show a confirmation dialog first. To cancel the form dispatch the `execCancel` message. |
+| `onCancelRequest` | (optional) When this function is specified, it is called when the user cancels the form. You can modify the model and dispatch a message in this function, maybe to show a confirmation dialog first. To cancel the form dispatch the `cancel` message. |
 
 ### Validation
 
@@ -121,11 +123,11 @@ This module contains some helper functions and types for validation.
 | `Validator` | Tuple consisting of a string (key for an error) and a `ValidatorFunc`. |
 | `ValidatorFunc` | Executes a validation and returns an error message or null. |
 | `runValidation` | This function executes `Validator`s and returns an array of `IValidationError`s. |
-| `getError` | Extracts an error message for a specified key out of an error of validation errors. Can be used in the UI to get an error message for a specific control. |
+| `getError` | Extracts an error message for a specified key out of an array of `IValidationError`s. Can be used in the UI to get an error message for a specific control. |
 
 #### Example: Use validation in Form
 
-You can pass a validation function to `FormOptions` object when creating a form.
+You can assign a validation function to the `FormOptions` object when creating a form.
 
 ~~~ts
 import * as Form from "react-elmish-utils/dist/Form";

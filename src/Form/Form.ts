@@ -18,29 +18,72 @@ export type Model = Readonly<{
 }>;
 
 export type FormOptions<TModel, TProps, TData> = {
+    /**
+     * Is called to convert all Form inputs to the target type.
+     * @returns {TData} The converted data.
+     */
     getData: (model: TModel, props: TProps) => TData,
+    /**
+     * Is called to validate all inputs of the Form.
+     * @returns {IValidationError []} An array of validation errors, or an empty array if all inputs are valid.
+     */
     validate?: (model: TModel, props: TProps) => IValidationError [],
+    /**
+     * Is called when the user wants to cancel the Form.
+     */
     onCancelRequest?: () => UpdateReturnType<TModel, Message>,
 };
 
 export type Props<TData> = Readonly<{
+    /**
+     * Is called when the Form is being accepted.
+     */
     onAccept: (data: TData) => void,
+    /**
+     * Is called when the Form is being cancelled.
+     */
     onCancel: () => void,
 }>;
 
 type Msg = {
+    /**
+     * Runs the validation again if it has already been performed.
+     */
     reValidate: () => Message,
+    /**
+     * Accepts the Form.
+     */
     accept: () => Message,
+    /**
+     * Requests to cancel the Form.
+     */
     cancelRequest: () => Message,
+    /**
+     * Cancels the Form.
+     */
     cancel: () => Message,
 };
 
 type Form<TModel, TProps, TData> = {
+    /**
+     * Initializes the Form model.
+     */
     init: () => Model,
+    /**
+     * Updates the Form model.
+     */
     update: (model: Model & TModel, msg: Message, props: Props<TData> & TProps) => UpdateReturnType<Model, Message>,
+    /**
+     * Object to call Form messages.
+     */
     Msg: Msg,
 }
 
+/**
+ * Creates a Form object.
+ * @param options Options to pass to the Form.
+ * @returns The created Form object.
+ */
 export const createForm = <TModel, TProps, TData>(options: FormOptions<TModel, TProps, TData>): Form<TModel, TProps, TData> => {
     const cmd = createCmd<Message>();
 
