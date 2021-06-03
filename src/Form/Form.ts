@@ -6,8 +6,8 @@ type MessageSource = MsgSource<"Form">;
 export type Message =
     | { name: "ReValidate" } & MessageSource
     | { name: "Accept" } & MessageSource
+    | { name: "CancelRequest" } & MessageSource
     | { name: "Cancel" } & MessageSource
-    | { name: "ExecCancel" } & MessageSource
     ;
 
 const Source: MessageSource = { source: "Form" };
@@ -15,7 +15,6 @@ const Source: MessageSource = { source: "Form" };
 export type Model = Readonly<{
     errors: IValidationError [],
     validated: boolean,
-    modified: boolean,
 }>;
 
 export type FormOptions<TModel, TProps, TData> = {
@@ -32,8 +31,8 @@ export type Props<TData> = Readonly<{
 type Msg = {
     reValidate: () => Message,
     accept: () => Message,
+    cancelRequest: () => Message,
     cancel: () => Message,
-    execCancel: () => Message,
 };
 
 type Form<TModel, TProps, TData> = {
@@ -58,8 +57,8 @@ export const createForm = <TModel, TProps, TData>(options: FormOptions<TModel, T
     const Msg = {
         reValidate: (): Message => ({ name: "ReValidate", ...Source }),
         accept: (): Message => ({ name: "Accept", ...Source }),
+        cancelRequest: (): Message => ({ name: "CancelRequest", ...Source }),
         cancel: (): Message => ({ name: "Cancel", ...Source }),
-        execCancel: (): Message => ({ name: "ExecCancel", ...Source }),
     };
 
     return {
@@ -68,7 +67,6 @@ export const createForm = <TModel, TProps, TData>(options: FormOptions<TModel, T
             return {
                 errors: [],
                 validated: false,
-                modified: false,
             };
         },
 
@@ -93,14 +91,14 @@ export const createForm = <TModel, TProps, TData>(options: FormOptions<TModel, T
                     return [{}];
                 }
 
-                case "Cancel":
-                    if (model.modified && options.onCancelRequest) {
+                case "CancelRequest":
+                    if (options.onCancelRequest) {
                         return options.onCancelRequest();
                     }
 
-                    return [{}, cmd.ofMsg(Msg.execCancel())];
+                    return [{}, cmd.ofMsg(Msg.cancel())];
 
-                case "ExecCancel":
+                case "Cancel":
                     props.onCancel();
 
                     return [{}];

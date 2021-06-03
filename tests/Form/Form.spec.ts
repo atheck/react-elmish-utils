@@ -114,26 +114,24 @@ describe("FormScreen", () => {
         });
 
         describe("Cancel", () => {
-            it("dispatches Cancel when not modified", () => {
+            it("dispatches Cancel when onCancelRequest not specified", () => {
                 // arrange
                 const options = {
                     validate: jest.fn(),
                     getData: jest.fn(),
                 };
                 const form = Form.createForm(options);
-                const [model, props, msg] = createMocks(form.Msg.cancel());
-
-                model.setup(m => m.modified).returns(() => false);
+                const [model, props, msg] = createMocks(form.Msg.cancelRequest());
 
                 // act
                 const [newModel, cmd] = form.update(model.object, msg, props.object);
 
                 // assert
                 expect(newModel).toEqual({});
-                expect(ElmTesting.getOfMsgParams(cmd)).toEqual([form.Msg.execCancel()]);
+                expect(ElmTesting.getOfMsgParams(cmd)).toEqual([form.Msg.cancel()]);
             });
 
-            it("calls onCancelRequest when modified", async () => {
+            it("calls onCancelRequest if specified", async () => {
                 // arrange
                 const mockCancelRequest = jest.fn().mockReturnValue([{}]);
                 const options = {
@@ -142,9 +140,7 @@ describe("FormScreen", () => {
                     onCancelRequest: mockCancelRequest,
                 };
                 const form = Form.createForm(options);
-                const [model, props, msg] = createMocks(form.Msg.cancel());
-
-                model.setup(m => m.modified).returns(() => true);
+                const [model, props, msg] = createMocks(form.Msg.cancelRequest());
 
                 // act
                 const [newModel, cmd] = form.update(model.object, msg, props.object);
@@ -164,7 +160,7 @@ describe("FormScreen", () => {
                     getData: jest.fn(),
                 };
                 const form = Form.createForm(options);
-                const [model, props, msg] = createMocks(form.Msg.execCancel());
+                const [model, props, msg] = createMocks(form.Msg.cancel());
                 const onCancel = jest.fn();
 
                 props.setup(p => p.onCancel).returns(() => onCancel);
