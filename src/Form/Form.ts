@@ -31,7 +31,7 @@ export type FormOptions<TModel, TProps, TData> = {
     /**
      * Is called when the user wants to cancel the Form.
      */
-    onCancelRequest?: () => UpdateReturnType<TModel, Message>,
+    onCancelRequest?: (model: TModel, props: TProps) => UpdateReturnType<TModel, Message>,
 };
 
 export type Props<TData> = Readonly<{
@@ -136,7 +136,7 @@ export const createForm = <TModel, TProps, TData>(options: FormOptions<TModel, T
 
                 case "CancelRequest":
                     if (options.onCancelRequest) {
-                        return options.onCancelRequest();
+                        return options.onCancelRequest(model, props);
                     }
 
                     return [{}, cmd.ofMsg(Msg.cancel())];

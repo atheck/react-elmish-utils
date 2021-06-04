@@ -146,7 +146,8 @@ describe("FormScreen", () => {
                 const [newModel, cmd] = form.update(model.object, msg, props.object);
 
                 // assert
-                expect(mockCancelRequest).toBeCalledTimes(1);
+                expect(mockCancelRequest).toHaveBeenCalledTimes(1);
+                expect(mockCancelRequest).toHaveBeenCalledWith(model.object, props.object);
                 expect(newModel).toEqual({});
                 expect(cmd).toBeUndefined();
             });
