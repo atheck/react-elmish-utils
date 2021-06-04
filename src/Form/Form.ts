@@ -17,7 +17,7 @@ export type Model = Readonly<{
     validated: boolean,
 }>;
 
-export type FormOptions<TModel, TProps, TData> = {
+export type Options<TModel, TProps, TData> = {
     /**
      * Is called to convert all Form inputs to the target type.
      * @returns {TData} The converted data.
@@ -84,7 +84,7 @@ type Form<TModel, TProps, TData> = {
  * @param options Options to pass to the Form.
  * @returns The created Form object.
  */
-export const createForm = <TModel, TProps, TData>(options: FormOptions<TModel, TProps, TData>): Form<TModel, TProps, TData> => {
+export const createForm = <TModel, TProps, TData>(options: Options<TModel, TProps, TData>): Form<TModel, TProps, TData> => {
     const cmd = createCmd<Message>();
 
     const validate = (model: Model & TModel, props: Props<TData> & TProps): IValidationError [] => {

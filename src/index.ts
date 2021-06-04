@@ -1,6 +1,6 @@
-import { createForm, Message as FormMessage, FormOptions as FormUpdateOptions } from "./Form";
+import { createForm, Message as FormMessage, Options as FormOptions, Model as FormModel } from "./Form";
 
-export type { FormUpdateOptions, FormMessage };
+export type { FormOptions, FormMessage, FormModel };
 export { createForm };
 
 import { runValidation, getError, IValidationError, Validator, ValidatorFunc } from "./Validation";
