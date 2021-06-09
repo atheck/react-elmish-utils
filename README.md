@@ -104,7 +104,7 @@ const localUpdate = (model: Model, msg: LocalMessage): UpdateReturnType<Model, L
 };
 ~~~
 
-In your UI component you can dispatch the `accept` and `cancelRequest` Form messages in the onClick event handlers of the OK or Cancel button.
+In your UI component you can dispatch the `acceptRequest` and `cancelRequest` Form messages in the onClick event handlers of the OK or Cancel button.
 
 The `createForm` function takes an `Options` object:
 
@@ -112,7 +112,7 @@ The `createForm` function takes an `Options` object:
 | --- | --- |
 | `getData` | Function to create the form data that is passed to `onAccept`. |
 | `validate` | (optional) Function to validate the data when the user accepts the form. It returns an array of `IValidationError`s. See [Validation](#validation). The `validate` function is not called when `validators` is specified. |
-| `onCancelRequest` | (optional) When this function is specified, it is called when the user cancels the form. You can modify the model and dispatch a message in this function, maybe to show a confirmation dialog first. To cancel the form dispatch the `cancel` message. |
+| `onCancelRequest` | (optional) When this function is specified, it is called when the user cancels the form. You can modify the model and dispatch a message in this function, maybe to show a confirmation dialog first. To cancel the form use the third `cancel` parameter. |
 
 ### Validation
 
@@ -135,7 +135,7 @@ import { IValidationError, runValidation } from "react-elmish-utils";
 
 ...
 // Validate the inputs of a Form
-const validate = (model: Model, prop: Props): IValidationError [] => {
+const validate = (model: Model, prop: Props): Promise<IValidationError []> => {
     const validateValue = (): Nullable<string> => {
         if (!model.value) {
             return "Value is missing";
