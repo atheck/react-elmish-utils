@@ -84,7 +84,7 @@ describe("FormScreen", () => {
 
                 // assert
                 expect(mockCancelRequest).toHaveBeenCalledTimes(1);
-                expect(mockCancelRequest).toHaveBeenCalledWith(model.object, props.object, form.Msg.cancel);
+                expect(mockCancelRequest).toHaveBeenCalledWith(model.object, props.object, [expect.any(Function)]);
                 expect(newModel).toEqual({});
                 expect(cmd).toBeUndefined();
             });
