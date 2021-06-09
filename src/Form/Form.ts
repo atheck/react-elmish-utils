@@ -31,10 +31,6 @@ export type Options<TModel, TProps, TData> = {
      * @returns {IValidationError []} An array of validation errors, or an empty array if all inputs are valid.
      */
     validate?: (model: TModel, props: TProps) => Promise<IValidationError []>,
-    /**
-     * Is called when the user wants to cancel the Form.
-     */
-    onCancelRequest?: (model: TModel, props: TProps, cancel: Cmd<Message>) => UpdateReturnType<TModel, Message>,
 };
 
 export type Props<TData> = Readonly<{
@@ -142,10 +138,6 @@ export const createForm = <TModel, TProps, TData>(options: Options<TModel, TProp
                 }
 
                 case "CancelRequest":
-                    if (options.onCancelRequest) {
-                        return options.onCancelRequest(model, props, cmd.ofMsg(Msg.cancel()));
-                    }
-
                     return [{}, cmd.ofMsg(Msg.cancel())];
 
                 case "Cancel":

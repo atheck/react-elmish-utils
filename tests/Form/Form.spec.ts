@@ -53,7 +53,7 @@ describe("FormScreen", () => {
         });
 
         describe("CancelRequest", () => {
-            it("dispatches Cancel when onCancelRequest not specified", () => {
+            it("dispatches Cancel by default", () => {
                 // arrange
                 const options = {
                     getData: jest.fn(),
@@ -67,26 +67,6 @@ describe("FormScreen", () => {
                 // assert
                 expect(newModel).toEqual({});
                 expect(ElmTesting.getOfMsgParams(cmd)).toEqual([form.Msg.cancel()]);
-            });
-
-            it("calls onCancelRequest if specified", async () => {
-                // arrange
-                const mockCancelRequest = jest.fn().mockReturnValue([{}]);
-                const options = {
-                    getData: jest.fn(),
-                    onCancelRequest: mockCancelRequest,
-                };
-                const form = Form.createForm(options);
-                const [model, props, msg] = createMocks(form.Msg.cancelRequest());
-
-                // act
-                const [newModel, cmd] = form.update(model.object, msg, props.object);
-
-                // assert
-                expect(mockCancelRequest).toHaveBeenCalledTimes(1);
-                expect(mockCancelRequest).toHaveBeenCalledWith(model.object, props.object, [expect.any(Function)]);
-                expect(newModel).toEqual({});
-                expect(cmd).toBeUndefined();
             });
         });
 
