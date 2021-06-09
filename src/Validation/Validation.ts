@@ -4,16 +4,22 @@ export interface IValidationError {
 }
 
 export type Validator = [string, ValidatorFunc];
-export type ValidatorFunc = () => string | null;
+export type ValidatorFunc = () => Nullable<string> | Promise<Nullable<string>>;
 
-export const getError = (key: string, errors: IValidationError []): string | null => {
+export const getError = (key: string, errors: IValidationError []): Nullable<string> => {
     return errors.find(e => e.key === key)?.message ?? null;
 };
 
-export const runValidation = (...validators: Validator []): IValidationError [] => {
-    const errors = validators
-        .map(validator => ({ key: validator[0], message: validator[1]() }))
-        .filter(({ message }) => message) as IValidationError [];
+export const runValidation = async (...validators: Validator []): Promise<IValidationError []> => {
+    const errors: IValidationError [] = [];
+
+    for (const validator of validators) {
+        const message = await validator[1]();
+
+        if (message) {
+            errors.push({ key: validator[0], message });
+        }
+    }
 
     return errors;
 };

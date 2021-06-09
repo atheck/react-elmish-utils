@@ -43,18 +43,18 @@ describe("Validation", () => {
     });
 
     describe("runValidation", () => {
-        it("returns empty error without validators", () => {
+        it("returns empty error without validators", async () => {
             // arrange
             const validators: Validation.Validator [] = [];
 
             // act
-            const error = Validation.runValidation(...validators);
+            const error = await Validation.runValidation(...validators);
 
              // assert
              expect(error).toEqual([]);
         });
 
-        it("runs all validators and filters ", () => {
+        it("runs all validators and filters ", async () => {
             // arrange
             const mock1st = jest.fn().mockReturnValue("1st error");
             const mock2nd = jest.fn().mockReturnValue(null);
@@ -66,7 +66,7 @@ describe("Validation", () => {
             ];
 
             // act
-            const error = Validation.runValidation(...validators);
+            const error = await Validation.runValidation(...validators);
 
              // assert
              expect(mock1st).toHaveBeenCalledTimes(1);
