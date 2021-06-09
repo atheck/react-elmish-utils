@@ -1,4 +1,4 @@
-import { createCmd, UpdateReturnType, MsgSource } from "react-elmish";
+import { createCmd, UpdateReturnType, MsgSource, Cmd } from "react-elmish";
 import { IValidationError } from "../Validation";
 
 type MessageSource = MsgSource<"Form">;
@@ -34,7 +34,7 @@ export type Options<TModel, TProps, TData> = {
     /**
      * Is called when the user wants to cancel the Form.
      */
-    onCancelRequest?: (model: TModel, props: TProps, cancel: () => Message) => UpdateReturnType<TModel, Message>,
+    onCancelRequest?: (model: TModel, props: TProps, cancel: Cmd<Message>) => UpdateReturnType<TModel, Message>,
 };
 
 export type Props<TData> = Readonly<{
@@ -143,7 +143,7 @@ export const createForm = <TModel, TProps, TData>(options: Options<TModel, TProp
 
                 case "CancelRequest":
                     if (options.onCancelRequest) {
-                        return options.onCancelRequest(model, props, Msg.cancel);
+                        return options.onCancelRequest(model, props, cmd.ofMsg(Msg.cancel()));
                     }
 
                     return [{}, cmd.ofMsg(Msg.cancel())];
