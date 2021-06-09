@@ -112,7 +112,28 @@ The `createForm` function takes an `Options` object:
 | --- | --- |
 | `getData` | Function to create the form data that is passed to `onAccept`. |
 | `validate` | (optional) Function to validate the data when the user accepts the form. It returns an array of `IValidationError`s. See [Validation](#validation). The `validate` function is not called when `validators` is specified. |
-| `onCancelRequest` | (optional) When this function is specified, it is called when the user cancels the form. You can modify the model and dispatch a message in this function, maybe to show a confirmation dialog first. To cancel the form use the third `cancel` parameter. |
+
+#### Override CancelRequest
+
+By default **CancelRequest** only calls **Cancel**. If you want to override this behavior, i.e. to show some confirmation to the user, handle this message in den before calling the `update` function of the Form.
+
+~~~ts
+export const update = (model: Model, msg: Message, props: Props): UpdateReturnType<Model, Message> => {
+    switch (msg.source) {
+        case "Form":
+            switch (msg.name) {
+                // override default behavior
+                case "CancelRequest":
+                    return [{}, cmd.ofPromise.perform(showConfirmation, Msg.cancel)];
+
+                default:
+                    return form.update(model, msg, props);
+            }
+        case "Local":
+            return localUpdate(model, msg);
+    }
+};
+~~~
 
 ### Validation
 
