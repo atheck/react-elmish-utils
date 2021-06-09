@@ -106,7 +106,7 @@ const localUpdate = (model: Model, msg: LocalMessage): UpdateReturnType<Model, L
 
 In your UI component you can dispatch the `accept` and `cancelRequest` Form messages in the onClick event handlers of the OK or Cancel button.
 
-The `createForm` function takes an `FormOptions` object:
+The `createForm` function takes an `Options` object:
 
 | Property | Description |
 | --- | --- |
@@ -127,7 +127,7 @@ This module contains some helper functions and types for validation.
 
 #### Example: Use validation in Form
 
-You can assign a validation function to the `FormOptions` object when creating a form.
+You can assign a validation function to the `Options` object when creating a form.
 
 ~~~ts
 import * as Form from "react-elmish-utils/dist/Form";
