@@ -75,7 +75,7 @@ type Msg = {
     reValidate: () => Message
 };
 
-type Form<TModel, TProps, TData> = {
+export type Form<TModel, TProps, TData> = {
     /**
      * Initializes the Form model.
      */
