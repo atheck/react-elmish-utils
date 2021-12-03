@@ -1,9 +1,9 @@
-import { createForm, Form, Message as FormMessage, Options as FormOptions, Model as FormModel, Props as FormProps } from "./Form";
+import { createForm, Form, Message as FormMessage, Model as FormModel, Options as FormOptions, Props as FormProps } from "./Form";
 
 export type { Form, FormOptions, FormMessage, FormModel, FormProps };
 export { createForm };
 
-import { runValidation, getError, IValidationError, Validator, ValidatorFunc } from "./Validation";
+import { getError, IValidationError, runValidation, Validator, ValidatorFunc } from "./Validation";
 
 export type { IValidationError, Validator, ValidatorFunc };
 export { getError, runValidation };

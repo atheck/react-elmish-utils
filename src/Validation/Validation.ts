@@ -1,25 +1,31 @@
+/**
+ * @deprecated Use ValidationError instead.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface IValidationError {
     key: string,
     message: string,
 }
+export interface ValidationError extends IValidationError {}
 
 export type Validator = [string, ValidatorFunc];
 export type ValidatorFunc = () => Nullable<string> | Promise<Nullable<string>>;
 
-export const getError = (key: string, errors: IValidationError []): Nullable<string> => {
-    return errors.find(e => e.key === key)?.message ?? null;
-};
+export function getError (key: string, errors: IValidationError []): Nullable<string> {
+    return errors.find(error => error.key === key)?.message ?? null;
+}
 
-export const runValidation = async (...validators: Validator []): Promise<IValidationError []> => {
-    const errors: IValidationError [] = [];
+export async function runValidation (...validators: Validator []): Promise<ValidationError []> {
+    const errors: ValidationError [] = [];
 
-    for (const validator of validators) {
-        const message = await validator[1]();
+    for (const [key, validatorFunc] of validators) {
+        // eslint-disable-next-line no-await-in-loop
+        const message = await validatorFunc();
 
         if (message) {
-            errors.push({ key: validator[0], message });
+            errors.push({ key, message });
         }
     }
 
     return errors;
-};
+}

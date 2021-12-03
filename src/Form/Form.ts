@@ -1,5 +1,5 @@
-import { createCmd, UpdateReturnType, MsgSource } from "react-elmish";
-import { IValidationError } from "../Validation";
+import { createCmd, MsgSource, UpdateReturnType } from "react-elmish";
+import { ValidationError } from "../Validation";
 
 type MessageSource = MsgSource<"Form">;
 
@@ -9,18 +9,17 @@ export type Message =
     | { name: "CancelRequest" } & MessageSource
     | { name: "Cancel" } & MessageSource
     | { name: "Validate", msg?: Message } & MessageSource
-    | { name: "Validated", errors: IValidationError [], msg?: Message } & MessageSource
-    | { name: "ReValidate" } & MessageSource
-    ;
+    | { name: "Validated", errors: ValidationError [], msg?: Message } & MessageSource
+    | { name: "ReValidate" } & MessageSource;
 
 const Source: MessageSource = { source: "Form" };
 
 export type Model = Readonly<{
-    errors: IValidationError [],
+    errors: ValidationError [],
     validated: boolean,
 }>;
 
-export type Options<TModel, TProps, TData> = {
+export interface Options<TModel, TProps, TData> {
     /**
      * Is called to convert all Form inputs to the target type.
      * @returns {TData} The converted data.
@@ -30,21 +29,21 @@ export type Options<TModel, TProps, TData> = {
      * Is called to validate all inputs of the Form.
      * @returns {IValidationError []} An array of validation errors, or an empty array if all inputs are valid.
      */
-    validate?: (model: TModel, props: TProps) => Promise<IValidationError []>,
-};
+    validate?: (model: TModel, props: TProps) => Promise<ValidationError []>,
+}
 
-export type Props<TData> = Readonly<{
+export interface Props<TData> {
     /**
      * Is called when the Form is being accepted.
      */
-    onAccept: (data: TData) => void,
+    readonly onAccept: (data: TData) => void,
     /**
      * Is called when the Form is being cancelled.
      */
-    onCancel: () => void,
-}>;
+    readonly onCancel: () => void,
+}
 
-type Msg = {
+interface Msg {
     /**
      * Requests to accept the Form.
      */
@@ -52,30 +51,30 @@ type Msg = {
     /**
      * Accepts the Form.
      */
-    accept: () => Message
+    accept: () => Message,
     /**
      * Requests to cancel the Form.
      */
-    cancelRequest: () => Message
+    cancelRequest: () => Message,
     /**
      * Cancels the Form.
      */
-    cancel: () => Message
+    cancel: () => Message,
     /**
      * Validates all inputs.
      */
-    validate: (msg?: Message) => Message
+    validate: (msg?: Message) => Message,
     /**
      * All inputs validated.
      */
-    validated: (errors: IValidationError [], msg?: Message) => Message
+    validated: (errors: ValidationError [], msg?: Message) => Message,
     /**
      * Runs the validation again if it has already been performed.
      */
-    reValidate: () => Message
-};
+    reValidate: () => Message,
+}
 
-export type Form<TModel, TProps, TData> = {
+export interface Form<TModel, TProps, TData> {
     /**
      * Initializes the Form model.
      */
@@ -98,7 +97,7 @@ export type Form<TModel, TProps, TData> = {
 export const createForm = <TModel, TProps, TData>(options: Options<TModel, TProps, TData>): Form<TModel, TProps, TData> => {
     const cmd = createCmd<Message>();
 
-    const validate = (model: Model & TModel, props: Props<TData> & TProps): Promise<IValidationError []> => {
+    const validate = async (model: Model & TModel, props: Props<TData> & TProps): Promise<ValidationError []> => {
         if (options.validate) {
             return options.validate(model, props);
         }
@@ -112,20 +111,20 @@ export const createForm = <TModel, TProps, TData>(options: Options<TModel, TProp
         cancelRequest: (): Message => ({ name: "CancelRequest", ...Source }),
         cancel: (): Message => ({ name: "Cancel", ...Source }),
         validate: (msg?: Message): Message => ({ name: "Validate", msg, ...Source }),
-        validated: (errors: IValidationError [], msg?: Message): Message => ({ name: "Validated", errors, msg, ...Source }),
+        validated: (errors: ValidationError [], msg?: Message): Message => ({ name: "Validated", errors, msg, ...Source }),
         reValidate: (): Message => ({ name: "ReValidate", ...Source }),
     };
 
     return {
         Msg,
-        init: (): Model => {
+        init (): Model {
             return {
                 errors: [],
                 validated: false,
             };
         },
 
-        update: (model: Model & TModel, msg: Message, props: Props<TData> & TProps): UpdateReturnType<Model, Message> => {
+        update (model: Model & TModel, msg: Message, props: Props<TData> & TProps): UpdateReturnType<Model, Message> {
             switch (msg.name) {
                 case "AcceptRequest": {
                     return [{}, cmd.ofMsg(Msg.validate(Msg.accept()))];

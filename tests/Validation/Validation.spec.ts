@@ -4,7 +4,7 @@ describe("Validation", () => {
     describe("getError", () => {
         it("finds the correct error", () => {
             // arrange
-            const errors: Validation.IValidationError [] = [
+            const errors: Validation.ValidationError [] = [
                 { key: "1st", message: "1st error" },
                 { key: "2nd", message: "2nd error" },
             ];
@@ -12,24 +12,24 @@ describe("Validation", () => {
             // act
             const error = Validation.getError("2nd", errors);
 
-             // assert
-             expect(error).toEqual("2nd error");
+            // assert
+            expect(error).toBe("2nd error");
         });
 
         it("returns null when without any error", () => {
             // arrange
-            const errors: Validation.IValidationError [] = [];
+            const errors: Validation.ValidationError [] = [];
 
             // act
             const error = Validation.getError("2nd", errors);
 
-             // assert
-             expect(error).toBeNull();
+            // assert
+            expect(error).toBeNull();
         });
 
         it("returns null when no error with key exists", () => {
             // arrange
-            const errors: Validation.IValidationError [] = [
+            const errors: Validation.ValidationError [] = [
                 { key: "1st", message: "1st error" },
                 { key: "2nd", message: "2nd error" },
             ];
@@ -37,8 +37,8 @@ describe("Validation", () => {
             // act
             const error = Validation.getError("does not exist", errors);
 
-             // assert
-             expect(error).toBeNull();
+            // assert
+            expect(error).toBeNull();
         });
     });
 
@@ -50,11 +50,11 @@ describe("Validation", () => {
             // act
             const error = await Validation.runValidation(...validators);
 
-             // assert
-             expect(error).toEqual([]);
+            // assert
+            expect(error).toStrictEqual([]);
         });
 
-        it("runs all validators and filters ", async () => {
+        it("runs all validators and filters", async () => {
             // arrange
             const mock1st = jest.fn().mockReturnValue("1st error");
             const mock2nd = jest.fn().mockReturnValue(null);
@@ -68,11 +68,11 @@ describe("Validation", () => {
             // act
             const error = await Validation.runValidation(...validators);
 
-             // assert
-             expect(mock1st).toHaveBeenCalledTimes(1);
-             expect(mock2nd).toHaveBeenCalledTimes(1);
-             expect(mock3rd).toHaveBeenCalledTimes(1);
-             expect(error).toEqual([{ key: "1st", message: "1st error" }, { key: "3rd", message: "3rd error" }]);
+            // assert
+            expect(mock1st).toHaveBeenCalledTimes(1);
+            expect(mock2nd).toHaveBeenCalledTimes(1);
+            expect(mock3rd).toHaveBeenCalledTimes(1);
+            expect(error).toStrictEqual([{ key: "1st", message: "1st error" }, { key: "3rd", message: "3rd error" }]);
         });
     });
 });

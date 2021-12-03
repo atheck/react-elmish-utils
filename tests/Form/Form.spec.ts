@@ -1,28 +1,47 @@
-import * as Form from "../../src/Form/Form";
 import * as ElmTesting from "react-elmish/dist/Testing";
+import * as Form from "../../src/Form/Form";
 import * as TypeMoq from "typemoq";
+import { ValidationError } from "../../src/Validation";
 
 describe("FormScreen", () => {
+    describe("init", () => {
+        it("returns correct values", () => {
+            // arrange
+            const form = Form.createForm({
+                getData: jest.fn(),
+            });
+
+            // act
+            const model = form.init();
+
+            // assert
+            expect(model).toStrictEqual<Form.Model>({
+                errors: [],
+                validated: false,
+            });
+        });
+    });
+
     describe("update", () => {
         describe("AcceptRequest", () => {
             it("calls validation", () => {
                 // arrange
-                const model = TypeMoq.Mock.ofType<Form.Model>();
-                const props = TypeMoq.Mock.ofType<Form.Props<number>>();
+                const mockModel = TypeMoq.Mock.ofType<Form.Model>();
+                const mockProps = TypeMoq.Mock.ofType<Form.Props<number>>();
                 const options = {
                     getData: jest.fn(),
                 };
                 const form = Form.createForm(options);
                 const msg = form.Msg.acceptRequest();
 
-                model.setup(m => m.validated).returns(() => false);
+                mockModel.setup(model => model.validated).returns(() => false);
 
                 // act
-                const [newModel, cmd] = form.update(model.object, msg, props.object);
+                const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
 
                 // assert
-                expect(newModel).toEqual({});
-                expect(ElmTesting.getOfMsgParams(cmd)).toEqual([form.Msg.validate(form.Msg.accept())]);
+                expect(newModel).toStrictEqual({});
+                expect(ElmTesting.getOfMsgParams(cmd)).toStrictEqual([form.Msg.validate(form.Msg.accept())]);
             });
         });
 
@@ -34,20 +53,19 @@ describe("FormScreen", () => {
                     getData,
                 };
                 const form = Form.createForm(options);
-                const [model, props, msg] = createMocks(form.Msg.accept());
+                const [mockModel, mockProps, msg] = createMocks(form.Msg.accept());
                 const onAccept = jest.fn();
 
-                props.setup(p => p.onAccept).returns(() => onAccept);
+                mockProps.setup(props => props.onAccept).returns(() => onAccept);
 
                 // act
-                const [newModel, cmd] = form.update(model.object, msg, props.object);
+                const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
 
                 // assert
-                expect(getData).toBeCalledTimes(1);
-                expect(onAccept).toBeCalledTimes(1);
-                expect(onAccept).toBeCalledWith(42);
+                expect(getData).toHaveBeenCalledTimes(1);
+                expect(onAccept).toHaveBeenCalledWith(42);
 
-                expect(newModel).toEqual({});
+                expect(newModel).toStrictEqual({});
                 expect(cmd).toBeUndefined();
             });
         });
@@ -59,14 +77,14 @@ describe("FormScreen", () => {
                     getData: jest.fn(),
                 };
                 const form = Form.createForm(options);
-                const [model, props, msg] = createMocks(form.Msg.cancelRequest());
+                const [mockModel, mockProps, msg] = createMocks(form.Msg.cancelRequest());
 
                 // act
-                const [newModel, cmd] = form.update(model.object, msg, props.object);
+                const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
 
                 // assert
-                expect(newModel).toEqual({});
-                expect(ElmTesting.getOfMsgParams(cmd)).toEqual([form.Msg.cancel()]);
+                expect(newModel).toStrictEqual({});
+                expect(ElmTesting.getOfMsgParams(cmd)).toStrictEqual([form.Msg.cancel()]);
             });
         });
 
@@ -77,41 +95,59 @@ describe("FormScreen", () => {
                     getData: jest.fn(),
                 };
                 const form = Form.createForm(options);
-                const [model, props, msg] = createMocks(form.Msg.cancel());
+                const [mockModel, mockProps, msg] = createMocks(form.Msg.cancel());
                 const onCancel = jest.fn();
 
-                props.setup(p => p.onCancel).returns(() => onCancel);
+                mockProps.setup(props => props.onCancel).returns(() => onCancel);
 
                 // act
-                const [newModel, cmd] = form.update(model.object, msg, props.object);
+                const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
 
                 // assert
-                expect(onCancel).toBeCalledTimes(1);
-                expect(newModel).toEqual({});
+                expect(onCancel).toHaveBeenCalledTimes(1);
+                expect(newModel).toStrictEqual({});
                 expect(cmd).toBeUndefined();
             });
         });
 
         describe("Validate", () => {
-            it("calls validate and resets validation errors", async () => {
+            it("returns no validation errors without a validation function", async () => {
                 // arrange
-                const mockValidate = jest.fn().mockResolvedValue([]);
+                const options = {
+                    getData: jest.fn(),
+                };
+                const form = Form.createForm(options);
+                const [mockModel, mockProps, msg] = createMocks(form.Msg.validate(form.Msg.accept()));
+
+                // act
+                const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
+                const messages = await ElmTesting.execCmd(cmd);
+
+                // assert
+                expect(newModel).toStrictEqual({ ...mockModel.object, errors: [], validated: true });
+                expect(messages).toStrictEqual([form.Msg.validated([], form.Msg.accept())]);
+            });
+
+            it("calls validate and resets validation errors, and gets correct validation errors", async () => {
+                // arrange
+                const validationError: ValidationError = { key: "value", message: "error" };
+                const mockValidate = jest.fn().mockResolvedValue([validationError]);
                 const options = {
                     getData: jest.fn(),
                     validate: mockValidate,
                 };
                 const form = Form.createForm(options);
-                const [model, props, msg] = createMocks(form.Msg.validate(form.Msg.accept()));
+                const [mockModel, mockProps, msg] = createMocks(form.Msg.validate(form.Msg.accept()));
 
                 // act
-                const [newModel, cmd] = form.update(model.object, msg, props.object);
+                const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
                 const messages = await ElmTesting.execCmd(cmd);
 
                 // assert
-                expect(mockValidate).toBeCalledTimes(1);
-                expect(mockValidate).toHaveBeenCalledWith(model.object, props.object);
-                expect(newModel).toEqual({ ...model.object, errors: [], validated: true });
-                expect(messages).toEqual([form.Msg.validated([], form.Msg.accept())]);
+                expect(mockValidate).toHaveBeenCalledTimes(1);
+                expect(mockValidate).toHaveBeenCalledWith(mockModel.object, mockProps.object);
+                expect(newModel).toStrictEqual({ ...mockModel.object, errors: [], validated: true });
+                expect(messages).toStrictEqual([form.Msg.validated([validationError], form.Msg.accept())]);
             });
         });
 
@@ -121,17 +157,15 @@ describe("FormScreen", () => {
                 const options = {
                     getData: jest.fn(),
                 };
-                const errors = [
-                    { key: "key", message: "message" },
-                ];
+                const errors = [{ key: "key", message: "message" }];
                 const form = Form.createForm(options);
-                const [model, props, msg] = createMocks(form.Msg.validated(errors));
+                const [mockModel, mockProps, msg] = createMocks(form.Msg.validated(errors));
 
                 // act
-                const [newModel, cmd] = form.update(model.object, msg, props.object);
+                const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
 
                 // assert
-                expect(newModel).toEqual({ ...model.object, errors });
+                expect(newModel).toStrictEqual({ ...mockModel.object, errors });
                 expect(cmd).toBeUndefined();
             });
 
@@ -141,14 +175,14 @@ describe("FormScreen", () => {
                     getData: jest.fn(),
                 };
                 const form = Form.createForm(options);
-                const [model, props, msg] = createMocks(form.Msg.validated([], form.Msg.accept()));
+                const [mockModel, mockProps, msg] = createMocks(form.Msg.validated([], form.Msg.accept()));
 
                 // act
-                const [newModel, cmd] = form.update(model.object, msg, props.object);
+                const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
 
                 // assert
-                expect(newModel).toEqual({});
-                expect(ElmTesting.getOfMsgParams(cmd)).toEqual([form.Msg.accept()]);
+                expect(newModel).toStrictEqual({});
+                expect(ElmTesting.getOfMsgParams(cmd)).toStrictEqual([form.Msg.accept()]);
             });
 
             it("does nothing without errors and message", () => {
@@ -157,13 +191,13 @@ describe("FormScreen", () => {
                     getData: jest.fn(),
                 };
                 const form = Form.createForm(options);
-                const [model, props, msg] = createMocks(form.Msg.validated([]));
+                const [mockModel, mockProps, msg] = createMocks(form.Msg.validated([]));
 
                 // act
-                const [newModel, cmd] = form.update(model.object, msg, props.object);
+                const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
 
                 // assert
-                expect(newModel).toEqual({});
+                expect(newModel).toStrictEqual({});
                 expect(cmd).toBeUndefined();
             });
         });
@@ -171,52 +205,52 @@ describe("FormScreen", () => {
         describe("ReValidate", () => {
             it("does nothing when not validated", () => {
                 // arrange
-                const model = TypeMoq.Mock.ofType<Form.Model>();
-                const props = TypeMoq.Mock.ofType<Form.Props<number>>();
+                const mockModel = TypeMoq.Mock.ofType<Form.Model>();
+                const mockProps = TypeMoq.Mock.ofType<Form.Props<number>>();
                 const options = {
                     getData: jest.fn(),
                 };
                 const form = Form.createForm(options);
                 const msg = form.Msg.reValidate();
 
-                model.setup(m => m.validated).returns(() => false);
+                mockModel.setup(model => model.validated).returns(() => false);
 
                 // act
-                const [newModel, cmd] = form.update(model.object, msg, props.object);
+                const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
 
                 // assert
-                expect(newModel).toEqual({});
+                expect(newModel).toStrictEqual({});
                 expect(cmd).toBeUndefined();
             });
 
             it("calls validate if validated previously", () => {
                 // arrange
-                const model = TypeMoq.Mock.ofType<Form.Model>();
-                const props = TypeMoq.Mock.ofType<Form.Props<number>>();
+                const mockModel = TypeMoq.Mock.ofType<Form.Model>();
+                const mockProps = TypeMoq.Mock.ofType<Form.Props<number>>();
                 const options = {
                     getData: jest.fn(),
                 };
                 const form = Form.createForm(options);
                 const msg = form.Msg.reValidate();
 
-                model.setup(m => m.validated).returns(() => true);
+                mockModel.setup(model => model.validated).returns(() => true);
 
                 // act
-                const [newModel, cmd] = form.update(model.object, msg, props.object);
+                const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
 
                 // assert
 
-                expect(newModel).toEqual({});
-                expect(ElmTesting.getOfMsgParams(cmd)).toEqual([form.Msg.validate()]);
+                expect(newModel).toStrictEqual({});
+                expect(ElmTesting.getOfMsgParams(cmd)).toStrictEqual([form.Msg.validate()]);
             });
         });
     });
 });
 
-const createMocks = (msg: Form.Message): [TypeMoq.IMock<Form.Model>, TypeMoq.IMock<Form.Props<number>>, Form.Message] => {
+function createMocks (msg: Form.Message): [TypeMoq.IMock<Form.Model>, TypeMoq.IMock<Form.Props<number>>, Form.Message] {
     return [
         TypeMoq.Mock.ofType<Form.Model>(),
         TypeMoq.Mock.ofType<Form.Props<number>>(),
         msg,
     ];
-};
+}
