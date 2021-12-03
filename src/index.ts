@@ -3,7 +3,7 @@ import { createForm, Form, Message as FormMessage, Model as FormModel, Options a
 export type { Form, FormOptions, FormMessage, FormModel, FormProps };
 export { createForm };
 
-import { getError, IValidationError, runValidation, Validator, ValidatorFunc } from "./Validation";
+import { getError, IValidationError, runValidation, ValidationError, Validator, ValidatorFunc } from "./Validation";
 
-export type { IValidationError, Validator, ValidatorFunc };
+export type { IValidationError, ValidationError, Validator, ValidatorFunc };
 export { getError, runValidation };
