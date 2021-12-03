@@ -22,6 +22,7 @@ jobs:
       - name: Test
         run: |
           npm install
+          npm run install-peers
           npm run lint
           npm run test
 
