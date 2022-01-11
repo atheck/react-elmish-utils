@@ -6,11 +6,13 @@ export interface IValidationError {
     key: string,
     message: string,
 }
+// eslint-disable-next-line @delagen/deprecation/deprecation
 export interface ValidationError extends IValidationError {}
 
 export type Validator = [string, ValidatorFunc];
 export type ValidatorFunc = () => Nullable<string> | Promise<Nullable<string>>;
 
+// eslint-disable-next-line @delagen/deprecation/deprecation
 export function getError (key: string, errors: IValidationError []): Nullable<string> {
     return errors.find(error => error.key === key)?.message ?? null;
 }

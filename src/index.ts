@@ -5,5 +5,6 @@ export { createForm };
 
 import { getError, IValidationError, runValidation, ValidationError, Validator, ValidatorFunc } from "./Validation";
 
+// eslint-disable-next-line @delagen/deprecation/deprecation
 export type { IValidationError, ValidationError, Validator, ValidatorFunc };
 export { getError, runValidation };
