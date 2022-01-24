@@ -113,10 +113,13 @@ The `createForm` function takes an `Options` object:
 | --- | --- |
 | `initValues` | Function to set the initial form values. |
 | `validate` | (optional) Function to validate the data when the user accepts the form. It returns an array of `IValidationError`s. See [Validation](#validation). The `validate` function is not called when `validators` is specified. |
+| `onAccept` | (optional) Function which get called by the **Accept** message. You can add code here to accept the form. |
+| `onCancel` | (optional) Function which get called by the **Cancel** message. You can add code here to cancel the form. |
+| `onValueChange` | (optional) Function which get called by the **ValueChanged** message. You can add code here to modify the changed values. |
 
-#### Overwrite messages
+#### Hook into or overwrite messages
 
-To make the form work, you need to overwrite at least the **Accept** and the **Cancel** messages.
+To make the form work, you need to overwrite at least the **Accept** and the **Cancel** messages, or provide `onAccept` and `onCancel` to the form options.
 
 By default **CancelRequest** only calls **Cancel**. If you want to override this behavior, i.e. to show some confirmation to the user, also overwrite  this message.
 
