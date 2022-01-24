@@ -33,6 +33,9 @@ export interface Options<TModel, TProps, TValues> {
      * @returns {IValidationError []} An array of validation errors, or an empty array if all inputs are valid.
      */
     validate?: (model: TModel, props: TProps) => Promise<ValidationError []>,
+    onValueChanged?: (values: Partial<TValues>, model: TModel, props: TProps) => Partial<TValues>,
+    onCancel?: (model: TModel, props: TProps) => void,
+    onAccept?: (model: TModel, props: TProps) => void,
 }
 
 interface Msg<TValues> {
@@ -124,29 +127,35 @@ export const createForm = <TModel, TProps, TValues>(options: Options<TModel, TPr
 
         update (model: Model<TValues> & TModel, msg: Message<TValues>, props: TProps): UpdateReturnType<Model<TValues>, Message<TValues>> {
             switch (msg.name) {
-                case "ValueChanged":
+                case "ValueChanged": {
+                    const value = options.onValueChanged ? options.onValueChanged(msg.value, model, props) : msg.value;
+
                     return [
                         {
                             values: {
                                 ...model.values,
-                                ...msg.value,
+                                ...value,
                             },
                         },
                         cmd.ofMsg(Msg.reValidate()),
                     ];
+                }
 
                 case "AcceptRequest": {
                     return [{}, cmd.ofMsg(Msg.validate(Msg.accept()))];
                 }
 
-                case "Accept": {
+                case "Accept":
+                    options.onAccept?.(model, props);
+
                     return [{}];
-                }
 
                 case "CancelRequest":
                     return [{}, cmd.ofMsg(Msg.cancel())];
 
                 case "Cancel":
+                    options.onCancel?.(model, props);
+
                     return [{}];
 
                 case "Validate":

@@ -45,6 +45,64 @@ describe("FormScreen", () => {
     });
 
     describe("update", () => {
+        describe("ValueChanged", () => {
+            it("merges values and re-validates", () => {
+                // arrange
+                const mockModel = TypeMoq.Mock.ofType<TestModel>();
+                const mockProps = TypeMoq.Mock.ofType<TestProps>();
+                const msg = form.Msg.valueChanged({ value1: "Modified" });
+
+                mockModel.setup(model => model.values).returns(() => ({
+                    value1: "Test",
+                    value2: 1,
+                }));
+
+                // act
+                const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
+
+                // assert
+                expect(newModel).toStrictEqual<Partial<TestModel>>({
+                    values: {
+                        value1: "Modified",
+                        value2: 1,
+                    },
+                });
+                expect(ElmTesting.getOfMsgParams(cmd)).toStrictEqual([form.Msg.reValidate()]);
+            });
+
+            it("calls onValueChanged if provided and takes the returned values", () => {
+                // arrange
+                const mockModel = TypeMoq.Mock.ofType<TestModel>();
+                const mockProps = TypeMoq.Mock.ofType<TestProps>();
+                const onValueChanged = (value: Partial<TestFormValues>): Partial<TestFormValues> => ({
+                    value1: value.value1,
+                    value2: 2,
+                });
+                const formWithOnValueChanged = Form.createForm({
+                    initValues,
+                    onValueChanged,
+                });
+                const msg = formWithOnValueChanged.Msg.valueChanged({ value1: "Modified" });
+
+                mockModel.setup(model => model.values).returns(() => ({
+                    value1: "Test",
+                    value2: 1,
+                }));
+
+                // act
+                const [newModel, cmd] = formWithOnValueChanged.update(mockModel.object, msg, mockProps.object);
+
+                // assert
+                expect(newModel).toStrictEqual<Partial<TestModel>>({
+                    values: {
+                        value1: "Modified",
+                        value2: 2,
+                    },
+                });
+                expect(ElmTesting.getOfMsgParams(cmd)).toStrictEqual([form.Msg.reValidate()]);
+            });
+        });
+
         describe("AcceptRequest", () => {
             it("calls validation", () => {
                 // arrange
@@ -77,6 +135,27 @@ describe("FormScreen", () => {
                 expect(newModel).toStrictEqual({});
                 expect(cmd).toBeUndefined();
             });
+
+            it("calls onAccept if provided", () => {
+                // arrange
+                const mockModel = TypeMoq.Mock.ofType<TestModel>();
+                const mockProps = TypeMoq.Mock.ofType<TestProps>();
+                const mockOnAccept = jest.fn();
+                const formWithOnAccept = Form.createForm({
+                    initValues,
+                    onAccept: mockOnAccept,
+                });
+
+                const msg = formWithOnAccept.Msg.accept();
+
+                // act
+                const [newModel, cmd] = formWithOnAccept.update(mockModel.object, msg, mockProps.object);
+
+                // assert
+                expect(mockOnAccept).toHaveBeenCalledWith(mockModel.object, mockProps.object);
+                expect(newModel).toStrictEqual({});
+                expect(cmd).toBeUndefined();
+            });
         });
 
         describe("CancelRequest", () => {
@@ -106,6 +185,27 @@ describe("FormScreen", () => {
                 const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
 
                 // assert
+                expect(newModel).toStrictEqual({});
+                expect(cmd).toBeUndefined();
+            });
+
+            it("calls onCancel if provided", () => {
+                // arrange
+                const mockModel = TypeMoq.Mock.ofType<TestModel>();
+                const mockProps = TypeMoq.Mock.ofType<TestProps>();
+                const mockOnCancel = jest.fn();
+                const formWithOnCancel = Form.createForm({
+                    initValues,
+                    onCancel: mockOnCancel,
+                });
+
+                const msg = formWithOnCancel.Msg.cancel();
+
+                // act
+                const [newModel, cmd] = formWithOnCancel.update(mockModel.object, msg, mockProps.object);
+
+                // assert
+                expect(mockOnCancel).toHaveBeenCalledWith(mockModel.object, mockProps.object);
                 expect(newModel).toStrictEqual({});
                 expect(cmd).toBeUndefined();
             });
