@@ -102,7 +102,7 @@ export const createForm = <TModel, TProps, TData>(options: Options<TModel, TProp
             return options.validate(model, props);
         }
 
-        return Promise.resolve([]);
+        return [];
     };
 
     const Msg = {

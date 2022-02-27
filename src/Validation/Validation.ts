@@ -10,10 +10,10 @@ export interface IValidationError {
 export interface ValidationError extends IValidationError {}
 
 export type Validator = [string, ValidatorFunc];
-export type ValidatorFunc = () => Nullable<string> | Promise<Nullable<string>>;
+export type ValidatorFunc = () => string | null | Promise<string | null>;
 
 // eslint-disable-next-line @delagen/deprecation/deprecation
-export function getError (key: string, errors: IValidationError []): Nullable<string> {
+export function getError (key: string, errors: IValidationError []): string | null {
     return errors.find(error => error.key === key)?.message ?? null;
 }
 
