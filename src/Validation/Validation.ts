@@ -1,19 +1,12 @@
-/**
- * @deprecated Use ValidationError instead.
- */
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export interface IValidationError {
+export interface ValidationError {
     key: string,
     message: string,
 }
-// eslint-disable-next-line @delagen/deprecation/deprecation
-export interface ValidationError extends IValidationError {}
 
 export type Validator = [string, ValidatorFunc];
 export type ValidatorFunc = () => string | null | Promise<string | null>;
 
-// eslint-disable-next-line @delagen/deprecation/deprecation
-export function getError (key: string, errors: IValidationError []): string | null {
+export function getError (key: string, errors: ValidationError []): string | null {
     return errors.find(error => error.key === key)?.message ?? null;
 }
 
