@@ -15,7 +15,109 @@ Utility functions and types for [react-elmish](https://www.npmjs.com/package/rea
 
 This module handles common tasks of a form.
 
-#### Example
+If you want to use a Function Component and the `useElmishMap` hook, you can use the `FormMap`.
+
+#### FormMap Example
+
+~~~ts
+import { createFormMap, FormMessage, FormModel } from "react-elmish-utils";
+import { UpdateReturnType } from "react-elmish";
+
+// The fields of the form
+interface FormData {
+    userName: string,
+    password: string,
+}
+
+// Add Form model to our model
+export interface Model extends FormModel<FormData> {}
+
+export interface Props {
+    initialUserName: string,
+}
+
+// Create the form object with options
+const form = createFormMap({
+    initValues (props: Props): FormData {
+        // Here we set the initial form values
+        return {
+            userName: props.initialUserName,
+            password: "",
+        }
+    }
+    // You can provide a validate function which gets called by the form component, see [Validation](#validation) for further information.
+});
+
+// We need the Form messages only
+export type Message =
+    | FormMessage;
+
+export const Msg = {
+    ...form.Msg,
+};
+
+const cmd = createCmd<Message>();
+
+export const init = (props: Props): [Model, Cmd<Message>] => {
+    return [
+        {
+            // Initialize the Form model
+            ...form.init(props),
+        },
+        cmd.none
+    ];
+};
+
+// Add the Form update map to our update map
+export const updateMap: UpdateMap<Props, Model, Message> = {
+    ...form.updateMap,
+};
+~~~
+
+In your UI component you can dispatch the `valueChanged` message to update one or more values:
+
+~~~tsx
+function Form (props: Props): JSX.Element {
+    const [{ values }, dispatch] = useElmishMap(props, init, updateMap, "Form");
+    const { userName, password } = values;
+
+    return (
+        <>
+            <input value={userName} onChange={event => dispatch(Msg.valueChanged({ userName: event.target.value }))} />
+            <input value={password} onChange={event => dispatch(Msg.valueChanged({ password: event.target.value }))} />
+        </>
+    );
+}
+~~~
+
+To accept or cancel the form dispatch the `acceptRequest` and `cancelRequest` Form messages in the onClick event handlers of the buttons.
+
+The `createFormMap` function takes an `Options` object:
+
+| Property | Description |
+| --- | --- |
+| `initValues` | Function to set the initial form values. |
+| `validate` | (optional) Function to validate the data when the user accepts the form. It returns an array of `IValidationError`s. See [Validation](#validation). The `validate` function is not called when `validators` is specified. |
+| `onAccept` | (optional) Function which get called by the **Accept** message. You can add code here to accept the form. |
+| `onCancel` | (optional) Function which get called by the **Cancel** message. You can add code here to cancel the form. |
+| `onValueChange` | (optional) Function which get called by the **ValueChanged** message. You can add code here to modify the changed values. |
+
+#### Hook into or overwrite messages
+
+To make the form work, you need to overwrite at least the **Accept** and the **Cancel** messages, or provide `onAccept` and `onCancel` to the form options.
+
+By default **CancelRequest** only calls **Cancel**. If you want to override this behavior, i.e. to show some confirmation to the user, also overwrite  this message.
+
+~~~ts
+export const updateMap: UpdateMap<Props, Model, Message> = {
+    ...form.updateMap,
+    CancelRequest: () => [{}, cmd.ofPromise.perform(showConfirmation, Msg.cancel)],
+};
+~~~
+
+#### Form Example
+
+For Class Components or with usage of the `useElmish` hook, you need to use the classic way of composition:
 
 ~~~ts
 import * as Form from "react-elmish-utils/dist/Form";
@@ -102,7 +204,7 @@ return (
         <input value={userName} onChange={event => dispatch(Msg.valueChanged({ userName: event.target.value }))} />
         <input value={password} onChange={event => dispatch(Msg.valueChanged({ password: event.target.value }))} />
     </>
-)
+);
 ~~~
 
 To accept or cancel the form dispatch the `acceptRequest` and `cancelRequest` Form messages in the onClick event handlers of the buttons.
