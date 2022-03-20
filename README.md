@@ -20,7 +20,7 @@ If you want to use a Function Component and the `useElmishMap` hook, you can use
 #### FormMap Example
 
 ~~~ts
-import { createFormMap, FormMessage, FormModel } from "react-elmish-utils";
+import { createFormMap, FormMapMessage, FormModel } from "react-elmish-utils";
 import { UpdateReturnType } from "react-elmish";
 
 // The fields of the form
@@ -50,7 +50,7 @@ const form = createFormMap({
 
 // We need the Form messages only
 export type Message =
-    | FormMessage;
+    | FormMapMessage;
 
 export const Msg = {
     ...form.Msg,
@@ -98,20 +98,20 @@ The `createFormMap` function takes an `Options` object:
 | --- | --- |
 | `initValues` | Function to set the initial form values. |
 | `validate` | (optional) Function to validate the data when the user accepts the form. It returns an array of `IValidationError`s. See [Validation](#validation). The `validate` function is not called when `validators` is specified. |
-| `onAccept` | (optional) Function which get called by the **Accept** message. You can add code here to accept the form. |
-| `onCancel` | (optional) Function which get called by the **Cancel** message. You can add code here to cancel the form. |
-| `onValueChange` | (optional) Function which get called by the **ValueChanged** message. You can add code here to modify the changed values. |
+| `onAccept` | (optional) Function which get called by the **accept** message. You can add code here to accept the form. |
+| `onCancel` | (optional) Function which get called by the **cancel** message. You can add code here to cancel the form. |
+| `onValueChange` | (optional) Function which get called by the **valueChanged** message. You can add code here to modify the changed values. |
 
 #### Hook into or overwrite messages
 
-To make the form work, you need to overwrite at least the **Accept** and the **Cancel** messages, or provide `onAccept` and `onCancel` to the form options.
+To make the form work, you need to overwrite at least the **accept** and the **cancel** messages, or provide `onAccept` and `onCancel` to the form options.
 
-By default **CancelRequest** only calls **Cancel**. If you want to override this behavior, i.e. to show some confirmation to the user, also overwrite  this message.
+By default **cancelRequest** only calls **cancel**. If you want to override this behavior, i.e. to show some confirmation to the user, also overwrite  this message.
 
 ~~~ts
 export const updateMap: UpdateMap<Props, Model, Message> = {
     ...form.updateMap,
-    CancelRequest: () => [{}, cmd.ofPromise.perform(showConfirmation, Msg.cancel)],
+    cancelRequest: () => [{}, cmd.ofPromise.perform(showConfirmation, Msg.cancel)],
 };
 ~~~
 

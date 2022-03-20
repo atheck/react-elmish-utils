@@ -38,7 +38,7 @@ export interface Options<TModel, TProps, TValues> {
     onAccept?: (model: TModel, props: TProps) => void,
 }
 
-export interface Msg<TValues> {
+interface Msg<TValues> {
     /**
      * Updates the modified value.
      */
