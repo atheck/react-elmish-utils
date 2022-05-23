@@ -3,7 +3,7 @@ import { ValidationError } from "../Validation";
 
 type MessageSource = MsgSource<"Form">;
 
-export type Message<TValues> = (
+type Message<TValues> = (
     | { name: "ValueChanged", value: Partial<TValues> }
     | { name: "AcceptRequest" }
     | { name: "Accept" }
@@ -16,13 +16,13 @@ export type Message<TValues> = (
 
 const Source: MessageSource = { source: "Form" };
 
-export interface Model<TValues> {
+interface Model<TValues> {
     values: TValues,
     errors: ValidationError [],
     validated: boolean,
 }
 
-export interface Options<TModel, TProps, TValues> {
+interface Options<TModel, TProps, TValues> {
     /**
      * Is called to create the initial form values.
      * @returns {TValues} The initial form values.
@@ -73,7 +73,7 @@ interface Msg<TValues> {
     reValidate: () => Message<TValues>,
 }
 
-export interface Form<TModel, TProps, TValues> {
+interface Form<TModel, TProps, TValues> {
     /**
      * Initializes the Form model.
      */
@@ -93,7 +93,7 @@ export interface Form<TModel, TProps, TValues> {
  * @param options Options to pass to the Form.
  * @returns The created Form object.
  */
-export const createForm = <TModel, TProps, TValues>(options: Options<TModel, TProps, TValues>): Form<TModel, TProps, TValues> => {
+function createForm<TModel, TProps, TValues> (options: Options<TModel, TProps, TValues>): Form<TModel, TProps, TValues> {
     const cmd = createCmd<Message<TValues>>();
 
     const validate = async (model: Model<TValues> & TModel, props: TProps): Promise<ValidationError []> => {
@@ -181,4 +181,15 @@ export const createForm = <TModel, TProps, TValues>(options: Options<TModel, TPr
             }
         },
     };
+}
+
+export type {
+    Message,
+    Model,
+    Options,
+    Form,
+};
+
+export {
+    createForm,
 };

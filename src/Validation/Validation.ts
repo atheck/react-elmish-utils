@@ -1,16 +1,16 @@
-export interface ValidationError {
+interface ValidationError {
     key: string,
     message: string,
 }
 
-export type Validator = [string, ValidatorFunc];
-export type ValidatorFunc = () => string | null | Promise<string | null>;
+type Validator = [string, ValidatorFunc];
+type ValidatorFunc = () => string | null | Promise<string | null>;
 
-export function getError (key: string, errors: ValidationError []): string | null {
+function getError (key: string, errors: ValidationError []): string | null {
     return errors.find(error => error.key === key)?.message ?? null;
 }
 
-export async function runValidation (...validators: Validator []): Promise<ValidationError []> {
+async function runValidation (...validators: Validator []): Promise<ValidationError []> {
     const errors: ValidationError [] = [];
 
     for (const [key, validatorFunc] of validators) {
@@ -24,3 +24,14 @@ export async function runValidation (...validators: Validator []): Promise<Valid
 
     return errors;
 }
+
+export type {
+    ValidationError,
+    Validator,
+    ValidatorFunc,
+};
+
+export {
+    getError,
+    runValidation,
+};

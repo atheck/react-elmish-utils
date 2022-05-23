@@ -2,7 +2,7 @@ import { createCmd, UpdateMap } from "react-elmish";
 import { Model, Options } from "../Form";
 import { ValidationError } from "../Validation";
 
-export type Message<TValues> =
+type Message<TValues> =
     | { name: "valueChanged", value: Partial<TValues> }
     | { name: "acceptRequest" }
     | { name: "accept" }
@@ -47,7 +47,7 @@ interface Msg<TValues> {
     reValidate: () => Message<TValues>,
 }
 
-export interface FormMap<TModel, TProps, TValues> {
+interface FormMap<TModel, TProps, TValues> {
     /**
      * Initializes the Form model.
      */
@@ -67,7 +67,7 @@ export interface FormMap<TModel, TProps, TValues> {
  * @param options Options to pass to the Form.
  * @returns The created Form object.
  */
-export const createFormMap = <TModel, TProps, TValues>(options: Options<TModel, TProps, TValues>): FormMap<TModel, TProps, TValues> => {
+function createFormMap<TModel, TProps, TValues> (options: Options<TModel, TProps, TValues>): FormMap<TModel, TProps, TValues> {
     const cmd = createCmd<Message<TValues>>();
 
     const validate = async (model: Model<TValues> & TModel, props: TProps): Promise<ValidationError []> => {
@@ -167,4 +167,13 @@ export const createFormMap = <TModel, TProps, TValues>(options: Options<TModel, 
             },
         },
     };
+}
+
+export type {
+    Message,
+    FormMap,
+};
+
+export {
+    createFormMap,
 };
