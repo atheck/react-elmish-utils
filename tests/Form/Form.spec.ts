@@ -1,6 +1,6 @@
 import * as ElmTesting from "react-elmish/dist/Testing";
-import * as Form from "../../src/Form/Form";
 import * as TypeMoq from "typemoq";
+import * as Form from "../../src/Form/Form";
 import { ValidationError } from "../../src/Validation";
 
 interface TestFormValues {
