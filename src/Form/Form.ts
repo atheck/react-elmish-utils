@@ -141,9 +141,8 @@ function createForm<TModel, TProps, TValues> (options: Options<TModel, TProps, T
                     ];
                 }
 
-                case "AcceptRequest": {
+                case "AcceptRequest":
                     return [{}, cmd.ofMsg(Msg.validate(Msg.accept()))];
-                }
 
                 case "Accept":
                     options.onAccept?.(model, props);
