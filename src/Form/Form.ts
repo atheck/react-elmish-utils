@@ -1,4 +1,4 @@
-import { createCmd, MsgSource, UpdateReturnType } from "react-elmish";
+import { cmd, MsgSource, UpdateReturnType } from "react-elmish";
 import { ValidationError } from "../Validation";
 
 type MessageSource = MsgSource<"Form">;
@@ -94,8 +94,6 @@ interface Form<TModel, TProps, TValues> {
  * @returns The created Form object.
  */
 function createForm<TModel, TProps, TValues> (options: Options<TModel, TProps, TValues>): Form<TModel, TProps, TValues> {
-    const cmd = createCmd<Message<TValues>>();
-
     const validate = async (model: Model<TValues> & TModel, props: TProps): Promise<ValidationError []> => {
         if (options.validate) {
             return options.validate(model, props);

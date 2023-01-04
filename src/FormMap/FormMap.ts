@@ -1,4 +1,4 @@
-import { createCmd, UpdateMap } from "react-elmish";
+import { cmd, UpdateMap } from "react-elmish";
 import { Model, Options } from "../Form";
 import { ValidationError } from "../Validation";
 
@@ -68,8 +68,6 @@ interface FormMap<TModel, TProps, TValues> {
  * @returns The created Form object.
  */
 function createFormMap<TModel, TProps, TValues> (options: Options<TModel, TProps, TValues>): FormMap<TModel, TProps, TValues> {
-    const cmd = createCmd<Message<TValues>>();
-
     const validate = async (model: Model<TValues> & TModel, props: TProps): Promise<ValidationError []> => {
         if (options.validate) {
             return options.validate(model, props);
