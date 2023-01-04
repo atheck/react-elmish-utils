@@ -15,11 +15,11 @@ Utility functions and types for [react-elmish](https://www.npmjs.com/package/rea
 
 This module handles common tasks of a form.
 
-If you want to use a Function Component and the `useElmishMap` hook, you can use the `FormMap`.
+If you want to use a Function Component and use an `UpdateMap`, you can use the `FormMap`.
 
 #### FormMap Example
 
-~~~ts
+```ts
 import { createFormMap, FormMapMessage, FormModel } from "react-elmish-utils";
 import { UpdateReturnType } from "react-elmish";
 
@@ -72,11 +72,11 @@ export const init = (props: Props): [Model, Cmd<Message>] => {
 export const updateMap: UpdateMap<Props, Model, Message> = {
     ...form.updateMap,
 };
-~~~
+```
 
 In your UI component you can dispatch the `valueChanged` message to update one or more values:
 
-~~~tsx
+```tsx
 function Form (props: Props): JSX.Element {
     const [{ values }, dispatch] = useElmishMap(props, init, updateMap, "Form");
     const { userName, password } = values;
@@ -88,7 +88,7 @@ function Form (props: Props): JSX.Element {
         </>
     );
 }
-~~~
+```
 
 To accept or cancel the form dispatch the `acceptRequest` and `cancelRequest` Form messages in the onClick event handlers of the buttons.
 
@@ -108,18 +108,18 @@ To make the form work, you need to overwrite at least the **accept** and the **c
 
 By default **cancelRequest** only calls **cancel**. If you want to override this behavior, i.e. to show some confirmation to the user, also overwrite  this message.
 
-~~~ts
+```ts
 export const updateMap: UpdateMap<Props, Model, Message> = {
     ...form.updateMap,
     cancelRequest: () => [{}, cmd.ofPromise.perform(showConfirmation, Msg.cancel)],
 };
-~~~
+```
 
 #### Form Example
 
-For Class Components or with usage of the `useElmish` hook, you need to use the classic way of composition:
+For Class Components or with usage of an `update` function, you need to use the classic way of composition:
 
-~~~ts
+```ts
 import * as Form from "react-elmish-utils/dist/Form";
 import { UpdateReturnType } from "react-elmish";
 
@@ -192,11 +192,11 @@ export const update = (model: Model, msg: Message, props: Props): UpdateReturnTy
             return form.update(model, msg, props);
     }
 };
-~~~
+```
 
 In your UI component you can dispatch the `valueChanged` message to update one or more values:
 
-~~~tsx
+```tsx
 const { values: { userName, password } } = model;
 
 return (
@@ -205,7 +205,7 @@ return (
         <input value={password} onChange={event => dispatch(Msg.valueChanged({ password: event.target.value }))} />
     </>
 );
-~~~
+```
 
 To accept or cancel the form dispatch the `acceptRequest` and `cancelRequest` Form messages in the onClick event handlers of the buttons.
 
@@ -225,7 +225,7 @@ To make the form work, you need to overwrite at least the **Accept** and the **C
 
 By default **CancelRequest** only calls **Cancel**. If you want to override this behavior, i.e. to show some confirmation to the user, also overwrite  this message.
 
-~~~ts
+```ts
 export const update = (model: Model, msg: Message, props: Props): UpdateReturnType<Model, Message> => {
     switch (msg.source) {
         case "Form":
@@ -248,7 +248,7 @@ export const update = (model: Model, msg: Message, props: Props): UpdateReturnTy
             return localUpdate(model, msg);
     }
 };
-~~~
+```
 
 ### Validation
 
@@ -265,7 +265,7 @@ This module contains some helper functions and types for validation.
 
 You can assign a validation function to the `Options` object when creating a form.
 
-~~~ts
+```ts
 import * as Form from "react-elmish-utils/dist/Form";
 import { IValidationError, runValidation } from "react-elmish-utils";
 
@@ -290,11 +290,11 @@ const form = Form.createForm({
     validate,
 });
 ...
-~~~
+```
 
 In the UI you get a validation error like that:
 
-~~~tsx
+```tsx
 import { getError } from "react-elmish-utils";
 
 ...
@@ -306,4 +306,106 @@ const { errors } = this.model;
     error={getError("value", errors)}
 />
 ...
-~~~
+```
+
+### List screen
+
+The list screen provides common functionalities for showing a list of items.
+
+First you need to extend your messages and model:
+
+```ts
+import { ListScreenMessage, ListScreenModel } from "react-elmish-utils";
+
+interface Data {}
+
+type Message =
+    | { name: "loadData" }
+    | ListScreenMessage<Data>;
+
+interface Model extends ListScreenModel<Data> {}
+```
+
+Then create a list:
+
+```ts
+import { createList } from "react-elmish-utils";
+
+const list = createList();
+
+const Msg = {
+    // Spread the message factories of the list:
+    ...list.Msg,
+}
+
+const update: UpdateMap<Props, Model, Message> = {
+    loadData () {
+        const data = // Load the data here ...
+
+        // Call the dataLoaded message of the list:
+        return [{}, cmd.ofMsg(Msg.dataLoaded(data))];
+    },
+
+    // Spread the update map of the list:
+    ...list.updateMap,
+};
+```
+
+In your UI you can use the `items` property of the model:
+
+```tsx
+function List (props: Props): JSX.Element {
+    const [{ items }, dispatch] = useElmish({ name: "List", props, init, update });
+
+    return (
+        <List
+            data={items}
+        />
+    );
+}
+```
+
+#### Options
+
+You can provide options when creating a list:
+
+| Property | Description |
+| --- | --- |
+| `sorter` | See [Sorting](#sorting). |
+| `onUpdateSorting` | This callback is called whenever the current sorting has changed. |
+| `onSorterChanged` | This callback is called when the used `Sorter` or the sort direction has changed. |
+
+#### Sorting
+
+You can sort the list by providing a sort function or an array of `Sorter` objects.
+
+If you provide a function, this function is used to sort the items.
+
+```ts
+createList({
+    sorter: (value1, value2): number => value1.compareTo(value2),
+});
+```
+
+If you provide one or multiple `Sorter` objects the first one is used by default.
+
+```ts
+createList({
+    sorter: [
+        {
+            key: "by-date",
+            name: "Sort by date",
+            sorter: (value1, value2) => value1.date.compareTo(value2.date),
+        },
+        {
+            key: "by-name",
+            name: "Sort by name",
+            sorter: (value1, value2) => value1.name.compareTo(value2.name),
+        },
+    ],
+});
+```
+
+The current `Sorter` can be changed by calling the `setSorter` or the `setSorting` message with the key of the `Sorter` to use.
+
+The sort direction can be changed by calling the `setSortDirection` or `toggleSortDirection` message.
