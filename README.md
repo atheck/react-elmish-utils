@@ -1,9 +1,11 @@
 # react-elmish-utils
 
-![Build](https://github.com/atheck/react-elmish-utils/actions/workflows/main.yml/badge.svg)
+![Build](https://github.com/atheck/react-elmish-utils/actions/workflows/release.yml/badge.svg)
 ![npm](https://img.shields.io/npm/v/react-elmish-utils)
 
 Utility functions and types for [react-elmish](https://www.npmjs.com/package/react-elmish).
+
+[[_TOC_]]
 
 ## Installation
 
@@ -338,6 +340,13 @@ const Msg = {
     ...list.Msg,
 }
 
+function init (): InitResult<Model, Message> {
+    return {
+        // Initialize the list model:
+        ...list.init(),
+    };
+}
+
 const update: UpdateMap<Props, Model, Message> = {
     loadData () {
         const data = // Load the data here ...
@@ -365,7 +374,7 @@ function List (props: Props): JSX.Element {
 }
 ```
 
-#### Options
+#### List Options
 
 You can provide options when creating a list:
 
@@ -409,3 +418,82 @@ createList({
 The current `Sorter` can be changed by calling the `setSorter` or the `setSorting` message with the key of the `Sorter` to use.
 
 The sort direction can be changed by calling the `setSortDirection` or `toggleSortDirection` message.
+
+### Search screen
+
+The search screen provides common functionalities of a search screen.
+
+First you need to extend your messages and model:
+
+```ts
+import { SearchScreenMessage, SearchScreenModel } from "react-elmish-utils";
+
+interface Data {}
+
+type Message =
+    | { name: "loadData" }
+    | SearchScreenMessage<Data>;
+
+interface Model extends SearchScreenModel<Data> {}
+```
+
+Then create a search screen:
+
+```ts
+import { createSearch } from "react-elmish-utils";
+
+const search = createSearch();
+
+const Msg = {
+    // Spread the message factories of the search object:
+    ...search.Msg,
+}
+
+function init (): InitResult<Model, Message> {
+    return {
+        // Initialize the search model:
+        ...search.init(),
+    };
+}
+
+const update: UpdateMap<Props, Model, Message> = {
+    loadData () {
+        const data = // Load the data here ...
+
+        // Call the refreshSearch message of the search object:
+        return [{}, cmd.ofMsg(Msg.refreshSearch())];
+    },
+
+    // Spread the update map of the search object:
+    ...search.updateMap,
+};
+```
+
+In your UI you can use the `visibleItems` property of the model:
+
+```tsx
+function List (props: Props): JSX.Element {
+    const [{ visibleItems }, dispatch] = useElmish({ name: "Search", props, init, update });
+
+    return (
+        <List
+            data={visibleItems}
+        />
+    );
+}
+```
+
+#### Search Options
+
+You can provide options when creating a list:
+
+| Property | Description |
+| --- | --- |
+| `filterByQuery` | A function to filter the items by the query string. |
+| `filters` | Optional array of `FilterDefinition`s. |
+
+#### Filtering
+
+To update the query string dispatch the `queryChanged` message and pass the new query string.
+
+To toggle the state of filter dispatch the `toggleFilter` message and pass the filter to toggle.
