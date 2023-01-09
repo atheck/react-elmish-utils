@@ -215,6 +215,7 @@ export type {
     Sorter,
     Options,
     Message,
+    Msg,
 };
 
 export {

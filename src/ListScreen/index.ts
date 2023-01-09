@@ -1,8 +1,9 @@
-import { createList, Message, Model, Options, SortDirection, Sorter, SortFunc } from "./ListScreen";
+import { createList, Message, Model, Msg, Options, SortDirection, Sorter, SortFunc } from "./ListScreen";
 
 export type {
     Message,
     Model,
+    Msg,
     Options,
     SortDirection,
     Sorter,
