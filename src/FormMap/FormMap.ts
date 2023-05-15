@@ -2,64 +2,64 @@ import { cmd, UpdateMap } from "react-elmish";
 import { Model, Options } from "../Form";
 import { getError, ValidationError } from "../Validation";
 
-type Message<TValues> =
+type Message<TValues, TValidationKeys = string> =
     | { name: "valueChanged", value: Partial<TValues> }
     | { name: "acceptRequest" }
     | { name: "accept" }
     | { name: "cancelRequest" }
     | { name: "cancel" }
-    | { name: "validate", msg?: Message<TValues> }
-    | { name: "validated", errors: ValidationError [], msg?: Message<TValues> }
+    | { name: "validate", msg?: Message<TValues, TValidationKeys> }
+    | { name: "validated", errors: ValidationError<TValidationKeys> [], msg?: Message<TValues, TValidationKeys> }
     | { name: "reValidate" };
 
-interface Msg<TValues> {
+interface Msg<TValues, TValidationKeys = string> {
     /**
      * Updates the modified value.
      */
-    valueChanged: (value: Partial<TValues>) => Message<TValues>,
+    valueChanged: (value: Partial<TValues>) => Message<TValues, TValidationKeys>,
     /**
      * Requests to accept the Form.
      */
-    acceptRequest: () => Message<TValues>,
+    acceptRequest: () => Message<TValues, TValidationKeys>,
     /**
      * Accepts the Form.
      */
-    accept: () => Message<TValues>,
+    accept: () => Message<TValues, TValidationKeys>,
     /**
      * Requests to cancel the Form.
      */
-    cancelRequest: () => Message<TValues>,
+    cancelRequest: () => Message<TValues, TValidationKeys>,
     /**
      * Cancels the Form.
      */
-    cancel: () => Message<TValues>,
+    cancel: () => Message<TValues, TValidationKeys>,
     /**
      * Validates all inputs.
      */
-    validate: (msg?: Message<TValues>) => Message<TValues>,
+    validate: (msg?: Message<TValues, TValidationKeys>) => Message<TValues, TValidationKeys>,
     /**
      * All inputs validated.
      */
-    validated: (errors: ValidationError [], msg?: Message<TValues>) => Message<TValues>,
+    validated: (errors: ValidationError<TValidationKeys> [], msg?: Message<TValues, TValidationKeys>) => Message<TValues, TValidationKeys>,
     /**
      * Runs the validation again if it has already been performed.
      */
-    reValidate: () => Message<TValues>,
+    reValidate: () => Message<TValues, TValidationKeys>,
 }
 
-interface FormMap<TModel, TProps, TValues, TValidationKeys = keyof TValues> {
+interface FormMap<TModel, TProps, TValues, TValidationKeys = string> {
     /**
      * Initializes the Form model.
      */
-    init: (props: TProps) => Model<TValues>,
+    init: (props: TProps) => Model<TValues, TValidationKeys>,
     /**
      * Update map for the Form.
      */
-    updateMap: UpdateMap<TProps, Model<TValues> & TModel, Message<TValues>>,
+    updateMap: UpdateMap<TProps, Model<TValues, TValidationKeys> & TModel, Message<TValues, TValidationKeys>>,
     /**
      * Object to call Form messages.
      */
-    Msg: Msg<TValues>,
+    Msg: Msg<TValues, TValidationKeys>,
     /**
      * Gets a validation error for a key.
      * @param key The key of the error to get.
@@ -74,8 +74,8 @@ interface FormMap<TModel, TProps, TValues, TValidationKeys = keyof TValues> {
  * @param options Options to pass to the Form.
  * @returns The created Form object.
  */
-function createFormMap<TModel, TProps, TValues, TValidationKeys = keyof TValues> (options: Options<TModel, TProps, TValues, TValidationKeys>): FormMap<TModel, TProps, TValues, TValidationKeys> {
-    const validate = async (model: Model<TValues> & TModel, props: TProps): Promise<ValidationError []> => {
+function createFormMap<TModel, TProps, TValues, TValidationKeys = string> (options: Options<TModel, TProps, TValues, TValidationKeys>): FormMap<TModel, TProps, TValues, TValidationKeys> {
+    const validate = async (model: Model<TValues, TValidationKeys> & TModel, props: TProps): Promise<ValidationError<TValidationKeys> []> => {
         if (options.validate) {
             return options.validate(model, props);
         }
@@ -84,19 +84,19 @@ function createFormMap<TModel, TProps, TValues, TValidationKeys = keyof TValues>
     };
 
     const Msg = {
-        valueChanged: (value: Partial<TValues>): Message<TValues> => ({ name: "valueChanged", value }),
-        acceptRequest: (): Message<TValues> => ({ name: "acceptRequest" }),
-        accept: (): Message<TValues> => ({ name: "accept" }),
-        cancelRequest: (): Message<TValues> => ({ name: "cancelRequest" }),
-        cancel: (): Message<TValues> => ({ name: "cancel" }),
-        validate: (msg?: Message<TValues>): Message<TValues> => ({ name: "validate", msg }),
-        validated: (errors: ValidationError [], msg?: Message<TValues>): Message<TValues> => ({ name: "validated", errors, msg }),
-        reValidate: (): Message<TValues> => ({ name: "reValidate" }),
+        valueChanged: (value: Partial<TValues>): Message<TValues, TValidationKeys> => ({ name: "valueChanged", value }),
+        acceptRequest: (): Message<TValues, TValidationKeys> => ({ name: "acceptRequest" }),
+        accept: (): Message<TValues, TValidationKeys> => ({ name: "accept" }),
+        cancelRequest: (): Message<TValues, TValidationKeys> => ({ name: "cancelRequest" }),
+        cancel: (): Message<TValues, TValidationKeys> => ({ name: "cancel" }),
+        validate: (msg?: Message<TValues, TValidationKeys>): Message<TValues, TValidationKeys> => ({ name: "validate", msg }),
+        validated: (errors: ValidationError<TValidationKeys> [], msg?: Message<TValues, TValidationKeys>): Message<TValues, TValidationKeys> => ({ name: "validated", errors, msg }),
+        reValidate: (): Message<TValues, TValidationKeys> => ({ name: "reValidate" }),
     };
 
     return {
         Msg,
-        init (props: TProps): Model<TValues> {
+        init (props: TProps): Model<TValues, TValidationKeys> {
             return {
                 errors: [],
                 validated: false,
@@ -114,7 +114,7 @@ function createFormMap<TModel, TProps, TValues, TValidationKeys = keyof TValues>
                             ...model.values,
                             ...updatedValue,
                         },
-                    } as Partial<Model<TValues> & TModel>,
+                    } as Partial<Model<TValues, TValidationKeys> & TModel>,
                     cmd.ofMsg(Msg.reValidate()),
                 ];
             },
@@ -140,20 +140,20 @@ function createFormMap<TModel, TProps, TValues, TValidationKeys = keyof TValues>
             },
 
             validate ({ msg }, model, props) {
-                const noErrors: ValidationError [] = [];
+                const noErrors: ValidationError<TValidationKeys> [] = [];
 
                 return [
                     {
                         errors: noErrors,
                         validated: true,
-                    } as Partial<Model<TValues> & TModel>,
+                    } as Partial<Model<TValues, TValidationKeys> & TModel>,
                     cmd.ofPromise.perform(validate, errors => Msg.validated(errors, msg), model, props),
                 ];
             },
 
             validated ({ errors, msg }) {
                 if (errors.length > 0) {
-                    return [{ errors } as Partial<Model<TValues> & TModel>];
+                    return [{ errors } as Partial<Model<TValues, TValidationKeys> & TModel>];
                 }
 
                 if (msg) {

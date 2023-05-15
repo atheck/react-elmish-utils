@@ -1,9 +1,9 @@
-interface ValidationError<TValidationKeys = unknown> {
+interface ValidationError<TValidationKeys = string> {
     key: TValidationKeys,
     message: string,
 }
 
-type Validator<TValidationKeys = unknown> = [TValidationKeys, ValidatorFunc];
+type Validator<TValidationKeys = string> = [TValidationKeys, ValidatorFunc];
 type ValidatorFunc = () => string | null | Promise<string | null>;
 
 /**
@@ -12,11 +12,11 @@ type ValidatorFunc = () => string | null | Promise<string | null>;
  * @param errors The list of errors.
  * @returns The error for the given key, or null if there is no error.
  */
-function getError<TValidationKeys = unknown> (key: TValidationKeys, errors: ValidationError<TValidationKeys> []): string | null {
+function getError<TValidationKeys = string> (key: TValidationKeys, errors: ValidationError<TValidationKeys> []): string | null {
     return errors.find(error => error.key === key)?.message ?? null;
 }
 
-async function runValidation<TValidationKeys = unknown> (...validators: Validator<TValidationKeys> []): Promise<ValidationError<TValidationKeys> []> {
+async function runValidation<TValidationKeys = string> (...validators: Validator<TValidationKeys> []): Promise<ValidationError<TValidationKeys> []> {
     const errors: ValidationError<TValidationKeys> [] = [];
 
     for (const [key, validatorFunc] of validators) {
