@@ -73,7 +73,7 @@ interface Msg<TValues> {
     reValidate: () => Message<TValues>,
 }
 
-interface Form<TModel, TProps, TValues, TValidationKeys> {
+interface Form<TModel, TProps, TValues, TValidationKeys = keyof TValues> {
     /**
      * Initializes the Form model.
      */
