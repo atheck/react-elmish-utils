@@ -16,6 +16,11 @@ function getError<TValidationKeys = string> (key: TValidationKeys, errors: Valid
     return errors.find(error => error.key === key)?.message ?? null;
 }
 
+/**
+ * Runs the validation using all provided validators.
+ * @param validators The list of validators.
+ * @returns A list of validation errors.
+ */
 async function runValidation<TValidationKeys = string> (...validators: Validator<TValidationKeys> []): Promise<ValidationError<TValidationKeys> []> {
     const errors: ValidationError<TValidationKeys> [] = [];
 

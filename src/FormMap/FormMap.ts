@@ -1,8 +1,8 @@
 import { cmd, UpdateMap } from "react-elmish";
 import { Model, Options } from "../Form";
-import { getError, ValidationError } from "../Validation";
+import { getError, runValidation, ValidationError, Validator } from "../Validation";
 
-type Message<TValues, TValidationKeys = string> =
+type Message<TValues, TValidationKeys = keyof TValues> =
     | { name: "valueChanged", value: Partial<TValues> }
     | { name: "acceptRequest" }
     | { name: "accept" }
@@ -12,7 +12,7 @@ type Message<TValues, TValidationKeys = string> =
     | { name: "validated", errors: ValidationError<TValidationKeys> [], msg?: Message<TValues, TValidationKeys> }
     | { name: "reValidate" };
 
-interface Msg<TValues, TValidationKeys = string> {
+interface Msg<TValues, TValidationKeys = keyof TValues> {
     /**
      * Updates the modified value.
      */
@@ -47,19 +47,29 @@ interface Msg<TValues, TValidationKeys = string> {
     reValidate: () => Message<TValues, TValidationKeys>,
 }
 
-interface FormMap<TModel, TProps, TValues, TValidationKeys = string> {
+interface FormMap<TModel, TProps, TValues, TValidationKeys = keyof TValues> {
     /**
      * Initializes the Form model.
      */
     init: (props: TProps) => Model<TValues, TValidationKeys>,
+
     /**
      * Update map for the Form.
      */
     updateMap: UpdateMap<TProps, Model<TValues, TValidationKeys> & TModel, Message<TValues, TValidationKeys>>,
+
     /**
      * Object to call Form messages.
      */
     Msg: Msg<TValues, TValidationKeys>,
+
+    /**
+     * Runs the validation using all provided validators.
+     * @param validators The list of validators.
+     * @returns A list of validation errors.
+     */
+    runValidation: (...validators: Validator<TValidationKeys> []) => Promise<ValidationError<TValidationKeys> []>,
+
     /**
      * Gets a validation error for a key.
      * @param key The key of the error to get.
@@ -74,7 +84,7 @@ interface FormMap<TModel, TProps, TValues, TValidationKeys = string> {
  * @param options Options to pass to the Form.
  * @returns The created Form object.
  */
-function createFormMap<TModel, TProps, TValues, TValidationKeys = string> (options: Options<TModel, TProps, TValues, TValidationKeys>): FormMap<TModel, TProps, TValues, TValidationKeys> {
+function createFormMap<TModel, TProps, TValues, TValidationKeys = keyof TValues> (options: Options<TModel, TProps, TValues, TValidationKeys>): FormMap<TModel, TProps, TValues, TValidationKeys> {
     const validate = async (model: Model<TValues, TValidationKeys> & TModel, props: TProps): Promise<ValidationError<TValidationKeys> []> => {
         if (options.validate) {
             return options.validate(model, props);
@@ -171,6 +181,11 @@ function createFormMap<TModel, TProps, TValues, TValidationKeys = string> (optio
                 return [{}];
             },
         },
+
+        async runValidation (...validators: Validator<TValidationKeys> []): Promise<ValidationError<TValidationKeys> []> {
+            return runValidation(...validators);
+        },
+
         getError (key: TValidationKeys, errors: ValidationError<TValidationKeys> []) {
             return getError<TValidationKeys>(key, errors);
         },

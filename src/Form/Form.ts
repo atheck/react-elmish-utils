@@ -1,9 +1,9 @@
 import { cmd, MsgSource, UpdateReturnType } from "react-elmish";
-import { getError, ValidationError } from "../Validation";
+import { getError, runValidation, ValidationError, Validator } from "../Validation";
 
 type MessageSource = MsgSource<"Form">;
 
-type Message<TValues, TValidationKeys = string> = (
+type Message<TValues, TValidationKeys = keyof TValues> = (
     | { name: "ValueChanged", value: Partial<TValues> }
     | { name: "AcceptRequest" }
     | { name: "Accept" }
@@ -16,13 +16,13 @@ type Message<TValues, TValidationKeys = string> = (
 
 const Source: MessageSource = { source: "Form" };
 
-interface Model<TValues, TValidationKeys = string> {
+interface Model<TValues, TValidationKeys = keyof TValues> {
     values: TValues,
     errors: ValidationError<TValidationKeys> [],
     validated: boolean,
 }
 
-interface Options<TModel, TProps, TValues, TValidationKeys = string> {
+interface Options<TModel, TProps, TValues, TValidationKeys = keyof TValues> {
     /**
      * Is called to create the initial form values.
      * @returns {TValues} The initial form values.
@@ -38,7 +38,7 @@ interface Options<TModel, TProps, TValues, TValidationKeys = string> {
     onAccept?: (model: TModel, props: TProps) => void,
 }
 
-interface Msg<TValues, TValidationKeys = string> {
+interface Msg<TValues, TValidationKeys = keyof TValues> {
     /**
      * Updates the modified value.
      */
@@ -73,19 +73,29 @@ interface Msg<TValues, TValidationKeys = string> {
     reValidate: () => Message<TValues, TValidationKeys>,
 }
 
-interface Form<TModel, TProps, TValues, TValidationKeys = string> {
+interface Form<TModel, TProps, TValues, TValidationKeys = keyof TValues> {
     /**
      * Initializes the Form model.
      */
     init: (props: TProps) => Model<TValues, TValidationKeys>,
+
     /**
      * Updates the Form model.
      */
     update: (model: Model<TValues, TValidationKeys> & TModel, msg: Message<TValues, TValidationKeys>, props: TProps) => UpdateReturnType<Model<TValues, TValidationKeys>, Message<TValues, TValidationKeys>>,
+
     /**
      * Object to call Form messages.
      */
     Msg: Msg<TValues, TValidationKeys>,
+
+    /**
+     * Runs the validation using all provided validators.
+     * @param validators The list of validators.
+     * @returns A list of validation errors.
+     */
+    runValidation: (...validators: Validator<TValidationKeys> []) => Promise<ValidationError<TValidationKeys> []>,
+
     /**
      * Gets a validation error for a key.
      * @param key The key of the error to get.
@@ -100,7 +110,7 @@ interface Form<TModel, TProps, TValues, TValidationKeys = string> {
  * @param options Options to pass to the Form.
  * @returns The created Form object.
  */
-function createForm<TModel, TProps, TValues, TValidationKeys = string> (options: Options<TModel, TProps, TValues, TValidationKeys>): Form<TModel, TProps, TValues, TValidationKeys> {
+function createForm<TModel, TProps, TValues, TValidationKeys = keyof TValues> (options: Options<TModel, TProps, TValues, TValidationKeys>): Form<TModel, TProps, TValues, TValidationKeys> {
     const validate = async (model: Model<TValues, TValidationKeys> & TModel, props: TProps): Promise<ValidationError<TValidationKeys> []> => {
         if (options.validate) {
             return options.validate(model, props);
@@ -184,6 +194,11 @@ function createForm<TModel, TProps, TValues, TValidationKeys = string> (options:
                     return [{}];
             }
         },
+
+        async runValidation (...validators: Validator<TValidationKeys> []): Promise<ValidationError<TValidationKeys> []> {
+            return runValidation(...validators);
+        },
+
         getError (key: TValidationKeys, errors: ValidationError<TValidationKeys> []) {
             return getError<TValidationKeys>(key, errors);
         },
