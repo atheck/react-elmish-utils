@@ -1,5 +1,5 @@
 import { cmd, MsgSource, UpdateReturnType } from "react-elmish";
-import { ValidationError } from "../Validation";
+import { getError, ValidationError } from "../Validation";
 
 type MessageSource = MsgSource<"Form">;
 
@@ -22,7 +22,7 @@ interface Model<TValues> {
     validated: boolean,
 }
 
-interface Options<TModel, TProps, TValues> {
+interface Options<TModel, TProps, TValues, TValidationKeys = keyof TValues> {
     /**
      * Is called to create the initial form values.
      * @returns {TValues} The initial form values.
@@ -32,7 +32,7 @@ interface Options<TModel, TProps, TValues> {
      * Is called to validate all inputs of the Form.
      * @returns {IValidationError []} An array of validation errors, or an empty array if all inputs are valid.
      */
-    validate?: (model: TModel, props: TProps) => Promise<ValidationError []>,
+    validate?: (model: TModel, props: TProps) => Promise<ValidationError<TValidationKeys> []>,
     onValueChanged?: (values: Partial<TValues>, model: TModel, props: TProps) => Partial<TValues>,
     onCancel?: (model: TModel, props: TProps) => void,
     onAccept?: (model: TModel, props: TProps) => void,
@@ -73,7 +73,7 @@ interface Msg<TValues> {
     reValidate: () => Message<TValues>,
 }
 
-interface Form<TModel, TProps, TValues> {
+interface Form<TModel, TProps, TValues, TValidationKeys> {
     /**
      * Initializes the Form model.
      */
@@ -86,6 +86,13 @@ interface Form<TModel, TProps, TValues> {
      * Object to call Form messages.
      */
     Msg: Msg<TValues>,
+    /**
+     * Gets a validation error for a key.
+     * @param key The key of the error to get.
+     * @param errors The list of errors.
+     * @returns The error for the given key, or null if there is no error.
+     */
+    getError: (key: TValidationKeys, errors: ValidationError<TValidationKeys> []) => string | null,
 }
 
 /**
@@ -93,8 +100,8 @@ interface Form<TModel, TProps, TValues> {
  * @param options Options to pass to the Form.
  * @returns The created Form object.
  */
-function createForm<TModel, TProps, TValues> (options: Options<TModel, TProps, TValues>): Form<TModel, TProps, TValues> {
-    const validate = async (model: Model<TValues> & TModel, props: TProps): Promise<ValidationError []> => {
+function createForm<TModel, TProps, TValues, TValidationKeys = keyof TValues> (options: Options<TModel, TProps, TValues, TValidationKeys>): Form<TModel, TProps, TValues, TValidationKeys> {
+    const validate = async (model: Model<TValues> & TModel, props: TProps): Promise<ValidationError<TValidationKeys> []> => {
         if (options.validate) {
             return options.validate(model, props);
         }
@@ -176,6 +183,9 @@ function createForm<TModel, TProps, TValues> (options: Options<TModel, TProps, T
 
                     return [{}];
             }
+        },
+        getError (key: TValidationKeys, errors: ValidationError<TValidationKeys> []) {
+            return getError<TValidationKeys>(key, errors);
         },
     };
 }

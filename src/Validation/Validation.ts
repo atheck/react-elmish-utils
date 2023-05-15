@@ -1,17 +1,23 @@
-interface ValidationError {
-    key: string,
+interface ValidationError<TValidationKeys = unknown> {
+    key: TValidationKeys,
     message: string,
 }
 
-type Validator = [string, ValidatorFunc];
+type Validator<TValidationKeys = unknown> = [TValidationKeys, ValidatorFunc];
 type ValidatorFunc = () => string | null | Promise<string | null>;
 
-function getError (key: string, errors: ValidationError []): string | null {
+/**
+ * Gets a validation error for a key.
+ * @param key The key of the error to get.
+ * @param errors The list of errors.
+ * @returns The error for the given key, or null if there is no error.
+ */
+function getError<TValidationKeys = unknown> (key: TValidationKeys, errors: ValidationError<TValidationKeys> []): string | null {
     return errors.find(error => error.key === key)?.message ?? null;
 }
 
-async function runValidation (...validators: Validator []): Promise<ValidationError []> {
-    const errors: ValidationError [] = [];
+async function runValidation<TValidationKeys = unknown> (...validators: Validator<TValidationKeys> []): Promise<ValidationError<TValidationKeys> []> {
+    const errors: ValidationError<TValidationKeys> [] = [];
 
     for (const [key, validatorFunc] of validators) {
         // eslint-disable-next-line no-await-in-loop

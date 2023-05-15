@@ -1,6 +1,6 @@
 import { cmd, UpdateMap } from "react-elmish";
 import { Model, Options } from "../Form";
-import { ValidationError } from "../Validation";
+import { getError, ValidationError } from "../Validation";
 
 type Message<TValues> =
     | { name: "valueChanged", value: Partial<TValues> }
@@ -47,7 +47,7 @@ interface Msg<TValues> {
     reValidate: () => Message<TValues>,
 }
 
-interface FormMap<TModel, TProps, TValues> {
+interface FormMap<TModel, TProps, TValues, TValidationKeys> {
     /**
      * Initializes the Form model.
      */
@@ -60,6 +60,13 @@ interface FormMap<TModel, TProps, TValues> {
      * Object to call Form messages.
      */
     Msg: Msg<TValues>,
+    /**
+     * Gets a validation error for a key.
+     * @param key The key of the error to get.
+     * @param errors The list of errors.
+     * @returns The error for the given key, or null if there is no error.
+     */
+    getError: (key: TValidationKeys, errors: ValidationError<TValidationKeys> []) => string | null,
 }
 
 /**
@@ -67,7 +74,7 @@ interface FormMap<TModel, TProps, TValues> {
  * @param options Options to pass to the Form.
  * @returns The created Form object.
  */
-function createFormMap<TModel, TProps, TValues> (options: Options<TModel, TProps, TValues>): FormMap<TModel, TProps, TValues> {
+function createFormMap<TModel, TProps, TValues, TValidationKeys = keyof TValues> (options: Options<TModel, TProps, TValues, TValidationKeys>): FormMap<TModel, TProps, TValues, TValidationKeys> {
     const validate = async (model: Model<TValues> & TModel, props: TProps): Promise<ValidationError []> => {
         if (options.validate) {
             return options.validate(model, props);
@@ -163,6 +170,9 @@ function createFormMap<TModel, TProps, TValues> (options: Options<TModel, TProps
 
                 return [{}];
             },
+        },
+        getError (key: TValidationKeys, errors: ValidationError<TValidationKeys> []) {
+            return getError<TValidationKeys>(key, errors);
         },
     };
 }
