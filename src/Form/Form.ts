@@ -1,5 +1,5 @@
 import { cmd, MsgSource, UpdateReturnType } from "react-elmish";
-import { getError, runValidation, ValidationError, Validator } from "../Validation";
+import { getError, runValidation, RunValidationFunc, ValidationError } from "../Validation";
 
 type MessageSource = MsgSource<"Form">;
 
@@ -32,7 +32,7 @@ interface Options<TModel, TProps, TValues, TValidationKeys = keyof TValues> {
      * Is called to validate all inputs of the Form.
      * @returns {IValidationError []} An array of validation errors, or an empty array if all inputs are valid.
      */
-    validate?: (model: TModel, props: TProps) => Promise<ValidationError<TValidationKeys> []>,
+    validate?: (model: TModel, props: TProps, runValidation: RunValidationFunc<TValidationKeys>) => Promise<ValidationError<TValidationKeys> []>,
     onValueChanged?: (values: Partial<TValues>, model: TModel, props: TProps) => Partial<TValues>,
     onCancel?: (model: TModel, props: TProps) => void,
     onAccept?: (model: TModel, props: TProps) => void,
@@ -90,13 +90,6 @@ interface Form<TModel, TProps, TValues, TValidationKeys = keyof TValues> {
     Msg: Msg<TValues, TValidationKeys>,
 
     /**
-     * Runs the validation using all provided validators.
-     * @param validators The list of validators.
-     * @returns A list of validation errors.
-     */
-    runValidation: (...validators: Validator<TValidationKeys> []) => Promise<ValidationError<TValidationKeys> []>,
-
-    /**
      * Gets a validation error for a key.
      * @param key The key of the error to get.
      * @param errors The list of errors.
@@ -113,7 +106,7 @@ interface Form<TModel, TProps, TValues, TValidationKeys = keyof TValues> {
 function createForm<TModel, TProps, TValues, TValidationKeys = keyof TValues> (options: Options<TModel, TProps, TValues, TValidationKeys>): Form<TModel, TProps, TValues, TValidationKeys> {
     const validate = async (model: Model<TValues, TValidationKeys> & TModel, props: TProps): Promise<ValidationError<TValidationKeys> []> => {
         if (options.validate) {
-            return options.validate(model, props);
+            return options.validate(model, props, runValidation);
         }
 
         return [];
@@ -193,10 +186,6 @@ function createForm<TModel, TProps, TValues, TValidationKeys = keyof TValues> (o
 
                     return [{}];
             }
-        },
-
-        async runValidation (...validators: Validator<TValidationKeys> []): Promise<ValidationError<TValidationKeys> []> {
-            return runValidation(...validators);
         },
 
         getError (key: TValidationKeys, errors: ValidationError<TValidationKeys> []) {
