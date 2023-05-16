@@ -1,5 +1,6 @@
 import * as ElmTesting from "react-elmish/dist/Testing";
 import * as TypeMoq from "typemoq";
+import { runValidation } from "../../src";
 import * as Form from "../../src/Form/Form";
 
 interface TestFormValues {
@@ -246,7 +247,7 @@ describe("FormScreen", () => {
 
                 // assert
                 expect(mockValidate).toHaveBeenCalledTimes(1);
-                expect(mockValidate).toHaveBeenCalledWith(mockModel.object, mockProps.object);
+                expect(mockValidate).toHaveBeenCalledWith(mockModel.object, mockProps.object, runValidation);
                 expect(newModel).toStrictEqual({ errors: [], validated: true });
                 expect(messages).toStrictEqual([formWithValidation.Msg.validated([validationError], formWithValidation.Msg.accept())]);
             });
