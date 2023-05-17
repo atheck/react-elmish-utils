@@ -2,7 +2,7 @@ import { createForm, Form, Message as FormMessage, Model as FormModel, Options a
 import { createFormMap, FormMap, Message as FormMapMessage } from "./FormMap/FormMap";
 import { createList, Message as ListScreenMessage, Model as ListScreenModel, Msg as ListScreenMsg, Options as ListScreenOptions, SortDirection, Sorter, SortFunc } from "./ListScreen";
 import { createSearch, Filter, FilterDefinition, Message as SearchScreenMessage, Model as SearchScreenModel, Msg as SearchScreenMsg, Options as SearchScreenOptions } from "./SearchScreen";
-import { getError, runValidation, RunValidationFunc, ValidationError, Validator, ValidatorFunc } from "./Validation";
+import { getError, runValidation, ValidationError, Validator, ValidatorFunc } from "./Validation";
 
 export type {
     Form,
@@ -11,7 +11,6 @@ export type {
     FormMessage,
     FormMapMessage,
     FormModel,
-    RunValidationFunc,
     ValidationError,
     Validator,
     ValidatorFunc,

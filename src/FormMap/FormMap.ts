@@ -1,6 +1,6 @@
 import { cmd, UpdateMap } from "react-elmish";
 import { Model, Options } from "../Form";
-import { getError, runValidation, ValidationError } from "../Validation";
+import { getError, ValidationError } from "../Validation";
 
 type Message<TValues, TValidationKeys = keyof TValues> =
     | { name: "valueChanged", value: Partial<TValues> }
@@ -80,7 +80,7 @@ interface FormMap<TModel, TProps, TValues, TValidationKeys = keyof TValues> {
 function createFormMap<TModel, TProps, TValues, TValidationKeys = keyof TValues> (options: Options<TModel, TProps, TValues, TValidationKeys>): FormMap<TModel, TProps, TValues, TValidationKeys> {
     const validate = async (model: Model<TValues, TValidationKeys> & TModel, props: TProps): Promise<ValidationError<TValidationKeys> []> => {
         if (options.validate) {
-            return options.validate(model, props, runValidation);
+            return options.validate(model, props);
         }
 
         return [];

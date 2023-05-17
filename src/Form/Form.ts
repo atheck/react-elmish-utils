@@ -1,5 +1,5 @@
 import { cmd, MsgSource, UpdateReturnType } from "react-elmish";
-import { getError, runValidation, RunValidationFunc, ValidationError } from "../Validation";
+import { getError, ValidationError } from "../Validation";
 
 type MessageSource = MsgSource<"Form">;
 
@@ -32,7 +32,7 @@ interface Options<TModel, TProps, TValues, TValidationKeys = keyof TValues> {
      * Is called to validate all inputs of the Form.
      * @returns {IValidationError []} An array of validation errors, or an empty array if all inputs are valid.
      */
-    validate?: (model: TModel, props: TProps, runValidation: RunValidationFunc<TValidationKeys>) => Promise<ValidationError<TValidationKeys> []>,
+    validate?: (model: TModel, props: TProps) => Promise<ValidationError<TValidationKeys> []>,
     onValueChanged?: (values: Partial<TValues>, model: TModel, props: TProps) => Partial<TValues>,
     onCancel?: (model: TModel, props: TProps) => void,
     onAccept?: (model: TModel, props: TProps) => void,
@@ -106,7 +106,7 @@ interface Form<TModel, TProps, TValues, TValidationKeys = keyof TValues> {
 function createForm<TModel, TProps, TValues, TValidationKeys = keyof TValues> (options: Options<TModel, TProps, TValues, TValidationKeys>): Form<TModel, TProps, TValues, TValidationKeys> {
     const validate = async (model: Model<TValues, TValidationKeys> & TModel, props: TProps): Promise<ValidationError<TValidationKeys> []> => {
         if (options.validate) {
-            return options.validate(model, props, runValidation);
+            return options.validate(model, props);
         }
 
         return [];

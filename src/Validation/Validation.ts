@@ -5,7 +5,6 @@ interface ValidationError<TValidationKeys = string> {
 
 type Validator<TValidationKeys = string> = [TValidationKeys, ValidatorFunc];
 type ValidatorFunc = () => string | null | Promise<string | null>;
-type RunValidationFunc<TValidationKeys> = (...validators: Validator<TValidationKeys> []) => Promise<ValidationError<TValidationKeys> []>;
 
 /**
  * Gets a validation error for a key.
@@ -41,7 +40,6 @@ export type {
     ValidationError,
     Validator,
     ValidatorFunc,
-    RunValidationFunc,
 };
 
 export {
