@@ -1,8 +1,8 @@
 import { cmd, UpdateMap } from "react-elmish";
 import { Model, Options } from "../Form";
-import { getError, ValidationError } from "../Validation";
+import { getError, ValidationError, ValidationKey } from "../Validation";
 
-type Message<TValues, TValidationKeys = keyof TValues> =
+type Message<TValues, TValidationKeys extends ValidationKey = keyof TValues> =
     | { name: "valueChanged", value: Partial<TValues> }
     | { name: "acceptRequest" }
     | { name: "accept" }
@@ -12,7 +12,7 @@ type Message<TValues, TValidationKeys = keyof TValues> =
     | { name: "validated", errors: ValidationError<TValidationKeys> [], msg?: Message<TValues, TValidationKeys> }
     | { name: "reValidate" };
 
-interface Msg<TValues, TValidationKeys = keyof TValues> {
+interface Msg<TValues, TValidationKeys extends ValidationKey = keyof TValues> {
     /**
      * Updates the modified value.
      */
@@ -47,7 +47,7 @@ interface Msg<TValues, TValidationKeys = keyof TValues> {
     reValidate: () => Message<TValues, TValidationKeys>,
 }
 
-interface FormMap<TModel, TProps, TValues, TValidationKeys = keyof TValues> {
+interface FormMap<TModel, TProps, TValues, TValidationKeys extends ValidationKey = keyof TValues> {
     /**
      * Initializes the Form model.
      */
@@ -77,7 +77,7 @@ interface FormMap<TModel, TProps, TValues, TValidationKeys = keyof TValues> {
  * @param options Options to pass to the Form.
  * @returns The created Form object.
  */
-function createFormMap<TModel, TProps, TValues, TValidationKeys = keyof TValues> (options: Options<TModel, TProps, TValues, TValidationKeys>): FormMap<TModel, TProps, TValues, TValidationKeys> {
+function createFormMap<TModel, TProps, TValues, TValidationKeys extends ValidationKey = keyof TValues> (options: Options<TModel, TProps, TValues, TValidationKeys>): FormMap<TModel, TProps, TValues, TValidationKeys> {
     const validate = async (model: Model<TValues, TValidationKeys> & TModel, props: TProps): Promise<ValidationError<TValidationKeys> []> => {
         if (options.validate) {
             return options.validate(model, props);

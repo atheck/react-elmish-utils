@@ -1,9 +1,9 @@
 import { cmd, MsgSource, UpdateReturnType } from "react-elmish";
-import { getError, ValidationError } from "../Validation";
+import { getError, ValidationError, ValidationKey } from "../Validation";
 
 type MessageSource = MsgSource<"Form">;
 
-type Message<TValues, TValidationKeys = keyof TValues> = (
+type Message<TValues, TValidationKeys extends ValidationKey = keyof TValues> = (
     | { name: "ValueChanged", value: Partial<TValues> }
     | { name: "AcceptRequest" }
     | { name: "Accept" }
@@ -16,13 +16,13 @@ type Message<TValues, TValidationKeys = keyof TValues> = (
 
 const Source: MessageSource = { source: "Form" };
 
-interface Model<TValues, TValidationKeys = keyof TValues> {
+interface Model<TValues, TValidationKeys extends ValidationKey = keyof TValues> {
     values: TValues,
     errors: ValidationError<TValidationKeys> [],
     validated: boolean,
 }
 
-interface Options<TModel, TProps, TValues, TValidationKeys = keyof TValues> {
+interface Options<TModel, TProps, TValues, TValidationKeys extends ValidationKey = keyof TValues> {
     /**
      * Is called to create the initial form values.
      * @returns {TValues} The initial form values.
@@ -38,7 +38,7 @@ interface Options<TModel, TProps, TValues, TValidationKeys = keyof TValues> {
     onAccept?: (model: TModel, props: TProps) => void,
 }
 
-interface Msg<TValues, TValidationKeys = keyof TValues> {
+interface Msg<TValues, TValidationKeys extends ValidationKey = keyof TValues> {
     /**
      * Updates the modified value.
      */
@@ -73,7 +73,7 @@ interface Msg<TValues, TValidationKeys = keyof TValues> {
     reValidate: () => Message<TValues, TValidationKeys>,
 }
 
-interface Form<TModel, TProps, TValues, TValidationKeys = keyof TValues> {
+interface Form<TModel, TProps, TValues, TValidationKeys extends ValidationKey = keyof TValues> {
     /**
      * Initializes the Form model.
      */
@@ -103,7 +103,7 @@ interface Form<TModel, TProps, TValues, TValidationKeys = keyof TValues> {
  * @param options Options to pass to the Form.
  * @returns The created Form object.
  */
-function createForm<TModel, TProps, TValues, TValidationKeys = keyof TValues> (options: Options<TModel, TProps, TValues, TValidationKeys>): Form<TModel, TProps, TValues, TValidationKeys> {
+function createForm<TModel, TProps, TValues, TValidationKeys extends ValidationKey = keyof TValues> (options: Options<TModel, TProps, TValues, TValidationKeys>): Form<TModel, TProps, TValues, TValidationKeys> {
     const validate = async (model: Model<TValues, TValidationKeys> & TModel, props: TProps): Promise<ValidationError<TValidationKeys> []> => {
         if (options.validate) {
             return options.validate(model, props);
