@@ -1,7 +1,6 @@
 import * as ElmTesting from "react-elmish/dist/Testing";
 import * as TypeMoq from "typemoq";
 import * as Form from "../../src/Form/Form";
-import { ValidationError } from "../../src/Validation";
 
 interface TestFormValues {
     value1: string,
@@ -231,7 +230,7 @@ describe("FormScreen", () => {
                 // arrange
                 const mockModel = TypeMoq.Mock.ofType<TestModel>();
                 const mockProps = TypeMoq.Mock.ofType<TestProps>();
-                const validationError: ValidationError = { key: "value", message: "error" };
+                const validationError = { key: "value1" as const, message: "error" };
                 const mockValidate = jest.fn().mockResolvedValue([validationError]);
 
                 const formWithValidation = Form.createForm({
@@ -258,7 +257,7 @@ describe("FormScreen", () => {
                 // arrange
                 const mockModel = TypeMoq.Mock.ofType<TestModel>();
                 const mockProps = TypeMoq.Mock.ofType<TestProps>();
-                const errors = [{ key: "key", message: "message" }];
+                const errors = [{ key: "value1" as const, message: "message" }];
                 const msg = form.Msg.validated(errors);
 
                 // act
