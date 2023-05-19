@@ -17,13 +17,13 @@ Utility functions and types for [react-elmish](https://www.npmjs.com/package/rea
 
 This module handles common tasks of a form.
 
-If you want to use a Function Component and use an `UpdateMap`, you can use the `FormMap`.
+If you want to use a function component and use an `UpdateMap`, you can use the `FormMap`.
 
 #### FormMap Example
 
 ```ts
 import { createFormMap, FormMapMessage, FormModel } from "react-elmish-utils";
-import { UpdateReturnType } from "react-elmish";
+import { cmd, InitResult, UpdateReturnType } from "react-elmish";
 
 // The fields of the form
 interface FormData {
@@ -31,7 +31,11 @@ interface FormData {
     password: string,
 }
 
-// Add Form model to our model
+// We need the Form messages only
+export type Message =
+    | FormMapMessage<FormData>;
+
+// Add the Form model to our model
 export interface Model extends FormModel<FormData> {}
 
 export interface Props {
@@ -50,28 +54,21 @@ const form = createFormMap({
     // You can provide a validate function which gets called by the form component, see [Validation](#validation) for further information.
 });
 
-// We need the Form messages only
-export type Message =
-    | FormMapMessage;
-
-export const Msg = {
+const Msg = {
     ...form.Msg,
 };
 
-const cmd = createCmd<Message>();
-
-export const init = (props: Props): [Model, Cmd<Message>] => {
+function init (props: Props): InitResult<Model, Message> {
     return [
         {
             // Initialize the Form model
             ...form.init(props),
         },
-        cmd.none
     ];
-};
+}
 
 // Add the Form update map to our update map
-export const updateMap: UpdateMap<Props, Model, Message> = {
+const updateMap: UpdateMap<Props, Model, Message> = {
     ...form.updateMap,
 };
 ```
@@ -80,7 +77,7 @@ In your UI component you can dispatch the `valueChanged` message to update one o
 
 ```tsx
 function Form (props: Props): JSX.Element {
-    const [{ values }, dispatch] = useElmishMap(props, init, updateMap, "Form");
+    const [{ values }, dispatch] = useElmish({ name: "Form", props, init, updateMap });
     const { userName, password } = values;
 
     return (
@@ -99,7 +96,7 @@ The `createFormMap` function takes an `Options` object:
 | Property | Description |
 | --- | --- |
 | `initValues` | Function to set the initial form values. |
-| `validate` | (optional) Function to validate the data when the user accepts the form. It returns an array of `IValidationError`s. See [Validation](#validation). The `validate` function is not called when `validators` is specified. |
+| `validate` | (optional) Function to validate the data when the user accepts the form. It returns an array of `ValidationError`s. See [Validation](#validation). The `validate` function is not called when `validators` is specified. |
 | `onAccept` | (optional) Function which get called by the **accept** message. You can add code here to accept the form. |
 | `onCancel` | (optional) Function which get called by the **cancel** message. You can add code here to cancel the form. |
 | `onValueChange` | (optional) Function which get called by the **valueChanged** message. You can add code here to modify the changed values. |
@@ -111,7 +108,7 @@ To make the form work, you need to overwrite at least the **accept** and the **c
 By default **cancelRequest** only calls **cancel**. If you want to override this behavior, i.e. to show some confirmation to the user, also overwrite  this message.
 
 ```ts
-export const updateMap: UpdateMap<Props, Model, Message> = {
+const updateMap: UpdateMap<Props, Model, Message> = {
     ...form.updateMap,
     cancelRequest: () => [{}, cmd.ofPromise.perform(showConfirmation, Msg.cancel)],
 };
@@ -122,8 +119,8 @@ export const updateMap: UpdateMap<Props, Model, Message> = {
 For Class Components or with usage of an `update` function, you need to use the classic way of composition:
 
 ```ts
-import * as Form from "react-elmish-utils/dist/Form";
-import { UpdateReturnType } from "react-elmish";
+import { createForm, FormModel, FormMessage } from "react-elmish-utils";
+import { cmd, InitResult, UpdateReturnType } from "react-elmish";
 
 // The fields of the form
 interface FormData {
@@ -132,14 +129,14 @@ interface FormData {
 }
 
 // Add Form model to our model
-export interface Model extends Form.Model<FormData> {}
+interface Model extends FormModel<FormData> {}
 
-export interface Props {
+interface Props {
     initialUserName: string,
 }
 
 // Create the form object with options
-const form = Form.createForm({
+const form = createForm({
     initValues (props: Props): FormData {
         // Here we set the initial form values
         return {
@@ -151,26 +148,23 @@ const form = Form.createForm({
 });
 
 // We only need the Form messages
-export type Message =
-    | Form.Message;
+type Message =
+    | FormMessage<FormData>;
 
-export const Msg = {
+const Msg = {
     ...form.Msg,
 };
 
-const cmd = createCmd<Message>();
-
-export const init = (props: Props): [Model, Cmd<Message>] => {
+function init (props: Props): InitResult<Model, Message> {
     return [
         {
             // Initialize the Form model
             ...form.init(props),
         },
-        cmd.none
     ];
-};
+}
 
-export const update = (model: Model, msg: Message, props: Props): UpdateReturnType<Model, Message> => {
+function update (model: Model, msg: Message, props: Props): UpdateReturnType<Model, Message> {
     // Distinguish between our messages and Form messages (here we only have form messages)
     switch (msg.source) {
         case "Form":
@@ -193,7 +187,7 @@ export const update = (model: Model, msg: Message, props: Props): UpdateReturnTy
             // Call the update function for all other Form messages
             return form.update(model, msg, props);
     }
-};
+}
 ```
 
 In your UI component you can dispatch the `valueChanged` message to update one or more values:
@@ -216,7 +210,7 @@ The `createForm` function takes an `Options` object:
 | Property | Description |
 | --- | --- |
 | `initValues` | Function to set the initial form values. |
-| `validate` | (optional) Function to validate the data when the user accepts the form. It returns an array of `IValidationError`s. See [Validation](#validation). The `validate` function is not called when `validators` is specified. |
+| `validate` | (optional) Function to validate the data when the user accepts the form. It returns an array of `ValidationError`s. See [Validation](#validation). The `validate` function is not called when `validators` is specified. |
 | `onAccept` | (optional) Function which get called by the **Accept** message. You can add code here to accept the form. |
 | `onCancel` | (optional) Function which get called by the **Cancel** message. You can add code here to cancel the form. |
 | `onValueChange` | (optional) Function which get called by the **ValueChanged** message. You can add code here to modify the changed values. |
@@ -228,7 +222,7 @@ To make the form work, you need to overwrite at least the **Accept** and the **C
 By default **CancelRequest** only calls **Cancel**. If you want to override this behavior, i.e. to show some confirmation to the user, also overwrite  this message.
 
 ```ts
-export const update = (model: Model, msg: Message, props: Props): UpdateReturnType<Model, Message> => {
+function update (model: Model, msg: Message, props: Props): UpdateReturnType<Model, Message> {
     switch (msg.source) {
         case "Form":
             switch (msg.name) {
@@ -249,7 +243,7 @@ export const update = (model: Model, msg: Message, props: Props): UpdateReturnTy
         case "Local":
             return localUpdate(model, msg);
     }
-};
+}
 ```
 
 ### Validation
@@ -258,56 +252,85 @@ This module contains some helper functions and types for validation.
 
 | Function/Type | Description |
 | --- | --- |
+| `ValidationError` | Represents a validation error. |
 | `Validator` | Tuple consisting of a string (key for an error) and a `ValidatorFunc`. |
 | `ValidatorFunc` | Executes a validation and returns an error message or null. |
-| `runValidation` | This function executes `Validator`s and returns an array of `IValidationError`s. |
-| `getError` | Extracts an error message for a specified key out of an array of `IValidationError`s. Can be used in the UI to get an error message for a specific control. |
+| `runValidation` | This function executes `Validator`s and returns an array of `ValidationError`s. |
+| `getError` | Extracts an error message for a specified key out of an array of `ValidationError`s. Can be used in the UI to get an error message for a specific control. But it is recommended to use the `getError` function of the created form object. |
 
-#### Example: Use validation in Form
+#### Example: Use validation in FormMap
 
-You can assign a validation function to the `Options` object when creating a form.
+You can pass a validation function to the `Options` object when creating a form.
 
 ```ts
-import * as Form from "react-elmish-utils/dist/Form";
-import { IValidationError, runValidation } from "react-elmish-utils";
+import { createFormMap, ValidationError, runValidation } from "react-elmish-utils";
+
+// The fields of the form
+interface FormData {
+    userName: string,
+    password: string,
+}
+
+// Create the Form object with the validation
+const form = createFormMap({
+    // ...
+    validate,
+});
 
 ...
 // Validate the inputs of a Form
-const validate = (model: Model, prop: Props): Promise<IValidationError []> => {
-    const validateValue = (): Nullable<string> => {
-        if (!model.value) {
-            return "Value is missing";
+function validate ({ values }: Model, prop: Props): Promise<ValidationError<keyof FormData> []> {
+    const validateUserName = (): Nullable<string> => {
+        if (!values.userName) {
+            return "Username is missing";
+        }
+
+        return null;
+    };
+    const validatePassword = (): Nullable<string> => {
+        if (!values.password) {
+            return "Password is missing";
         }
 
         return null;
     };
 
     // Pass one or more tuples consisting of a key and a ValidatorFunc to runValidation
-    return runValidation(["value", validateValue]);
-};
+    return runValidation<keyof FormData>(
+        ["userName", validateUserName],
+        ["password", validatePassword],
+    );
+}
 
-// Create the Form object with the validation
-const form = Form.createForm({
-    // ...
-    validate,
-});
 ...
 ```
 
 In the UI you get a validation error like that:
 
 ```tsx
-import { getError } from "react-elmish-utils";
-
 ...
 // in the render function of a react component
 const { errors } = this.model;
 
+// The created form returns a `getError` function which can be used to get an error message for a specific key
 <Input
     ...
-    error={getError("value", errors)}
+    error={form.getError("userName", errors)}
 />
 ...
+```
+
+By default the validation keys are the keys of the form values. If you want to use different keys, you can pass a second type parameter to the forms model and the forms message type:
+
+```ts
+type ValidationErrorKeys = "name" | "age";
+
+interface Model extends FormModel<FormData, ValidationErrorKeys> {}
+
+type Message =
+    | FormMessage<FormData, ValidationErrorKeys>;
+
+type MyValidationError = ValidationError<ValidationErrorKeys>;
 ```
 
 ### List screen
