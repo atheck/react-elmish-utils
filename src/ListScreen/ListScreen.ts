@@ -5,15 +5,15 @@ type SortDirection = "asc" | "desc";
 /**
  * Model to show a list of items.
  */
-interface Model<T> {
+interface Model<TData, TSortKey extends string> {
     /**
      * The collection of items.
      */
-    items: T [],
+    items: TData [],
     /**
      * The key of the currently active sorter.
      */
-    currentSorterKey: string | null,
+    currentSorterKey: TSortKey | null,
     /**
      * The current sort direction.
      */
@@ -22,89 +22,89 @@ interface Model<T> {
 
 type SortFunc<T> = (item1: T, item2: T) => number;
 
-interface Sorter<T> {
-    key: string,
+interface Sorter<TData, TSortKey extends string> {
+    key: TSortKey,
     name: string,
-    sorter: SortFunc<T>,
+    sorter: SortFunc<TData>,
 }
 
-interface Options<TModel, TProps, TData> {
+interface Options<TModel, TProps, TData, TSortKey extends string> {
     /**
      * A function to sort the items, or an array of `Sorter` objects.
      */
-    sorter?: SortFunc<TData> | Sorter<TData> [],
+    sorter?: SortFunc<TData> | Sorter<TData, TSortKey> [],
     /**
      * Gets called when the sorting has changed.
      */
-    onUpdateSorting?: (model: TModel, props: TProps, sorting: { key: string, direction: SortDirection }) => void,
+    onUpdateSorting?: (model: TModel, props: TProps, sorting: { key: TSortKey | null, direction: SortDirection }) => void,
     /**
      * Gets called when the used `Sorter` or the sort direction has changed.
      */
-    onSorterChanged?: (sorter: Sorter<TData>, sortDirection: SortDirection) => void,
+    onSorterChanged?: (sorter: Sorter<TData, TSortKey>, sortDirection: SortDirection) => void,
 }
 
-type Message<T> =
-    | { name: "dataLoaded", data: T [] }
+type Message<TData, TSortKey extends string> =
+    | { name: "dataLoaded", data: TData [] }
     | { name: "refresh" }
-    | { name: "setSorter", key: string, toggleDirection?: boolean }
+    | { name: "setSorter", key: TSortKey, toggleDirection?: boolean }
     | { name: "setSortDirection", direction: SortDirection }
     | { name: "toggleSortDirection" }
-    | { name: "setSorting", key: string, direction: SortDirection };
+    | { name: "setSorting", key: TSortKey, direction: SortDirection };
 
-interface Msg<TData> {
+interface Msg<TData, TSortKey extends string> {
     /**
      * Sets the loaded items.
      * This message must be called after the data has been loaded.
      * @param data The loaded items.
      */
-    dataLoaded: (data: TData []) => Message<TData>,
+    dataLoaded: (data: TData []) => Message<TData, TSortKey>,
     /**
      * Refreshes the view.
      */
-    refresh: () => Message<TData>,
+    refresh: () => Message<TData, TSortKey>,
     /**
      * Changes the sorting.
      * @param key The key of the `Sorter` to use.
      * @param toggleDirection If `true` it toggles the sort direction if the used `Sorter` stays the same.
      */
-    setSorter: (key: string, toggleDirection?: boolean) => Message<TData>,
+    setSorter: (key: TSortKey, toggleDirection?: boolean) => Message<TData, TSortKey>,
     /**
      * Sets the sort direction.
      * @param direction The new sort direction.
      */
-    setSortDirection: (direction: SortDirection) => Message<TData>,
+    setSortDirection: (direction: SortDirection) => Message<TData, TSortKey>,
     /**
      * Toggles the sort direction.
      */
-    toggleSortDirection: () => Message<TData>,
+    toggleSortDirection: () => Message<TData, TSortKey>,
     /**
      * Sets the `Sorter` with the given key.
      * @param key The key of the `Sorter` to set.
      * @param direction The sort direction.
      */
-    setSorting: (key: string, direction: SortDirection) => Message<TData>,
+    setSorting: (key: TSortKey, direction: SortDirection) => Message<TData, TSortKey>,
 }
 
-interface List<TModel, TProps, TData> {
-    Msg: Msg<TData>,
-    init: () => Model<TData>,
-    updateMap: UpdateMap<TProps, Model<TData> & TModel, Message<TData>>,
+interface List<TModel, TProps, TData, TSortKey extends string> {
+    Msg: Msg<TData, TSortKey>,
+    init: () => Model<TData, TSortKey>,
+    updateMap: UpdateMap<TProps, Model<TData, TSortKey> & TModel, Message<TData, TSortKey>>,
 }
 
-function createList<TModel, TProps, TData> (options: Options<TModel, TProps, TData> = {}): List<TModel, TProps, TData> {
-    const Msg: Msg<TData> = {
-        dataLoaded: (data: TData []): Message<TData> => ({ name: "dataLoaded", data }),
-        refresh: (): Message<TData> => ({ name: "refresh" }),
-        setSorter: (key: string, toggleDirection?: boolean): Message<TData> => ({ name: "setSorter", key, toggleDirection }),
-        setSortDirection: (direction: SortDirection): Message<TData> => ({ name: "setSortDirection", direction }),
-        toggleSortDirection: (): Message<TData> => ({ name: "toggleSortDirection" }),
-        setSorting: (key: string, direction: SortDirection): Message<TData> => ({ name: "setSorting", key, direction }),
+function createList<TModel, TProps, TData, TSortKey extends string = string> (options: Options<TModel, TProps, TData, TSortKey> = {}): List<TModel, TProps, TData, TSortKey> {
+    const Msg: Msg<TData, TSortKey> = {
+        dataLoaded: (data: TData []): Message<TData, TSortKey> => ({ name: "dataLoaded", data }),
+        refresh: (): Message<TData, TSortKey> => ({ name: "refresh" }),
+        setSorter: (key: TSortKey, toggleDirection?: boolean): Message<TData, TSortKey> => ({ name: "setSorter", key, toggleDirection }),
+        setSortDirection: (direction: SortDirection): Message<TData, TSortKey> => ({ name: "setSortDirection", direction }),
+        toggleSortDirection: (): Message<TData, TSortKey> => ({ name: "toggleSortDirection" }),
+        setSorting: (key: TSortKey, direction: SortDirection): Message<TData, TSortKey> => ({ name: "setSorting", key, direction }),
     };
 
     return {
         Msg,
-        init (): Model<TData> {
-            let currentSorterKey: string | null = null;
+        init (): Model<TData, TSortKey> {
+            let currentSorterKey: TSortKey | null = null;
 
             if (options.sorter && typeof options.sorter !== "function" && options.sorter[0]) {
                 currentSorterKey = options.sorter[0].key;
@@ -118,7 +118,7 @@ function createList<TModel, TProps, TData> (options: Options<TModel, TProps, TDa
         },
         updateMap: {
             dataLoaded ({ data }) {
-                return [{ items: data } as Partial<Model<TData> & TModel>, cmd.ofMsg(Msg.refresh())];
+                return [{ items: data } as Partial<Model<TData, TSortKey> & TModel>, cmd.ofMsg(Msg.refresh())];
             },
 
             refresh (_msg, model) {
@@ -133,7 +133,7 @@ function createList<TModel, TProps, TData> (options: Options<TModel, TProps, TDa
                 if (currentSorter) {
                     const items = model.sortDirection === "asc" ? model.items.sort(currentSorter) : sortDescending(model.items, currentSorter);
 
-                    return [{ items } as Partial<Model<TData> & TModel>];
+                    return [{ items } as Partial<Model<TData, TSortKey> & TModel>];
                 }
 
                 return [{}];
@@ -158,15 +158,15 @@ function createList<TModel, TProps, TData> (options: Options<TModel, TProps, TDa
                     options.onUpdateSorting(model, props, { key, direction: model.sortDirection });
                 }
 
-                return [{ currentSorterKey: key } as Partial<Model<TData> & TModel>, cmd.ofMsg(Msg.refresh())];
+                return [{ currentSorterKey: key } as Partial<Model<TData, TSortKey> & TModel>, cmd.ofMsg(Msg.refresh())];
             },
 
             setSortDirection ({ direction }, model, props) {
                 if (options.onUpdateSorting) {
-                    options.onUpdateSorting(model, props, { key: model.currentSorterKey ?? "", direction });
+                    options.onUpdateSorting(model, props, { key: model.currentSorterKey, direction });
                 }
 
-                return [{ sortDirection: direction } as Partial<Model<TData> & TModel>, cmd.ofMsg(Msg.refresh())];
+                return [{ sortDirection: direction } as Partial<Model<TData, TSortKey> & TModel>, cmd.ofMsg(Msg.refresh())];
             },
 
             toggleSortDirection (_msg, model, props) {
@@ -178,20 +178,20 @@ function createList<TModel, TProps, TData> (options: Options<TModel, TProps, TDa
                 }
 
                 if (options.onUpdateSorting) {
-                    options.onUpdateSorting(model, props, { key: model.currentSorterKey ?? "", direction: sortDirection });
+                    options.onUpdateSorting(model, props, { key: model.currentSorterKey, direction: sortDirection });
                 }
 
-                return [{ sortDirection } as Partial<Model<TData> & TModel>, cmd.ofMsg(Msg.refresh())];
+                return [{ sortDirection } as Partial<Model<TData, TSortKey> & TModel>, cmd.ofMsg(Msg.refresh())];
             },
 
             setSorting ({ key, direction }) {
-                return [{ currentSorterKey: key, sortDirection: direction } as Partial<Model<TData> & TModel>, cmd.ofMsg(Msg.refresh())];
+                return [{ currentSorterKey: key, sortDirection: direction } as Partial<Model<TData, TSortKey> & TModel>, cmd.ofMsg(Msg.refresh())];
             },
         },
     };
 }
 
-function getSorterByKey<T> (key: string | null, sorters?: SortFunc<T> | Sorter<T> []): Sorter<T> | null {
+function getSorterByKey<TData, TSortKey extends string> (key: string | null, sorters?: SortFunc<TData> | Sorter<TData, TSortKey> []): Sorter<TData, TSortKey> | null {
     if (key && Array.isArray(sorters)) {
         return sorters.find(sorter => key === sorter.key) ?? null;
     }
