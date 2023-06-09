@@ -5,7 +5,7 @@ type SortDirection = "asc" | "desc";
 /**
  * Model to show a list of items.
  */
-interface Model<TData, TSortKey extends string> {
+interface Model<TData, TSortKey extends string = string> {
     /**
      * The collection of items.
      */
@@ -22,7 +22,7 @@ interface Model<TData, TSortKey extends string> {
 
 type SortFunc<T> = (item1: T, item2: T) => number;
 
-interface Sorter<TData, TSortKey extends string> {
+interface Sorter<TData, TSortKey extends string = string> {
     key: TSortKey,
     name: string,
     sorter: SortFunc<TData>,

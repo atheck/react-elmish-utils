@@ -1,4 +1,4 @@
-import * as ElmTesting from "react-elmish/dist/Testing";
+import { execCmd } from "react-elmish/dist/Testing";
 import * as TypeMoq from "typemoq";
 import * as Form from "../../src/Form/Form";
 
@@ -45,7 +45,7 @@ describe("FormScreen", () => {
 
     describe("update", () => {
         describe("ValueChanged", () => {
-            it("merges values and re-validates", () => {
+            it("merges values and re-validates", async () => {
                 // arrange
                 const mockModel = TypeMoq.Mock.ofType<TestModel>();
                 const mockProps = TypeMoq.Mock.ofType<TestProps>();
@@ -58,6 +58,7 @@ describe("FormScreen", () => {
 
                 // act
                 const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
+                const messages = await execCmd(cmd);
 
                 // assert
                 expect(newModel).toStrictEqual<Partial<TestModel>>({
@@ -66,10 +67,10 @@ describe("FormScreen", () => {
                         value2: 1,
                     },
                 });
-                expect(ElmTesting.getOfMsgParams(cmd)).toStrictEqual([form.Msg.reValidate()]);
+                expect(messages).toStrictEqual([form.Msg.reValidate()]);
             });
 
-            it("calls onValueChanged if provided and takes the returned values", () => {
+            it("calls onValueChanged if provided and takes the returned values", async () => {
                 // arrange
                 const mockModel = TypeMoq.Mock.ofType<TestModel>();
                 const mockProps = TypeMoq.Mock.ofType<TestProps>();
@@ -90,6 +91,7 @@ describe("FormScreen", () => {
 
                 // act
                 const [newModel, cmd] = formWithOnValueChanged.update(mockModel.object, msg, mockProps.object);
+                const messages = await execCmd(cmd);
 
                 // assert
                 expect(newModel).toStrictEqual<Partial<TestModel>>({
@@ -98,12 +100,12 @@ describe("FormScreen", () => {
                         value2: 2,
                     },
                 });
-                expect(ElmTesting.getOfMsgParams(cmd)).toStrictEqual([form.Msg.reValidate()]);
+                expect(messages).toStrictEqual([form.Msg.reValidate()]);
             });
         });
 
         describe("AcceptRequest", () => {
-            it("calls validation", () => {
+            it("calls validation", async () => {
                 // arrange
                 const mockModel = TypeMoq.Mock.ofType<TestModel>();
                 const mockProps = TypeMoq.Mock.ofType<TestProps>();
@@ -113,10 +115,11 @@ describe("FormScreen", () => {
 
                 // act
                 const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
+                const messages = await execCmd(cmd);
 
                 // assert
                 expect(newModel).toStrictEqual({});
-                expect(ElmTesting.getOfMsgParams(cmd)).toStrictEqual([form.Msg.validate(form.Msg.accept())]);
+                expect(messages).toStrictEqual([form.Msg.validate(form.Msg.accept())]);
             });
         });
 
@@ -158,7 +161,7 @@ describe("FormScreen", () => {
         });
 
         describe("CancelRequest", () => {
-            it("dispatches Cancel by default", () => {
+            it("dispatches Cancel by default", async () => {
                 // arrange
                 const mockModel = TypeMoq.Mock.ofType<TestModel>();
                 const mockProps = TypeMoq.Mock.ofType<TestProps>();
@@ -166,10 +169,11 @@ describe("FormScreen", () => {
 
                 // act
                 const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
+                const messages = await execCmd(cmd);
 
                 // assert
                 expect(newModel).toStrictEqual({});
-                expect(ElmTesting.getOfMsgParams(cmd)).toStrictEqual([form.Msg.cancel()]);
+                expect(messages).toStrictEqual([form.Msg.cancel()]);
             });
         });
 
@@ -219,7 +223,7 @@ describe("FormScreen", () => {
 
                 // act
                 const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
-                const messages = await ElmTesting.execCmd(cmd);
+                const messages = await execCmd(cmd);
 
                 // assert
                 expect(newModel).toStrictEqual({ errors: [], validated: true });
@@ -242,7 +246,7 @@ describe("FormScreen", () => {
 
                 // act
                 const [newModel, cmd] = formWithValidation.update(mockModel.object, msg, mockProps.object);
-                const messages = await ElmTesting.execCmd(cmd);
+                const messages = await execCmd(cmd);
 
                 // assert
                 expect(mockValidate).toHaveBeenCalledTimes(1);
@@ -268,7 +272,7 @@ describe("FormScreen", () => {
                 expect(cmd).toBeUndefined();
             });
 
-            it("calls given message without errors", () => {
+            it("calls given message without errors", async () => {
                 // arrange
                 const mockModel = TypeMoq.Mock.ofType<TestModel>();
                 const mockProps = TypeMoq.Mock.ofType<TestProps>();
@@ -276,10 +280,11 @@ describe("FormScreen", () => {
 
                 // act
                 const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
+                const messages = await execCmd(cmd);
 
                 // assert
                 expect(newModel).toStrictEqual({});
-                expect(ElmTesting.getOfMsgParams(cmd)).toStrictEqual([form.Msg.accept()]);
+                expect(messages).toStrictEqual([form.Msg.accept()]);
             });
 
             it("does nothing without errors and message", () => {
@@ -314,7 +319,7 @@ describe("FormScreen", () => {
                 expect(cmd).toBeUndefined();
             });
 
-            it("calls validate if validated previously", () => {
+            it("calls validate if validated previously", async () => {
                 // arrange
                 const mockModel = TypeMoq.Mock.ofType<TestModel>();
                 const mockProps = TypeMoq.Mock.ofType<TestProps>();
@@ -324,11 +329,11 @@ describe("FormScreen", () => {
 
                 // act
                 const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
+                const messages = await execCmd(cmd);
 
                 // assert
-
                 expect(newModel).toStrictEqual({});
-                expect(ElmTesting.getOfMsgParams(cmd)).toStrictEqual([form.Msg.validate()]);
+                expect(messages).toStrictEqual([form.Msg.validate()]);
             });
         });
     });
