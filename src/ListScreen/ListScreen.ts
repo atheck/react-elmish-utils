@@ -28,7 +28,7 @@ interface Sorter<TData, TSortKey extends string = string> {
     sorter: SortFunc<TData>,
 }
 
-interface Options<TModel, TProps, TData, TSortKey extends string> {
+interface Options<TModel, TProps, TData, TSortKey extends string = string> {
     /**
      * A function to sort the items, or an array of `Sorter` objects.
      */
@@ -43,7 +43,7 @@ interface Options<TModel, TProps, TData, TSortKey extends string> {
     onSorterChanged?: (sorter: Sorter<TData, TSortKey>, sortDirection: SortDirection) => void,
 }
 
-type Message<TData, TSortKey extends string> =
+type Message<TData, TSortKey extends string = string> =
     | { name: "dataLoaded", data: TData [] }
     | { name: "refresh" }
     | { name: "setSorter", key: TSortKey, toggleDirection?: boolean }
@@ -51,7 +51,7 @@ type Message<TData, TSortKey extends string> =
     | { name: "toggleSortDirection" }
     | { name: "setSorting", key: TSortKey, direction: SortDirection };
 
-interface Msg<TData, TSortKey extends string> {
+interface Msg<TData, TSortKey extends string = string> {
     /**
      * Sets the loaded items.
      * This message must be called after the data has been loaded.
@@ -85,7 +85,7 @@ interface Msg<TData, TSortKey extends string> {
     setSorting: (key: TSortKey, direction: SortDirection) => Message<TData, TSortKey>,
 }
 
-interface List<TModel, TProps, TData, TSortKey extends string> {
+interface List<TModel, TProps, TData, TSortKey extends string = string> {
     Msg: Msg<TData, TSortKey>,
     init: () => Model<TData, TSortKey>,
     updateMap: UpdateMap<TProps, Model<TData, TSortKey> & TModel, Message<TData, TSortKey>>,
