@@ -317,7 +317,7 @@ describe("FormScreen", () => {
                 formWithOnValidated.update(mockModel.object, msg, mockProps.object);
 
                 // assert
-                expect(mockOnValidated).toHaveBeenCalledWith(mockModel.object, mockProps.object);
+                expect(mockOnValidated).toHaveBeenCalledWith(errors, mockModel.object, mockProps.object);
             });
         });
 

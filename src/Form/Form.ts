@@ -42,7 +42,7 @@ interface Options<TModel, TProps, TValues, TValidationKeys extends ValidationKey
     /**
      * This callback is called after the validation.
      */
-    onValidated?: (model: Model<TValues, TValidationKeys> & TModel, props: TProps) => void,
+    onValidated?: (errors: ValidationError<TValidationKeys> [], model: Model<TValues, TValidationKeys> & TModel, props: TProps) => void,
     /**
      * This callback is called when the form should be cancelled.
      * @param model The current model.
@@ -188,7 +188,7 @@ function createForm<TModel, TProps, TValues, TValidationKeys extends ValidationK
                     return [{ errors: [], validated: true }, cmd.ofPromise.perform(validate, errors => Msg.validated(errors, msg.msg), model, props)];
 
                 case "Validated":
-                    options.onValidated?.(model, props);
+                    options.onValidated?.(msg.errors, model, props);
 
                     if (msg.errors.length > 0) {
                         return [{ errors: msg.errors }];
