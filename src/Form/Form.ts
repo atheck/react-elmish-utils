@@ -32,29 +32,29 @@ interface Options<TModel, TProps, TValues, TValidationKeys extends ValidationKey
      * Is called to validate all inputs of the Form.
      * @returns An array of validation errors, or an empty array if all inputs are valid.
      */
-    validate?: (model: TModel, props: TProps) => Promise<ValidationError<TValidationKeys> []>,
+    validate?: (model: Model<TValues, TValidationKeys> & TModel, props: TProps) => Promise<ValidationError<TValidationKeys> []>,
     /**
      * This callback is called when one ore more values were changed.
      * @remarks
      * In this function you can manipulate the values of the form.
      */
-    onValueChanged?: (values: Partial<TValues>, model: TModel, props: TProps) => Partial<TValues>,
+    onValueChanged?: (values: Partial<TValues>, model: Model<TValues, TValidationKeys> & TModel, props: TProps) => Partial<TValues>,
     /**
      * This callback is called after the validation.
      */
-    onValidated?: (model: TModel, props: TProps) => void,
+    onValidated?: (model: Model<TValues, TValidationKeys> & TModel, props: TProps) => void,
     /**
      * This callback is called when the form should be cancelled.
      * @param model The current model.
      * @param props The props.
      */
-    onCancel?: (model: TModel, props: TProps) => void,
+    onCancel?: (model: Model<TValues, TValidationKeys> & TModel, props: TProps) => void,
     /**
      * This callback is called when the form should be accepted.
      * @param model The current model.
      * @param props The props.
      */
-    onAccept?: (model: TModel, props: TProps) => void,
+    onAccept?: (model: Model<TValues, TValidationKeys> & TModel, props: TProps) => void,
 }
 
 interface Msg<TValues, TValidationKeys extends ValidationKey = keyof TValues> {
