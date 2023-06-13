@@ -300,6 +300,25 @@ describe("FormScreen", () => {
                 expect(newModel).toStrictEqual({});
                 expect(cmd).toBeUndefined();
             });
+
+            it("calls the onValidated callback if provided", () => {
+                // arrange
+                const mockModel = TypeMoq.Mock.ofType<TestModel>();
+                const mockProps = TypeMoq.Mock.ofType<TestProps>();
+                const errors = [{ key: "value1" as const, message: "message" }];
+                const mockOnValidated = jest.fn();
+                const formWithOnValidated = Form.createForm({
+                    initValues,
+                    onValidated: mockOnValidated,
+                });
+                const msg = formWithOnValidated.Msg.validated(errors);
+
+                // act
+                formWithOnValidated.update(mockModel.object, msg, mockProps.object);
+
+                // assert
+                expect(mockOnValidated).toHaveBeenCalledWith(mockModel.object, mockProps.object);
+            });
         });
 
         describe("ReValidate", () => {

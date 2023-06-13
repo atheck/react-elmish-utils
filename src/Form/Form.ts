@@ -25,16 +25,35 @@ interface Model<TValues, TValidationKeys extends ValidationKey = keyof TValues> 
 interface Options<TModel, TProps, TValues, TValidationKeys extends ValidationKey = keyof TValues> {
     /**
      * Is called to create the initial form values.
-     * @returns {TValues} The initial form values.
+     * @returns The initial form values.
      */
     initValues: (props: TProps) => TValues,
     /**
      * Is called to validate all inputs of the Form.
-     * @returns {IValidationError []} An array of validation errors, or an empty array if all inputs are valid.
+     * @returns An array of validation errors, or an empty array if all inputs are valid.
      */
     validate?: (model: TModel, props: TProps) => Promise<ValidationError<TValidationKeys> []>,
+    /**
+     * This callback is called when one ore more values were changed.
+     * @remarks
+     * In this function you can manipulate the values of the form.
+     */
     onValueChanged?: (values: Partial<TValues>, model: TModel, props: TProps) => Partial<TValues>,
+    /**
+     * This callback is called after the validation.
+     */
+    onValidated?: (model: TModel, props: TProps) => void,
+    /**
+     * This callback is called when the form should be cancelled.
+     * @param model The current model.
+     * @param props The props.
+     */
     onCancel?: (model: TModel, props: TProps) => void,
+    /**
+     * This callback is called when the form should be accepted.
+     * @param model The current model.
+     * @param props The props.
+     */
     onAccept?: (model: TModel, props: TProps) => void,
 }
 
@@ -169,6 +188,8 @@ function createForm<TModel, TProps, TValues, TValidationKeys extends ValidationK
                     return [{ errors: [], validated: true }, cmd.ofPromise.perform(validate, errors => Msg.validated(errors, msg.msg), model, props)];
 
                 case "Validated":
+                    options.onValidated?.(model, props);
+
                     if (msg.errors.length > 0) {
                         return [{ errors: msg.errors }];
                     }

@@ -97,9 +97,10 @@ The `createFormMap` function takes an `Options` object:
 | --- | --- |
 | `initValues` | Function to set the initial form values. |
 | `validate` | (optional) Function to validate the data when the user accepts the form. It returns an array of `ValidationError`s. See [Validation](#validation). The `validate` function is not called when `validators` is specified. |
-| `onAccept` | (optional) Function which get called by the **accept** message. You can add code here to accept the form. |
-| `onCancel` | (optional) Function which get called by the **cancel** message. You can add code here to cancel the form. |
-| `onValueChange` | (optional) Function which get called by the **valueChanged** message. You can add code here to modify the changed values. |
+| `onValueChange` | (optional) This function is called if one ore more values were changed. You can add code here to modify the changed values. |
+| `onValidated` | (optional) This function is called after the validation. |
+| `onCancel` | (optional) This function is called if the form should be cancelled. You can add code here to cancel the form. |
+| `onAccept` | (optional) This function is called if the form should be accepted. You can add code here to accept the form. |
 
 #### Hook into or overwrite messages
 
@@ -211,9 +212,10 @@ The `createForm` function takes an `Options` object:
 | --- | --- |
 | `initValues` | Function to set the initial form values. |
 | `validate` | (optional) Function to validate the data when the user accepts the form. It returns an array of `ValidationError`s. See [Validation](#validation). The `validate` function is not called when `validators` is specified. |
-| `onAccept` | (optional) Function which get called by the **Accept** message. You can add code here to accept the form. |
-| `onCancel` | (optional) Function which get called by the **Cancel** message. You can add code here to cancel the form. |
-| `onValueChange` | (optional) Function which get called by the **ValueChanged** message. You can add code here to modify the changed values. |
+| `onValueChange` | (optional) This function is called if one ore more values were changed. You can add code here to modify the changed values. |
+| `onValidated` | (optional) This function is called after the validation. |
+| `onCancel` | (optional) This function is called if the form should be cancelled. You can add code here to cancel the form. |
+| `onAccept` | (optional) This function is called if the form should be accepted. You can add code here to accept the form. |
 
 #### Hook into or overwrite messages
 

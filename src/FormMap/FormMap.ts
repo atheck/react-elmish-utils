@@ -154,7 +154,9 @@ function createFormMap<TModel, TProps, TValues, TValidationKeys extends Validati
                 ];
             },
 
-            validated ({ errors, msg }) {
+            validated ({ errors, msg }, model, props) {
+                options.onValidated?.(model, props);
+
                 if (errors.length > 0) {
                     return [{ errors } as Partial<Model<TValues, TValidationKeys> & TModel>];
                 }
