@@ -28,7 +28,8 @@ const { useElmish } = initWithDependencies({ /* Elmish options */ }, dependencie
 Instead of using the `useElmish` hook from the `react-elmish` package directly, you can use the returned hook in your components. With that you can use a function around the `init`, the `update`, and the `subscription` functions:
 
 ```ts
-function createComponentState(dependencies): ElmishStateResult<Props, State, Message> {
+// This function can also have a return type of ElmishStateFunction if you are using an update function instead of a map.
+function createComponentState(dependencies): ElmishStateMap<Props, State, Message> {
     // Here you can access the dependencies
 
     function init(props: Props): InitResult<State, Message> {

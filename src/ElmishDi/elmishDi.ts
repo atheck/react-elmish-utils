@@ -1,11 +1,20 @@
 import { useMemo } from "react";
 import { Dispatch, ElmOptions, init as initElmish, Message, useElmish as useElmishBase, UseElmishOptions as UseElmishOptionsBase } from "react-elmish";
+import { UpdateFunction, UpdateMap } from "react-elmish/dist/Types";
 
-interface ElmishState<TProps, TModel, TMessage extends Message> {
+interface ElmishStateFunction<TProps, TModel, TMessage extends Message> {
     init: UseElmishOptionsBase<TProps, TModel, TMessage>["init"],
-    update: UseElmishOptionsBase<TProps, TModel, TMessage>["update"],
+    update: UpdateFunction<TProps, TModel, TMessage>,
     subscription?: UseElmishOptionsBase<TProps, TModel, TMessage>["subscription"],
 }
+
+interface ElmishStateMap<TProps, TModel, TMessage extends Message> {
+    init: UseElmishOptionsBase<TProps, TModel, TMessage>["init"],
+    update: UpdateMap<TProps, TModel, TMessage>,
+    subscription?: UseElmishOptionsBase<TProps, TModel, TMessage>["subscription"],
+}
+
+type ElmishState<TProps, TModel, TMessage extends Message> = ElmishStateFunction<TProps, TModel, TMessage> | ElmishStateMap<TProps, TModel, TMessage>;
 
 type UseElmishOptions<TProps, TModel, TMessage extends Message, TDependencies> =
     Omit<UseElmishOptionsBase<TProps, TModel, TMessage>, "init" | "update" | "subscription"> & {
@@ -28,6 +37,6 @@ function initWithDependencies<TDependencies> (options: ElmOptions, dependencies:
     }
 }
 
-export type { ElmishState };
+export type { ElmishState, ElmishStateFunction, ElmishStateMap };
 
 export { initWithDependencies };
