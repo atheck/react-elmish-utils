@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Dispatch, ElmOptions, init as initElmish, Message, useElmish as useElmishBase, UseElmishOptions as UseElmishOptionsBase } from "react-elmish";
 
-interface CreateResult<TProps, TModel, TMessage extends Message> {
+interface ElmishState<TProps, TModel, TMessage extends Message> {
     init: UseElmishOptionsBase<TProps, TModel, TMessage>["init"],
     update: UseElmishOptionsBase<TProps, TModel, TMessage>["update"],
     subscription?: UseElmishOptionsBase<TProps, TModel, TMessage>["subscription"],
@@ -9,7 +9,7 @@ interface CreateResult<TProps, TModel, TMessage extends Message> {
 
 type UseElmishOptions<TProps, TModel, TMessage extends Message, TDependencies> =
     Omit<UseElmishOptionsBase<TProps, TModel, TMessage>, "init" | "update" | "subscription"> & {
-        create: (dependencies: TDependencies) => CreateResult<TProps, TModel, TMessage>,
+        create: (dependencies: TDependencies) => ElmishState<TProps, TModel, TMessage>,
     };
 
 interface ElmishWithDependencies<TDependencies> {
@@ -29,5 +29,7 @@ function initWithDependencies<TDependencies> (options: ElmOptions, dependencies:
         return useElmishBase<TProps, TModel, TMessage>({ name, props, init, update, subscription });
     }
 }
+
+export type { ElmishState };
 
 export { initWithDependencies };

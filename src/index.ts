@@ -1,4 +1,4 @@
-import { initWithDependencies } from "./ElmishDi/elmishDi";
+import { ElmishState, initWithDependencies } from "./ElmishDi/elmishDi";
 import { createForm, Form, Message as FormMessage, Model as FormModel, Options as FormOptions } from "./Form";
 import { createFormMap, FormMap, Message as FormMapMessage } from "./FormMap/FormMap";
 import { createList, Message as ListScreenMessage, Model as ListScreenModel, Msg as ListScreenMsg, Options as ListScreenOptions, SortDirection, Sorter, SortFunc } from "./ListScreen";
@@ -29,6 +29,7 @@ export type {
     SearchScreenOptions,
     Filter,
     FilterDefinition,
+    ElmishState,
 };
 
 export {
