@@ -29,7 +29,7 @@ Instead of using the `useElmish` hook from the `react-elmish` package directly, 
 
 ```ts
 // This function can also have a return type of ElmishStateFunction if you are using an update function instead of a map.
-function createComponentState(dependencies): ElmishStateMap<Props, State, Message> {
+function createState(dependencies): ElmishStateMap<Props, State, Message> {
     // Here you can access the dependencies
 
     function init(props: Props): InitResult<State, Message> {
@@ -49,17 +49,17 @@ function createComponentState(dependencies): ElmishStateMap<Props, State, Messag
 }
 ```
 
-You need to pass the `createComponentState` function to the `useElmish` hook.
+You need to pass the `createState` function to the `useElmish` hook.
 
 #### Testing
 
 To test your `init` and `update` functions, you can use the `getElmishState` or `getElmishStateFactory` functions from `react-elmish-utils/dist/Testing`:
 
 ```ts
-const { init, updateFn, updateAndExecCmdFn } = getElmishState(createComponentState, dependencies);
+const { init, updateFn, updateAndExecCmdFn } = getElmishState(createState, dependencies);
 // or
-const createState = getElmishStateFactory(createComponentState);
-const { init, updateFn, updateAndExecCmdFn } = createState(dependencies);
+const createStateWithDependencies = getElmishStateFactory(createState);
+const { init, updateFn, updateAndExecCmdFn } = createStateWithDependencies(dependencies);
 ```
 
 ### Form

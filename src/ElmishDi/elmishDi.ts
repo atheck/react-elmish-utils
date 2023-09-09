@@ -18,7 +18,7 @@ type ElmishState<TProps, TModel, TMessage extends Message> = ElmishStateFunction
 
 type UseElmishOptions<TProps, TModel, TMessage extends Message, TDependencies> =
     Omit<UseElmishOptionsBase<TProps, TModel, TMessage>, "init" | "update" | "subscription"> & {
-        create: (dependencies: TDependencies) => ElmishState<TProps, TModel, TMessage>,
+        createState: (dependencies: TDependencies) => ElmishState<TProps, TModel, TMessage>,
     };
 
 interface ElmishWithDependencies<TDependencies> {
@@ -30,8 +30,8 @@ function initWithDependencies<TDependencies> (options: ElmOptions, dependencies:
 
     return { useElmish };
 
-    function useElmish<TProps, TModel, TMessage extends Message> ({ name, props, create }: UseElmishOptions<TProps, TModel, TMessage, TDependencies>): [TModel, Dispatch<TMessage>] {
-        const { init, update, subscription } = useMemo(() => create(dependencies), [create]);
+    function useElmish<TProps, TModel, TMessage extends Message> ({ name, props, createState }: UseElmishOptions<TProps, TModel, TMessage, TDependencies>): [TModel, Dispatch<TMessage>] {
+        const { init, update, subscription } = useMemo(() => createState(dependencies), [createState]);
 
         return useElmishBase<TProps, TModel, TMessage>({ name, props, init, update, subscription });
     }
