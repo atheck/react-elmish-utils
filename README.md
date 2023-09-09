@@ -56,10 +56,16 @@ You need to pass the `createState` function to the `useElmish` hook.
 To test your `init` and `update` functions, you can use the `getElmishState` or `getElmishStateFactory` functions from `react-elmish-utils/dist/Testing`:
 
 ```ts
-const { getUpdateArgs, init, updateFn, updateAndExecCmdFn } = getElmishState(createState, dependencies);
+function initProps(): Props {
+    return {
+        // initial props
+    };
+}
+
+const { createUpdateArgs, init, updateFn, updateAndExecCmdFn } = getElmishState(createState, initProps, dependencies);
 // or
-const createStateWithDependencies = getElmishStateFactory(createState);
-const { getUpdateArgs, init, updateFn, updateAndExecCmdFn } = createStateWithDependencies(dependencies);
+const createStateWithDependencies = getElmishStateFactory(createState, initProps);
+const { createUpdateArgs, init, updateFn, updateAndExecCmdFn } = createStateWithDependencies(dependencies);
 ```
 
 ### Form
