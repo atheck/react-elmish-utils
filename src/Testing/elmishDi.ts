@@ -6,12 +6,12 @@ interface ElmishStateResult<TProps, TModel, TMessage extends Message> {
     init: (props: TProps) => InitResult<TModel, TMessage>,
     updateFn: (msg: TMessage, model: TModel, props: TProps) => UpdateReturnType<TModel, TMessage>,
     updateAndExecCmdFn: (msg: TMessage, model: TModel, props: TProps) => Promise<[Partial<TModel>, (TMessage | null) []]>,
-    getUpdateArgs: (initProps: () => TProps) => UpdateArgsFactory<TProps, TModel, TMessage>,
+    createUpdateArgs: (initProps: () => TProps) => UpdateArgsFactory<TProps, TModel, TMessage>,
 }
 
 function getElmishState<TProps, TModel, TMessage extends Message, TDependencies> (createState: (dependencies: TDependencies) => ElmishState<TProps, TModel, TMessage>, dependencies: TDependencies): ElmishStateResult<TProps, TModel, TMessage> {
     const { init, update } = createState(dependencies);
-    const getUpdateArgs = (initProps: () => TProps): UpdateArgsFactory<TProps, TModel, TMessage> => getCreateUpdateArgs(init, initProps);
+    const createUpdateArgs = (initProps: () => TProps): UpdateArgsFactory<TProps, TModel, TMessage> => getCreateUpdateArgs(init, initProps);
 
     if (typeof update === "function") {
         return {
@@ -25,7 +25,7 @@ function getElmishState<TProps, TModel, TMessage extends Message, TDependencies>
 
                 return [updatedModel, messages];
             },
-            getUpdateArgs,
+            createUpdateArgs,
         };
     }
 
@@ -36,12 +36,14 @@ function getElmishState<TProps, TModel, TMessage extends Message, TDependencies>
         init,
         updateFn,
         updateAndExecCmdFn,
-        getUpdateArgs,
+        createUpdateArgs,
     };
 }
 
 function getElmishStateFactory<TProps, TModel, TMessage extends Message, TDependencies> (createState: (dependencies: TDependencies) => ElmishState<TProps, TModel, TMessage>): (dependencies: TDependencies) => ElmishStateResult<TProps, TModel, TMessage> {
     return (dependencies: TDependencies) => getElmishState(createState, dependencies);
 }
+
+export type { ElmishStateResult };
 
 export { getElmishState, getElmishStateFactory };
