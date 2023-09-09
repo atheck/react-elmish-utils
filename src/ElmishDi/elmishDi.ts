@@ -16,8 +16,6 @@ interface ElmishWithDependencies<TDependencies> {
     useElmish: <TProps, TModel, TMessage extends Message>(options: UseElmishOptions<TProps, TModel, TMessage, TDependencies>) => [TModel, Dispatch<TMessage>],
 }
 
-// TODO: Hilfsfunktion für Tests
-
 function initWithDependencies<TDependencies> (options: ElmOptions, dependencies: TDependencies): ElmishWithDependencies<TDependencies> {
     initElmish(options);
 
