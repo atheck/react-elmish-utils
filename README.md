@@ -62,10 +62,10 @@ function initProps(): Props {
     };
 }
 
-const { createUpdateArgs, init, updateFn, updateAndExecCmdFn } = getElmishState(createState, initProps, dependencies);
+const { createUpdateArgs, init, update, updateAndExecCmd } = getElmishState(createState, initProps, dependencies);
 // or
 const createStateWithDependencies = getElmishStateFactory(createState, initProps);
-const { createUpdateArgs, init, updateFn, updateAndExecCmdFn } = createStateWithDependencies(dependencies);
+const { createUpdateArgs, init, update, updateAndExecCmd } = createStateWithDependencies(dependencies);
 ```
 
 ### Form

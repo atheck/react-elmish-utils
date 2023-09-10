@@ -4,8 +4,8 @@ import { ElmishState } from "../ElmishDi/elmishDi";
 
 interface ElmishStateResult<TProps, TModel, TMessage extends Message> {
     init: (props: TProps) => InitResult<TModel, TMessage>,
-    updateFn: (msg: TMessage, model: TModel, props: TProps) => UpdateReturnType<TModel, TMessage>,
-    updateAndExecCmdFn: (msg: TMessage, model: TModel, props: TProps) => Promise<[Partial<TModel>, (TMessage | null) []]>,
+    update: (msg: TMessage, model: TModel, props: TProps) => UpdateReturnType<TModel, TMessage>,
+    updateAndExecCmd: (msg: TMessage, model: TModel, props: TProps) => Promise<[Partial<TModel>, (TMessage | null) []]>,
     createUpdateArgs: UpdateArgsFactory<TProps, TModel, TMessage>,
 }
 
@@ -20,10 +20,10 @@ function getElmishState<TProps, TModel, TMessage extends Message, TDependencies>
     if (typeof update === "function") {
         return {
             init,
-            updateFn (msg, model, props) {
+            update (msg, model, props) {
                 return update(model, msg, props);
             },
-            async updateAndExecCmdFn (msg, model, props) {
+            async updateAndExecCmd (msg, model, props) {
                 const [updatedModel, cmd] = update(model, msg, props);
                 const messages = await execCmd(cmd);
 
@@ -34,12 +34,12 @@ function getElmishState<TProps, TModel, TMessage extends Message, TDependencies>
     }
 
     const updateFn = getUpdateFn(update);
-    const updateAndExecCmdFn = getUpdateAndExecCmdFn(update);
+    const updateAndExecCmd = getUpdateAndExecCmdFn(update);
 
     return {
         init,
-        updateFn,
-        updateAndExecCmdFn,
+        update: updateFn,
+        updateAndExecCmd,
         createUpdateArgs,
     };
 }
