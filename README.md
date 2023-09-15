@@ -13,6 +13,61 @@ Utility functions and types for [react-elmish](https://www.npmjs.com/package/rea
 
 ## Usage
 
+### Dependency Injection
+
+You can use the function `initWithDependencies` to get a wrapper around the `useElmish` hook.
+
+```ts
+const dependencies = {
+    // Contains dependencies
+}
+
+const { useElmish } = initWithDependencies({ /* Elmish options */ }, dependencies);
+```
+
+Instead of using the `useElmish` hook from the `react-elmish` package directly, you can use the returned hook in your components. With that you can use a function around the `init`, the `update`, and the `subscription` functions:
+
+```ts
+// This function can also have a return type of ElmishStateFunction if you are using an update function instead of a map.
+function createState(dependencies): ElmishStateMap<Props, State, Message> {
+    // Here you can access the dependencies
+
+    function init(props: Props): InitResult<State, Message> {
+        return [{
+            // init state here
+        }];
+    }
+    const update: UpdateMap<Props, State, Message> = {
+        // update functions
+    };
+
+    return {
+        init,
+        update,
+        // optional subscription
+    };
+}
+```
+
+You need to pass the `createState` function to the `useElmish` hook.
+
+#### Testing
+
+To test your `init` and `update` functions, you can use the `getElmishState` or `getElmishStateFactory` functions from `react-elmish-utils/dist/Testing`:
+
+```ts
+function initProps(): Props {
+    return {
+        // initial props
+    };
+}
+
+const { createUpdateArgs, init, update, updateAndExecCmd } = getElmishState(createState, initProps, dependencies);
+// or
+const createStateWithDependencies = getElmishStateFactory(createState, initProps);
+const { createUpdateArgs, init, update, updateAndExecCmd } = createStateWithDependencies(dependencies);
+```
+
 ### Form
 
 This module handles common tasks of a form.
