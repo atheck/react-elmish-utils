@@ -1,5 +1,9 @@
+.github/
+.vscode/
 src/
 tests/
 .babelrc
+.eslintrc
+.releaserc.json
 jest.config.js
 tsconfig.json
