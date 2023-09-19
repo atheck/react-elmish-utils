@@ -1,5 +1,12 @@
 {
+	"[javascript][javascriptreact][typescript][typescriptreact]": {
+		"editor.defaultFormatter": "biomejs.biome"
+	},
 	"cSpell.words": [
 		"keyof"
-	]
+	],
+	"editor.codeActionsOnSave": {
+		"source.organizeImports": true
+	},
+	"editor.formatOnSave": true
 }
