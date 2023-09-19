@@ -2,7 +2,4 @@ import { ElmishStateResult, getElmishState, getElmishStateFactory } from "./elmi
 
 export type { ElmishStateResult };
 
-export {
-    getElmishState,
-    getElmishStateFactory,
-};
+export { getElmishState, getElmishStateFactory };

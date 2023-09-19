@@ -1,8 +1,8 @@
 type ValidationKey = string | symbol | number;
 
 interface ValidationError<TValidationKeys extends ValidationKey = string> {
-    key: TValidationKeys,
-    message: string,
+	key: TValidationKeys;
+	message: string;
 }
 
 type Validator<TValidationKeys extends ValidationKey = string> = [TValidationKeys, ValidatorFunc];
@@ -14,8 +14,11 @@ type ValidatorFunc = () => string | null | Promise<string | null>;
  * @param errors The list of errors.
  * @returns The error for the given key, or null if there is no error.
  */
-function getError<TValidationKeys extends ValidationKey = string> (key: TValidationKeys, errors: ValidationError<TValidationKeys> []): string | null {
-    return errors.find(error => error.key === key)?.message ?? null;
+function getError<TValidationKeys extends ValidationKey = string>(
+	key: TValidationKeys,
+	errors: ValidationError<TValidationKeys>[],
+): string | null {
+	return errors.find((error) => error.key === key)?.message ?? null;
 }
 
 /**
@@ -23,29 +26,23 @@ function getError<TValidationKeys extends ValidationKey = string> (key: TValidat
  * @param validators The list of validators.
  * @returns A list of validation errors.
  */
-async function runValidation<TValidationKeys extends ValidationKey = string> (...validators: Validator<TValidationKeys> []): Promise<ValidationError<TValidationKeys> []> {
-    const errors: ValidationError<TValidationKeys> [] = [];
+async function runValidation<TValidationKeys extends ValidationKey = string>(
+	...validators: Validator<TValidationKeys>[]
+): Promise<ValidationError<TValidationKeys>[]> {
+	const errors: ValidationError<TValidationKeys>[] = [];
 
-    for (const [key, validatorFunc] of validators) {
-        // eslint-disable-next-line no-await-in-loop
-        const message = await validatorFunc();
+	for (const [key, validatorFunc] of validators) {
+		// eslint-disable-next-line no-await-in-loop
+		const message = await validatorFunc();
 
-        if (message) {
-            errors.push({ key, message });
-        }
-    }
+		if (message) {
+			errors.push({ key, message });
+		}
+	}
 
-    return errors;
+	return errors;
 }
 
-export type {
-    ValidationKey,
-    ValidationError,
-    Validator,
-    ValidatorFunc,
-};
+export type { ValidationError, ValidationKey, Validator, ValidatorFunc };
 
-export {
-    getError,
-    runValidation,
-};
+export { getError, runValidation };

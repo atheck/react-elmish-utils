@@ -1,15 +1,6 @@
 import { Filter, FilterDefinition } from "./Search";
-import { createSearch, Message, Model, Msg, Options } from "./SearchScreen";
+import { Message, Model, Msg, Options, createSearch } from "./SearchScreen";
 
-export type {
-    Message,
-    Model,
-    Msg,
-    Options,
-    Filter,
-    FilterDefinition,
-};
+export type { Filter, FilterDefinition, Message, Model, Msg, Options };
 
-export {
-    createSearch,
-};
+export { createSearch };

@@ -2,43 +2,43 @@
  * Definition of a filter.
  */
 interface FilterDefinition<TData> {
-    /**
-     * The name of the filter.
-     */
-    name: string,
-    /**
-     * The filter function.
-     */
-    filter: (data: TData) => boolean,
-    /**
-     * The initial state of the filter.
-     */
-    active?: boolean,
+	/**
+	 * The name of the filter.
+	 */
+	name: string;
+	/**
+	 * The filter function.
+	 */
+	filter: (data: TData) => boolean;
+	/**
+	 * The initial state of the filter.
+	 */
+	active?: boolean;
 }
 
 interface Filter<TData> extends FilterDefinition<TData> {
-    active: boolean,
+	active: boolean;
 }
 
 type SearchFunc<T> = (item: T, query: string) => boolean;
 
 interface SearchOptions<TData> {
-    /**
-     * The list of all items.
-     */
-    items: TData [],
-    /**
-     * The search query string.
-     */
-    query: string,
-    /**
-     * The optional list of filters.
-     */
-    filters?: Filter<TData> [],
-    /**
-     * The function to filter one item of the list by the given query string.
-     */
-    filterByQuery: SearchFunc<TData>,
+	/**
+	 * The list of all items.
+	 */
+	items: TData[];
+	/**
+	 * The search query string.
+	 */
+	query: string;
+	/**
+	 * The optional list of filters.
+	 */
+	filters?: Filter<TData>[];
+	/**
+	 * The function to filter one item of the list by the given query string.
+	 */
+	filterByQuery: SearchFunc<TData>;
 }
 
 /**
@@ -46,46 +46,40 @@ interface SearchOptions<TData> {
  * @param param0 The options object.
  * @returns The list of items matching the given search query and active filters.
  */
-function search<TData> ({ query, items, filters, filterByQuery }: SearchOptions<TData>): TData [] {
-    if (areQueryAndFiltersEmpty(query, filters)) {
-        return [];
-    }
+function search<TData>({ query, items, filters, filterByQuery }: SearchOptions<TData>): TData[] {
+	if (areQueryAndFiltersEmpty(query, filters)) {
+		return [];
+	}
 
-    const queryLowerCase = query.toLowerCase();
-    const filtered = filterItems(items, filters);
-    const visibleItems = queryLowerCase.length > 0 ? filtered.filter(i => filterByQuery(i, queryLowerCase)) : filtered;
+	const queryLowerCase = query.toLowerCase();
+	const filtered = filterItems(items, filters);
+	const visibleItems = queryLowerCase.length > 0 ? filtered.filter((i) => filterByQuery(i, queryLowerCase)) : filtered;
 
-    return visibleItems;
+	return visibleItems;
 }
 
-function filterItems<T> (items: T [], filters?: Filter<T> []): T [] {
-    if (!filters || filters.every(filter => !filter.active)) {
-        return items;
-    }
+function filterItems<T>(items: T[], filters?: Filter<T>[]): T[] {
+	if (!filters || filters.every((filter) => !filter.active)) {
+		return items;
+	}
 
-    const activeFilters = filters.filter(filter => filter.active);
+	const activeFilters = filters.filter((filter) => filter.active);
 
-    return items.filter(i => {
-        for (const filter of activeFilters) {
-            if (filter.filter(i)) {
-                return true;
-            }
-        }
+	return items.filter((i) => {
+		for (const filter of activeFilters) {
+			if (filter.filter(i)) {
+				return true;
+			}
+		}
 
-        return false;
-    });
+		return false;
+	});
 }
 
-function areQueryAndFiltersEmpty<TData> (query: string, filters?: Filter<TData> []): boolean {
-    return query.length === 0 && (!filters || filters.every(current => !current.active));
+function areQueryAndFiltersEmpty<TData>(query: string, filters?: Filter<TData>[]): boolean {
+	return query.length === 0 && (!filters || filters.every((current) => !current.active));
 }
 
-export type {
-    FilterDefinition,
-    Filter,
-    SearchFunc,
-};
+export type { Filter, FilterDefinition, SearchFunc };
 
-export {
-    search,
-};
+export { search };
