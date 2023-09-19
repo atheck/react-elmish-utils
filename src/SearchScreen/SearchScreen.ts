@@ -112,7 +112,7 @@ function createSearch<TModel, TProps, TData> (options: Options<TData>): Search<T
                 visibleItems: [],
                 filters: options.filters?.map(filterDefinition => ({
                     ...filterDefinition,
-                    active: false,
+                    active: filterDefinition.active ?? false,
                 })),
             };
         },

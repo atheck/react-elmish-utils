@@ -36,6 +36,35 @@ describe("SearchScreen", () => {
             expect(model.query).toBe("");
             expect(model.visibleItems).toHaveLength(0);
         });
+
+        it("correctly initializes the model with a initially active filter", () => {
+            // arrange
+            const mockFilterFn = jest.fn();
+            const filters: FilterDefinition<string> [] = [
+                {
+                    name: "Test",
+                    filter: mockFilterFn,
+                    active: true,
+                },
+            ];
+
+            const searchScreen = createSearch({
+                filterByQuery: jest.fn(),
+                filters,
+            });
+
+            // act
+            const model = searchScreen.init();
+
+            // assert
+            expect(model.filters).toStrictEqual([
+                {
+                    name: "Test",
+                    active: true,
+                    filter: mockFilterFn,
+                },
+            ]);
+        });
     });
 
     describe("update", () => {

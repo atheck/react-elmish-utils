@@ -10,6 +10,10 @@ interface FilterDefinition<TData> {
      * The filter function.
      */
     filter: (data: TData) => boolean,
+    /**
+     * The initial state of the filter.
+     */
+    active?: boolean,
 }
 
 interface Filter<TData> extends FilterDefinition<TData> {
