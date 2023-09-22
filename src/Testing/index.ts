@@ -1,5 +1,5 @@
-import { ElmishStateResult, getElmishState, getElmishStateFactory } from "./elmishDi";
+import { ElmishStateResult, getElmishState, getElmishStateFactory, renderWithDependencies } from "./elmishDi";
 
 export type { ElmishStateResult };
 
-export { getElmishState, getElmishStateFactory };
+export { getElmishState, getElmishStateFactory, renderWithDependencies };

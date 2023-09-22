@@ -1,6 +1,15 @@
 import { InitResult, Message, UpdateReturnType } from "react-elmish";
-import { UpdateArgsFactory, execCmd, getCreateUpdateArgs, getUpdateAndExecCmdFn, getUpdateFn } from "react-elmish/dist/Testing";
+import {
+	RenderWithModelOptions,
+	UpdateArgsFactory,
+	execCmd,
+	getCreateUpdateArgs,
+	getUpdateAndExecCmdFn,
+	getUpdateFn,
+	renderWithModel,
+} from "react-elmish/dist/Testing";
 import { ElmishState } from "../ElmishDi/elmishDi";
+import { setFakeDependencies } from "./fakeDependencies";
 
 interface ElmishStateResult<TProps, TModel, TMessage extends Message> {
 	init: (props: TProps) => InitResult<TModel, TMessage>;
@@ -51,6 +60,24 @@ function getElmishStateFactory<TProps, TModel, TMessage extends Message, TDepend
 	return (dependencies: TDependencies) => getElmishState(createState, initProps, dependencies);
 }
 
-export type { ElmishStateResult };
+interface RenderOptions<TModel, TMessage extends Message, TDependencies> extends RenderWithModelOptions<TMessage> {
+	dependencies?: TDependencies;
+	model: TModel;
+}
 
-export { getElmishState, getElmishStateFactory };
+function renderWithDependencies<TModel extends object, TMessage extends Message, TDependencies, TResult>(
+	render: () => TResult,
+	{ dependencies, model, ...rest }: RenderOptions<TModel, TMessage, TDependencies>,
+): TResult {
+	setFakeDependencies(dependencies);
+
+	const result = renderWithModel(render, model, rest);
+
+	setFakeDependencies(null);
+
+	return result;
+}
+
+export type { ElmishStateResult, RenderOptions };
+
+export { getElmishState, getElmishStateFactory, renderWithDependencies };

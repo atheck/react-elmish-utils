@@ -68,6 +68,18 @@ const createStateWithDependencies = getElmishStateFactory(createState, initProps
 const { createUpdateArgs, init, update, updateAndExecCmd } = createStateWithDependencies(dependencies);
 ```
 
+To test React components with dependencies you can use the `renderWithDependencies` function from `react-elmish-utils/dist/Testing`:
+
+```tsx
+renderWithDependencies(() => <Component />, {
+    dependencies: { /* optional mocked dependencies */ },
+    model: { /* mocked model */ }
+    dispatch: jest.fn(), // optional
+});
+```
+
+This renders the component using the dependencies, model, and dispatch function you pass in.
+
 ### Form
 
 This module handles common tasks of a form.

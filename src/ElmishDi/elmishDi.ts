@@ -8,6 +8,7 @@ import {
 	useElmish as useElmishBase,
 } from "react-elmish";
 import { UpdateFunction, UpdateMap } from "react-elmish/dist/Types";
+import { getCurrentFakeDependenciesOnce } from "../Testing/fakeDependencies";
 
 interface ElmishStateFunction<TProps, TModel, TMessage extends Message> {
 	init: UseElmishOptionsBase<TProps, TModel, TMessage>["init"];
@@ -51,7 +52,10 @@ function initWithDependencies<TDependencies>(
 		props,
 		createState,
 	}: UseElmishOptions<TProps, TModel, TMessage, TDependencies>): [TModel, Dispatch<TMessage>] {
-		const { init, update, subscription } = useMemo(() => createState(dependencies), [createState]);
+		const { init, update, subscription } = useMemo(
+			() => createState(getCurrentFakeDependenciesOnce() ?? dependencies),
+			[createState],
+		);
 
 		return useElmishBase<TProps, TModel, TMessage>({ name, props, init, update, subscription });
 	}
