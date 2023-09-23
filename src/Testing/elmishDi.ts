@@ -3,19 +3,28 @@ import {
 	RenderWithModelOptions,
 	UpdateArgsFactory,
 	execCmd,
+	getCreateModelAndProps,
 	getCreateUpdateArgs,
 	getUpdateAndExecCmdFn,
 	getUpdateFn,
 	renderWithModel,
 } from "react-elmish/dist/Testing";
+import { Subscription } from "react-elmish/dist/useElmish";
 import { ElmishState } from "../ElmishDi/elmishDi";
 import { setFakeDependencies } from "./fakeDependencies";
+
+type ModelAndPropsFactory<TProps, TModel> = (
+	modelTemplate?: Partial<TModel>,
+	propsTemplate?: Partial<TProps>,
+) => [TModel, TProps];
 
 interface ElmishStateResult<TProps, TModel, TMessage extends Message> {
 	init: (props: TProps) => InitResult<TModel, TMessage>;
 	update: (msg: TMessage, model: TModel, props: TProps) => UpdateReturnType<TModel, TMessage>;
 	updateAndExecCmd: (msg: TMessage, model: TModel, props: TProps) => Promise<[Partial<TModel>, (TMessage | null)[]]>;
+	subscription?: Subscription<TProps, TModel, TMessage>;
 	createUpdateArgs: UpdateArgsFactory<TProps, TModel, TMessage>;
+	createModelAndProps: ModelAndPropsFactory<TProps, TModel>;
 }
 
 function getElmishState<TProps, TModel, TMessage extends Message, TDependencies>(
@@ -23,8 +32,9 @@ function getElmishState<TProps, TModel, TMessage extends Message, TDependencies>
 	initProps: () => TProps,
 	dependencies: TDependencies,
 ): ElmishStateResult<TProps, TModel, TMessage> {
-	const { init, update } = createState(dependencies);
+	const { init, update, subscription } = createState(dependencies);
 	const createUpdateArgs = getCreateUpdateArgs(init, initProps);
+	const createModelAndProps = getCreateModelAndProps(init, initProps);
 
 	if (typeof update === "function") {
 		return {
@@ -38,7 +48,9 @@ function getElmishState<TProps, TModel, TMessage extends Message, TDependencies>
 
 				return [updatedModel, messages];
 			},
+			subscription,
 			createUpdateArgs,
+			createModelAndProps,
 		};
 	}
 
@@ -49,7 +61,9 @@ function getElmishState<TProps, TModel, TMessage extends Message, TDependencies>
 		init,
 		update: updateFn,
 		updateAndExecCmd,
+		subscription,
 		createUpdateArgs,
+		createModelAndProps,
 	};
 }
 

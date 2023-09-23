@@ -38,7 +38,7 @@
     "typescript": "5.2.2"
   },
   "peerDependencies": {
-    "react-elmish": ">=7.0.2"
+    "react-elmish": ">=7.1.0"
   },
   "homepage": "https://github.com/atheck/react-elmish-utils",
   "repository": {
