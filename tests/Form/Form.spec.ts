@@ -1,5 +1,4 @@
 import { execCmd } from "react-elmish/dist/Testing";
-import * as TypeMoq from "typemoq";
 import * as Form from "../../src/Form/Form";
 
 interface TestFormValues {
@@ -50,19 +49,17 @@ describe("FormScreen", () => {
 		describe("ValueChanged", () => {
 			it("merges values and re-validates", async () => {
 				// arrange
-				const mockModel = TypeMoq.Mock.ofType<TestModel>();
-				const mockProps = TypeMoq.Mock.ofType<TestProps>();
-				const msg = form.Msg.valueChanged({ value1: "Modified" });
-
-				mockModel
-					.setup((model) => model.values)
-					.returns(() => ({
+				const model = createModel({
+					values: {
 						value1: "Test",
 						value2: 1,
-					}));
+					},
+				});
+				const props = createProps();
+				const msg = form.Msg.valueChanged({ value1: "Modified" });
 
 				// act
-				const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
+				const [newModel, cmd] = form.update(model, msg, props);
 				const messages = await execCmd(cmd);
 
 				// assert
@@ -77,8 +74,13 @@ describe("FormScreen", () => {
 
 			it("calls onValueChanged if provided and takes the returned values", async () => {
 				// arrange
-				const mockModel = TypeMoq.Mock.ofType<TestModel>();
-				const mockProps = TypeMoq.Mock.ofType<TestProps>();
+				const model = createModel({
+					values: {
+						value1: "Test",
+						value2: 1,
+					},
+				});
+				const props = createProps();
 				const onValueChanged = (value: Partial<TestFormValues>): Partial<TestFormValues> => ({
 					value1: value.value1,
 					value2: 2,
@@ -89,15 +91,8 @@ describe("FormScreen", () => {
 				});
 				const msg = formWithOnValueChanged.Msg.valueChanged({ value1: "Modified" });
 
-				mockModel
-					.setup((model) => model.values)
-					.returns(() => ({
-						value1: "Test",
-						value2: 1,
-					}));
-
 				// act
-				const [newModel, cmd] = formWithOnValueChanged.update(mockModel.object, msg, mockProps.object);
+				const [newModel, cmd] = formWithOnValueChanged.update(model, msg, props);
 				const messages = await execCmd(cmd);
 
 				// assert
@@ -114,14 +109,12 @@ describe("FormScreen", () => {
 		describe("AcceptRequest", () => {
 			it("calls validation", async () => {
 				// arrange
-				const mockModel = TypeMoq.Mock.ofType<TestModel>();
-				const mockProps = TypeMoq.Mock.ofType<TestProps>();
+				const model = createModel({ validated: false });
+				const props = createProps();
 				const msg = form.Msg.acceptRequest();
 
-				mockModel.setup((model) => model.validated).returns(() => false);
-
 				// act
-				const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
+				const [newModel, cmd] = form.update(model, msg, props);
 				const messages = await execCmd(cmd);
 
 				// assert
@@ -133,12 +126,12 @@ describe("FormScreen", () => {
 		describe("Accept", () => {
 			it("does nothing by default", () => {
 				// arrange
-				const mockModel = TypeMoq.Mock.ofType<TestModel>();
-				const mockProps = TypeMoq.Mock.ofType<TestProps>();
+				const model = createModel();
+				const props = createProps();
 				const msg = form.Msg.accept();
 
 				// act
-				const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
+				const [newModel, cmd] = form.update(model, msg, props);
 
 				// assert
 				expect(newModel).toStrictEqual({});
@@ -147,8 +140,8 @@ describe("FormScreen", () => {
 
 			it("calls onAccept if provided", () => {
 				// arrange
-				const mockModel = TypeMoq.Mock.ofType<TestModel>();
-				const mockProps = TypeMoq.Mock.ofType<TestProps>();
+				const model = createModel();
+				const props = createProps();
 				const mockOnAccept = jest.fn();
 				const formWithOnAccept = Form.createForm({
 					initValues,
@@ -158,10 +151,10 @@ describe("FormScreen", () => {
 				const msg = formWithOnAccept.Msg.accept();
 
 				// act
-				const [newModel, cmd] = formWithOnAccept.update(mockModel.object, msg, mockProps.object);
+				const [newModel, cmd] = formWithOnAccept.update(model, msg, props);
 
 				// assert
-				expect(mockOnAccept).toHaveBeenCalledWith(mockModel.object, mockProps.object);
+				expect(mockOnAccept).toHaveBeenCalledWith(model, props);
 				expect(newModel).toStrictEqual({});
 				expect(cmd).toBeUndefined();
 			});
@@ -170,12 +163,12 @@ describe("FormScreen", () => {
 		describe("CancelRequest", () => {
 			it("dispatches Cancel by default", async () => {
 				// arrange
-				const mockModel = TypeMoq.Mock.ofType<TestModel>();
-				const mockProps = TypeMoq.Mock.ofType<TestProps>();
+				const model = createModel();
+				const props = createProps();
 				const msg = form.Msg.cancelRequest();
 
 				// act
-				const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
+				const [newModel, cmd] = form.update(model, msg, props);
 				const messages = await execCmd(cmd);
 
 				// assert
@@ -187,12 +180,12 @@ describe("FormScreen", () => {
 		describe("Cancel", () => {
 			it("does nothing by default", () => {
 				// arrange
-				const mockModel = TypeMoq.Mock.ofType<TestModel>();
-				const mockProps = TypeMoq.Mock.ofType<TestProps>();
+				const model = createModel();
+				const props = createProps();
 				const msg = form.Msg.cancel();
 
 				// act
-				const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
+				const [newModel, cmd] = form.update(model, msg, props);
 
 				// assert
 				expect(newModel).toStrictEqual({});
@@ -201,8 +194,8 @@ describe("FormScreen", () => {
 
 			it("calls onCancel if provided", () => {
 				// arrange
-				const mockModel = TypeMoq.Mock.ofType<TestModel>();
-				const mockProps = TypeMoq.Mock.ofType<TestProps>();
+				const model = createModel();
+				const props = createProps();
 				const mockOnCancel = jest.fn();
 				const formWithOnCancel = Form.createForm({
 					initValues,
@@ -212,10 +205,10 @@ describe("FormScreen", () => {
 				const msg = formWithOnCancel.Msg.cancel();
 
 				// act
-				const [newModel, cmd] = formWithOnCancel.update(mockModel.object, msg, mockProps.object);
+				const [newModel, cmd] = formWithOnCancel.update(model, msg, props);
 
 				// assert
-				expect(mockOnCancel).toHaveBeenCalledWith(mockModel.object, mockProps.object);
+				expect(mockOnCancel).toHaveBeenCalledWith(model, props);
 				expect(newModel).toStrictEqual({});
 				expect(cmd).toBeUndefined();
 			});
@@ -224,12 +217,12 @@ describe("FormScreen", () => {
 		describe("Validate", () => {
 			it("returns no validation errors without a validation function", async () => {
 				// arrange
-				const mockModel = TypeMoq.Mock.ofType<TestModel>();
-				const mockProps = TypeMoq.Mock.ofType<TestProps>();
+				const model = createModel();
+				const props = createProps();
 				const msg = form.Msg.validate(form.Msg.accept());
 
 				// act
-				const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
+				const [newModel, cmd] = form.update(model, msg, props);
 				const messages = await execCmd(cmd);
 
 				// assert
@@ -239,8 +232,8 @@ describe("FormScreen", () => {
 
 			it("calls validate and resets validation errors, and gets correct validation errors", async () => {
 				// arrange
-				const mockModel = TypeMoq.Mock.ofType<TestModel>();
-				const mockProps = TypeMoq.Mock.ofType<TestProps>();
+				const model = createModel();
+				const props = createProps();
 				const validationError = { key: "value1" as const, message: "error" };
 				const mockValidate = jest.fn().mockResolvedValue([validationError]);
 
@@ -252,12 +245,12 @@ describe("FormScreen", () => {
 				const msg = formWithValidation.Msg.validate(formWithValidation.Msg.accept());
 
 				// act
-				const [newModel, cmd] = formWithValidation.update(mockModel.object, msg, mockProps.object);
+				const [newModel, cmd] = formWithValidation.update(model, msg, props);
 				const messages = await execCmd(cmd);
 
 				// assert
 				expect(mockValidate).toHaveBeenCalledTimes(1);
-				expect(mockValidate).toHaveBeenCalledWith(mockModel.object, mockProps.object);
+				expect(mockValidate).toHaveBeenCalledWith({ ...model, reValidating: false }, props);
 				expect(newModel).toStrictEqual({ errors: [], validated: true });
 				expect(messages).toStrictEqual([formWithValidation.Msg.validated([validationError], formWithValidation.Msg.accept())]);
 			});
@@ -266,13 +259,13 @@ describe("FormScreen", () => {
 		describe("Validated", () => {
 			it("sets errors when given", () => {
 				// arrange
-				const mockModel = TypeMoq.Mock.ofType<TestModel>();
-				const mockProps = TypeMoq.Mock.ofType<TestProps>();
+				const model = createModel();
+				const props = createProps();
 				const errors = [{ key: "value1" as const, message: "message" }];
 				const msg = form.Msg.validated(errors);
 
 				// act
-				const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
+				const [newModel, cmd] = form.update(model, msg, props);
 
 				// assert
 				expect(newModel).toStrictEqual({ errors });
@@ -281,12 +274,12 @@ describe("FormScreen", () => {
 
 			it("calls given message without errors", async () => {
 				// arrange
-				const mockModel = TypeMoq.Mock.ofType<TestModel>();
-				const mockProps = TypeMoq.Mock.ofType<TestProps>();
+				const model = createModel();
+				const props = createProps();
 				const msg = form.Msg.validated([], form.Msg.accept());
 
 				// act
-				const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
+				const [newModel, cmd] = form.update(model, msg, props);
 				const messages = await execCmd(cmd);
 
 				// assert
@@ -296,12 +289,12 @@ describe("FormScreen", () => {
 
 			it("does nothing without errors and message", () => {
 				// arrange
-				const mockModel = TypeMoq.Mock.ofType<TestModel>();
-				const mockProps = TypeMoq.Mock.ofType<TestProps>();
+				const model = createModel();
+				const props = createProps();
 				const msg = form.Msg.validated([]);
 
 				// act
-				const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
+				const [newModel, cmd] = form.update(model, msg, props);
 
 				// assert
 				expect(newModel).toStrictEqual({});
@@ -310,8 +303,8 @@ describe("FormScreen", () => {
 
 			it("calls the onValidated callback if provided", () => {
 				// arrange
-				const mockModel = TypeMoq.Mock.ofType<TestModel>();
-				const mockProps = TypeMoq.Mock.ofType<TestProps>();
+				const model = createModel();
+				const props = createProps();
 				const errors = [{ key: "value1" as const, message: "message" }];
 				const mockOnValidated = jest.fn();
 				const formWithOnValidated = Form.createForm({
@@ -321,24 +314,22 @@ describe("FormScreen", () => {
 				const msg = formWithOnValidated.Msg.validated(errors);
 
 				// act
-				formWithOnValidated.update(mockModel.object, msg, mockProps.object);
+				formWithOnValidated.update(model, msg, props);
 
 				// assert
-				expect(mockOnValidated).toHaveBeenCalledWith(errors, mockModel.object, mockProps.object);
+				expect(mockOnValidated).toHaveBeenCalledWith(errors, { ...model, reValidating: false }, props);
 			});
 		});
 
 		describe("ReValidate", () => {
 			it("does nothing when not validated", () => {
 				// arrange
-				const mockModel = TypeMoq.Mock.ofType<TestModel>();
-				const mockProps = TypeMoq.Mock.ofType<TestProps>();
+				const model = createModel({ validated: false });
+				const props = createProps();
 				const msg = form.Msg.reValidate();
 
-				mockModel.setup((model) => model.validated).returns(() => false);
-
 				// act
-				const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
+				const [newModel, cmd] = form.update(model, msg, props);
 
 				// assert
 				expect(newModel).toStrictEqual({});
@@ -347,20 +338,59 @@ describe("FormScreen", () => {
 
 			it("calls validate if validated previously", async () => {
 				// arrange
-				const mockModel = TypeMoq.Mock.ofType<TestModel>();
-				const mockProps = TypeMoq.Mock.ofType<TestProps>();
+				const model = createModel({ validated: true });
+				const props = createProps();
 				const msg = form.Msg.reValidate();
 
-				mockModel.setup((model) => model.validated).returns(() => true);
-
 				// act
-				const [newModel, cmd] = form.update(mockModel.object, msg, mockProps.object);
+				const [newModel, cmd] = form.update(model, msg, props);
 				const messages = await execCmd(cmd);
 
 				// assert
 				expect(newModel).toStrictEqual({});
 				expect(messages).toStrictEqual([form.Msg.validate()]);
 			});
+
+			it("calls validate function with revalidation set if validated previously", async () => {
+				// arrange
+				const model = createModel({ validated: true });
+				const props = createProps();
+				const mockValidate = jest.fn().mockResolvedValue([]);
+				const formWithValidation = Form.createForm({
+					initValues,
+					validate: mockValidate,
+				});
+
+				// act
+				let [, cmd] = formWithValidation.update(model, form.Msg.reValidate(), props);
+
+				await execCmd(cmd);
+
+				[, cmd] = formWithValidation.update(model, formWithValidation.Msg.validate(), props);
+
+				await execCmd(cmd);
+
+				// assert
+				expect(mockValidate).toHaveBeenCalledWith({ ...model, reValidating: true }, props);
+			});
 		});
 	});
 });
+
+function createModel(template?: Partial<TestModel>): TestModel {
+	return {
+		errors: [],
+		validated: false,
+		values: {
+			value1: "",
+			value2: 0,
+		},
+		...template,
+	};
+}
+
+function createProps(template?: Partial<TestProps>): TestProps {
+	return {
+		...template,
+	};
+}

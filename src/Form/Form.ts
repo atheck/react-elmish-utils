@@ -33,7 +33,10 @@ interface Options<TModel, TProps, TValues, TValidationKeys extends ValidationKey
 	 * Is called to validate all inputs of the Form.
 	 * @returns An array of validation errors, or an empty array if all inputs are valid.
 	 */
-	validate?: (model: Model<TValues, TValidationKeys> & TModel, props: TProps) => Promise<ValidationError<TValidationKeys>[]>;
+	validate?: (
+		model: Model<TValues, TValidationKeys> & TModel & { reValidating: boolean },
+		props: TProps,
+	) => Promise<ValidationError<TValidationKeys>[]>;
 	/**
 	 * This callback is called when one ore more values were changed.
 	 * @remarks
@@ -45,7 +48,7 @@ interface Options<TModel, TProps, TValues, TValidationKeys extends ValidationKey
 	 */
 	onValidated?: (
 		errors: ValidationError<TValidationKeys>[],
-		model: Model<TValues, TValidationKeys> & TModel,
+		model: Model<TValues, TValidationKeys> & TModel & { reValidating: boolean },
 		props: TProps,
 	) => void;
 	/**
@@ -137,12 +140,13 @@ interface Form<TModel, TProps, TValues, TValidationKeys extends ValidationKey = 
 function createForm<TModel, TProps, TValues, TValidationKeys extends ValidationKey = keyof TValues>(
 	options: Options<TModel, TProps, TValues, TValidationKeys>,
 ): Form<TModel, TProps, TValues, TValidationKeys> {
+	let reValidating = false;
 	const validate = async (
 		model: Model<TValues, TValidationKeys> & TModel,
 		props: TProps,
 	): Promise<ValidationError<TValidationKeys>[]> => {
 		if (options.validate) {
-			return options.validate(model, props);
+			return options.validate({ ...model, reValidating }, props);
 		}
 
 		return [];
@@ -216,7 +220,8 @@ function createForm<TModel, TProps, TValues, TValidationKeys extends ValidationK
 					];
 
 				case "Validated":
-					options.onValidated?.(msg.errors, model, props);
+					options.onValidated?.(msg.errors, { ...model, reValidating }, props);
+					reValidating = false;
 
 					if (msg.errors.length > 0) {
 						return [{ errors: msg.errors }];
@@ -230,6 +235,8 @@ function createForm<TModel, TProps, TValues, TValidationKeys extends ValidationK
 
 				case "ReValidate":
 					if (model.validated) {
+						reValidating = true;
+
 						return [{}, cmd.ofMsg(Msg.validate())];
 					}
 

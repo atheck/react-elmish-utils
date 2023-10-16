@@ -284,6 +284,18 @@ The `createForm` function takes an `Options` object:
 | `onCancel` | (optional) This function is called if the form should be cancelled. You can add code here to cancel the form. |
 | `onAccept` | (optional) This function is called if the form should be accepted. You can add code here to accept the form. |
 
+For the `validate` and `onValidated` functions the model parameter is extended by a boolean `reValidating` value which indicates whether they are called during a re-validation:
+
+```ts
+async function validate(model: Model & { reValidating: boolean }, prop: Props): Promise<ValidationError<keyof FormData> []> {
+    // Validate here
+}
+
+function onValidated(errors: ValidationError[], model: Model & { reValidating: boolean }, prop: Props): void {
+    // Validate here
+}
+```
+
 #### Hook into or overwrite messages
 
 To make the form work, you need to overwrite at least the **Accept** and the **Cancel** messages, or provide `onAccept` and `onCancel` to the form options.

@@ -83,12 +83,13 @@ interface FormMap<TModel, TProps, TValues, TValidationKeys extends ValidationKey
 function createFormMap<TModel, TProps, TValues, TValidationKeys extends ValidationKey = keyof TValues>(
 	options: Options<TModel, TProps, TValues, TValidationKeys>,
 ): FormMap<TModel, TProps, TValues, TValidationKeys> {
+	let reValidating = false;
 	const validate = async (
 		model: Model<TValues, TValidationKeys> & TModel,
 		props: TProps,
 	): Promise<ValidationError<TValidationKeys>[]> => {
 		if (options.validate) {
-			return options.validate(model, props);
+			return options.validate({ ...model, reValidating }, props);
 		}
 
 		return [];
@@ -167,7 +168,8 @@ function createFormMap<TModel, TProps, TValues, TValidationKeys extends Validati
 			},
 
 			validated({ errors, msg }, model, props) {
-				options.onValidated?.(errors, model, props);
+				options.onValidated?.(errors, { ...model, reValidating }, props);
+				reValidating = false;
 
 				if (errors.length > 0) {
 					return [{ errors } as Partial<Model<TValues, TValidationKeys> & TModel>];
@@ -182,6 +184,8 @@ function createFormMap<TModel, TProps, TValues, TValidationKeys extends Validati
 
 			reValidate(_msg, { validated }) {
 				if (validated) {
+					reValidating = true;
+
 					return [{}, cmd.ofMsg(Msg.validate())];
 				}
 
