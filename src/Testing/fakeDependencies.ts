@@ -7,11 +7,7 @@ function setFakeDependencies<TDependencies>(dependencies: TDependencies): void {
 }
 
 function getCurrentFakeDependenciesOnce<TDependencies>(): Nullable<TDependencies> {
-	const temp = currentFakeDependencies as Nullable<TDependencies>;
-
-	currentFakeDependencies = null;
-
-	return temp;
+	return currentFakeDependencies as Nullable<TDependencies>;
 }
 
 export { getCurrentFakeDependenciesOnce, setFakeDependencies };
