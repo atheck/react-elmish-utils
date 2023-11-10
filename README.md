@@ -78,7 +78,7 @@ renderWithDependencies(() => <Component />, {
 });
 ```
 
-This renders the component using the dependencies, model, and dispatch function you pass in.
+This renders the component using the dependencies, model, and dispatch function you pass in. The dependencies are used until you manually reset them using the `resetDependencies` function.
 
 ### Form
 

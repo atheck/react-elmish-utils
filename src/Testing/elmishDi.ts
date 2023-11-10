@@ -85,13 +85,13 @@ function renderWithDependencies<TModel extends object, TMessage extends Message,
 ): TResult {
 	setFakeDependencies(dependencies);
 
-	const result = renderWithModel(render, model, rest);
+	return renderWithModel(render, model, rest);
+}
 
+function resetDependencies(): void {
 	setFakeDependencies(null);
-
-	return result;
 }
 
 export type { ElmishStateResult, RenderOptions };
 
-export { getElmishState, getElmishStateFactory, renderWithDependencies };
+export { getElmishState, getElmishStateFactory, renderWithDependencies, resetDependencies };
