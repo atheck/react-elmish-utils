@@ -1,6 +1,6 @@
 import { execCmd, getUpdateFn } from "react-elmish/dist/Testing";
 import * as TypeMoq from "typemoq";
-import { Filter, FilterDefinition, Model as SearchModel, createSearch } from "../../src/SearchScreen";
+import { Filter, FilterDefinition, Model as SearchModel, createSearch } from ".";
 
 type TestModel = SearchModel<string>;
 

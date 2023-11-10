@@ -1,15 +1,13 @@
 import { execCmd } from "react-elmish/dist/Testing";
-import * as Form from "../../src/Form/Form";
+import * as Form from "./Form";
 
 interface TestFormValues {
 	value1: string;
 	value2: number;
 }
 
-// biome-ignore lint/suspicious/noEmptyInterface: Test only
 interface TestModel extends Form.Model<TestFormValues> {}
 
-// biome-ignore lint/suspicious/noEmptyInterface: Test only
 interface TestProps {}
 
 function initValues(): TestFormValues {

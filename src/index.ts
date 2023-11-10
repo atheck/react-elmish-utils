@@ -1,6 +1,6 @@
-import { ElmishStateFunction, ElmishStateMap, initWithDependencies } from "./ElmishDi/elmishDi";
+import { ElmishStateFunction, ElmishStateMap, initWithDependencies } from "./ElmishDi";
 import { Form, Message as FormMessage, Model as FormModel, Options as FormOptions, createForm } from "./Form";
-import { FormMap, Message as FormMapMessage, createFormMap } from "./FormMap/FormMap";
+import { FormMap, Message as FormMapMessage, createFormMap } from "./FormMap";
 import {
 	Message as ListScreenMessage,
 	Model as ListScreenModel,

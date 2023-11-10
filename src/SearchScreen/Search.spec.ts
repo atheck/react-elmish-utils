@@ -1,4 +1,4 @@
-import { Filter, search } from "../../src/SearchScreen/Search";
+import { Filter, search } from "./Search";
 
 describe("search", () => {
 	it("returns an empty array if search string is empty", () => {

@@ -1,6 +1,6 @@
 import { execCmd, getUpdateFn } from "react-elmish/dist/Testing";
 import * as TypeMoq from "typemoq";
-import * as ListScreen from "../../src/ListScreen";
+import * as ListScreen from ".";
 
 const defaultSorter: ListScreen.Sorter<number>[] = [
 	{

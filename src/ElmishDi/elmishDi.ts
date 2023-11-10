@@ -8,7 +8,7 @@ import {
 	useElmish as useElmishBase,
 } from "react-elmish";
 import { UpdateFunction, UpdateMap } from "react-elmish/dist/Types";
-import { getCurrentFakeDependenciesOnce } from "../Testing/fakeDependencies";
+import { getCurrentFakeDependenciesOnce } from "../Internal";
 
 interface ElmishStateFunction<TProps, TModel, TMessage extends Message> {
 	init: UseElmishOptionsBase<TProps, TModel, TMessage>["init"];
@@ -52,6 +52,7 @@ function initWithDependencies<TDependencies>(
 		props,
 		createState,
 	}: UseElmishOptions<TProps, TModel, TMessage, TDependencies>): [TModel, Dispatch<TMessage>] {
+		// biome-ignore lint/correctness/useExhaustiveDependencies: dependencies is not a dependency of this hook (bug in useExhaustiveDependencies rule)
 		const { init, update, subscription } = useMemo(
 			() => createState(getCurrentFakeDependenciesOnce() ?? dependencies),
 			[createState],

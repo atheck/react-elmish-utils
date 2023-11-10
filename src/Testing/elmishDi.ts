@@ -10,8 +10,8 @@ import {
 	renderWithModel,
 } from "react-elmish/dist/Testing";
 import { Subscription } from "react-elmish/dist/useElmish";
-import { ElmishState } from "../ElmishDi/elmishDi";
-import { setFakeDependencies } from "./fakeDependencies";
+import { ElmishState } from "../ElmishDi";
+import { setFakeDependencies } from "../Internal";
 
 type ModelAndPropsFactory<TProps, TModel> = (
 	modelTemplate?: Partial<TModel>,

@@ -1,4 +1,4 @@
-import * as Validation from "../../src/Validation";
+import * as Validation from ".";
 
 describe("Validation", () => {
 	describe("getError", () => {

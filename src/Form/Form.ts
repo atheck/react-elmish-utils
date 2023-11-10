@@ -200,18 +200,20 @@ function createForm<TModel, TProps, TValues, TValidationKeys extends ValidationK
 				case "AcceptRequest":
 					return [{}, cmd.ofMsg(Msg.validate(Msg.accept()))];
 
-				case "Accept":
+				case "Accept": {
 					options.onAccept?.(model, props);
 
 					return [{}];
+				}
 
 				case "CancelRequest":
 					return [{}, cmd.ofMsg(Msg.cancel())];
 
-				case "Cancel":
+				case "Cancel": {
 					options.onCancel?.(model, props);
 
 					return [{}];
+				}
 
 				case "Validate":
 					return [
@@ -219,7 +221,7 @@ function createForm<TModel, TProps, TValues, TValidationKeys extends ValidationK
 						cmd.ofPromise.perform(validate, (errors) => Msg.validated(errors, msg.msg), model, props),
 					];
 
-				case "Validated":
+				case "Validated": {
 					options.onValidated?.(msg.errors, { ...model, reValidating }, props);
 					reValidating = false;
 
@@ -232,8 +234,9 @@ function createForm<TModel, TProps, TValues, TValidationKeys extends ValidationK
 					}
 
 					return [{}];
+				}
 
-				case "ReValidate":
+				case "ReValidate": {
 					if (model.validated) {
 						reValidating = true;
 
@@ -241,6 +244,7 @@ function createForm<TModel, TProps, TValues, TValidationKeys extends ValidationK
 					}
 
 					return [{}];
+				}
 			}
 		},
 
