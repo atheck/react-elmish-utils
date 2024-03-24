@@ -1,16 +1,16 @@
-import { InitResult, Message, UpdateReturnType } from "react-elmish";
+import type { InitResult, Message, UpdateReturnType } from "react-elmish";
 import {
-	RenderWithModelOptions,
-	UpdateArgsFactory,
 	execCmd,
 	getCreateModelAndProps,
 	getCreateUpdateArgs,
 	getUpdateAndExecCmdFn,
 	getUpdateFn,
 	renderWithModel,
+	type RenderWithModelOptions,
+	type UpdateArgsFactory,
 } from "react-elmish/dist/Testing";
-import { Subscription } from "react-elmish/dist/useElmish";
-import { ElmishState } from "../ElmishDi";
+import type { Subscription } from "react-elmish/dist/useElmish";
+import type { ElmishState } from "../ElmishDi";
 import { setFakeDependencies } from "../Internal";
 
 type ModelAndPropsFactory<TProps, TModel> = (

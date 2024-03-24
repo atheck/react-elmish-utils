@@ -1,13 +1,13 @@
 import { useMemo } from "react";
 import {
-	Dispatch,
-	ElmOptions,
-	Message,
-	UseElmishOptions as UseElmishOptionsBase,
 	init as initElmish,
 	useElmish as useElmishBase,
+	type Dispatch,
+	type ElmOptions,
+	type Message,
+	type UseElmishOptions as UseElmishOptionsBase,
 } from "react-elmish";
-import { UpdateFunction, UpdateMap } from "react-elmish/dist/Types";
+import type { UpdateFunction, UpdateMap } from "react-elmish/dist/Types";
 import { getCurrentFakeDependenciesOnce } from "../Internal";
 
 interface ElmishStateFunction<TProps, TModel, TMessage extends Message> {

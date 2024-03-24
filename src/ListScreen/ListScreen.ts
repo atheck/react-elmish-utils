@@ -1,4 +1,4 @@
-import { UpdateMap, cmd } from "react-elmish";
+import { cmd, type UpdateMap } from "react-elmish";
 
 type SortDirection = "asc" | "desc";
 

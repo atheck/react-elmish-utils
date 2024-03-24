@@ -1,12 +1,12 @@
 import { execCmd } from "react-elmish/dist/Testing";
-import * as Form from "./Form";
+import { createForm, type Form, type Model } from "./Form";
 
 interface TestFormValues {
 	value1: string;
 	value2: number;
 }
 
-interface TestModel extends Form.Model<TestFormValues> {}
+interface TestModel extends Model<TestFormValues> {}
 
 interface TestProps {}
 
@@ -18,10 +18,10 @@ function initValues(): TestFormValues {
 }
 
 describe("FormScreen", () => {
-	let form: Form.Form<TestModel, TestProps, TestFormValues>;
+	let form: Form<TestModel, TestProps, TestFormValues>;
 
 	beforeEach(() => {
-		form = Form.createForm({
+		form = createForm({
 			initValues,
 		});
 	});
@@ -83,7 +83,7 @@ describe("FormScreen", () => {
 					value1: value.value1,
 					value2: 2,
 				});
-				const formWithOnValueChanged = Form.createForm({
+				const formWithOnValueChanged = createForm({
 					initValues,
 					onValueChanged,
 				});
@@ -141,7 +141,7 @@ describe("FormScreen", () => {
 				const model = createModel();
 				const props = createProps();
 				const mockOnAccept = jest.fn();
-				const formWithOnAccept = Form.createForm({
+				const formWithOnAccept = createForm({
 					initValues,
 					onAccept: mockOnAccept,
 				});
@@ -195,7 +195,7 @@ describe("FormScreen", () => {
 				const model = createModel();
 				const props = createProps();
 				const mockOnCancel = jest.fn();
-				const formWithOnCancel = Form.createForm({
+				const formWithOnCancel = createForm({
 					initValues,
 					onCancel: mockOnCancel,
 				});
@@ -235,7 +235,7 @@ describe("FormScreen", () => {
 				const validationError = { key: "value1" as const, message: "error" };
 				const mockValidate = jest.fn().mockResolvedValue([validationError]);
 
-				const formWithValidation = Form.createForm({
+				const formWithValidation = createForm({
 					initValues,
 					validate: mockValidate,
 				});
@@ -305,7 +305,7 @@ describe("FormScreen", () => {
 				const props = createProps();
 				const errors = [{ key: "value1" as const, message: "message" }];
 				const mockOnValidated = jest.fn();
-				const formWithOnValidated = Form.createForm({
+				const formWithOnValidated = createForm({
 					initValues,
 					onValidated: mockOnValidated,
 				});
@@ -354,7 +354,7 @@ describe("FormScreen", () => {
 				const model = createModel({ validated: true });
 				const props = createProps();
 				const mockValidate = jest.fn().mockResolvedValue([]);
-				const formWithValidation = Form.createForm({
+				const formWithValidation = createForm({
 					initValues,
 					validate: mockValidate,
 				});

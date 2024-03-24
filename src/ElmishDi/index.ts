@@ -1,4 +1,4 @@
-import { ElmishState, ElmishStateFunction, ElmishStateMap, initWithDependencies } from "./elmishDi";
+import { initWithDependencies, type ElmishState, type ElmishStateFunction, type ElmishStateMap } from "./elmishDi";
 
 export type { ElmishState, ElmishStateFunction, ElmishStateMap };
 

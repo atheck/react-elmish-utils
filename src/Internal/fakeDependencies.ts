@@ -1,4 +1,4 @@
-import { Nullable } from "react-elmish/dist/Types";
+import type { Nullable } from "react-elmish/dist/Types";
 
 let currentFakeDependencies: Nullable<unknown> = null;
 

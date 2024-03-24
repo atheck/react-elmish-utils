@@ -1,16 +1,16 @@
-import * as Validation from ".";
+import { getError, runValidation, type ValidationError, type Validator } from ".";
 
 describe("Validation", () => {
 	describe("getError", () => {
 		it("finds the correct error", () => {
 			// arrange
-			const errors: Validation.ValidationError[] = [
+			const errors: ValidationError[] = [
 				{ key: "1st", message: "1st error" },
 				{ key: "2nd", message: "2nd error" },
 			];
 
 			// act
-			const error = Validation.getError("2nd", errors);
+			const error = getError("2nd", errors);
 
 			// assert
 			expect(error).toBe("2nd error");
@@ -18,10 +18,10 @@ describe("Validation", () => {
 
 		it("returns null when without any error", () => {
 			// arrange
-			const errors: Validation.ValidationError[] = [];
+			const errors: ValidationError[] = [];
 
 			// act
-			const error = Validation.getError("2nd", errors);
+			const error = getError("2nd", errors);
 
 			// assert
 			expect(error).toBeNull();
@@ -29,13 +29,13 @@ describe("Validation", () => {
 
 		it("returns null when no error with key exists", () => {
 			// arrange
-			const errors: Validation.ValidationError[] = [
+			const errors: ValidationError[] = [
 				{ key: "1st", message: "1st error" },
 				{ key: "2nd", message: "2nd error" },
 			];
 
 			// act
-			const error = Validation.getError("does not exist", errors);
+			const error = getError("does not exist", errors);
 
 			// assert
 			expect(error).toBeNull();
@@ -45,10 +45,10 @@ describe("Validation", () => {
 	describe("runValidation", () => {
 		it("returns empty error without validators", async () => {
 			// arrange
-			const validators: Validation.Validator[] = [];
+			const validators: Validator[] = [];
 
 			// act
-			const error = await Validation.runValidation(...validators);
+			const error = await runValidation(...validators);
 
 			// assert
 			expect(error).toStrictEqual([]);
@@ -59,14 +59,14 @@ describe("Validation", () => {
 			const mock1st = jest.fn().mockReturnValue("1st error");
 			const mock2nd = jest.fn().mockReturnValue(null);
 			const mock3rd = jest.fn().mockReturnValue("3rd error");
-			const validators: Validation.Validator[] = [
+			const validators: Validator[] = [
 				["1st", mock1st],
 				["2nd", mock2nd],
 				["3rd", mock3rd],
 			];
 
 			// act
-			const error = await Validation.runValidation(...validators);
+			const error = await runValidation(...validators);
 
 			// assert
 			expect(mock1st).toHaveBeenCalledTimes(1);

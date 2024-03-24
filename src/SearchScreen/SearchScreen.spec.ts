@@ -1,6 +1,6 @@
 import { execCmd, getUpdateFn } from "react-elmish/dist/Testing";
-import * as TypeMoq from "typemoq";
-import { Filter, FilterDefinition, Model as SearchModel, createSearch } from ".";
+import { Mock } from "typemoq";
+import { createSearch, type Filter, type FilterDefinition, type Model as SearchModel } from ".";
 
 type TestModel = SearchModel<string>;
 
@@ -71,7 +71,7 @@ describe("SearchScreen", () => {
 		describe("queryChanged", () => {
 			it("updates the query string", async () => {
 				// arrange
-				const mockModel = TypeMoq.Mock.ofType<TestModel>();
+				const mockModel = Mock.ofType<TestModel>();
 				const searchScreen = createSearch({
 					filterByQuery: jest.fn(),
 				});
@@ -92,8 +92,8 @@ describe("SearchScreen", () => {
 		describe("toggleFilter", () => {
 			it("does nothing without filters", () => {
 				// arrange
-				const mockModel = TypeMoq.Mock.ofType<TestModel>();
-				const mockFilter = TypeMoq.Mock.ofType<Filter<string>>();
+				const mockModel = Mock.ofType<TestModel>();
+				const mockFilter = Mock.ofType<Filter<string>>();
 				const searchScreen = createSearch({
 					filterByQuery: jest.fn(),
 				});
@@ -113,8 +113,8 @@ describe("SearchScreen", () => {
 
 			it("updates the filter and refreshes the list", async () => {
 				// arrange
-				const mockModel = TypeMoq.Mock.ofType<TestModel>();
-				const mockFilter = TypeMoq.Mock.ofType<Filter<string>>();
+				const mockModel = Mock.ofType<TestModel>();
+				const mockFilter = Mock.ofType<Filter<string>>();
 				const filters: Filter<string>[] = [mockFilter.object];
 				const searchScreen = createSearch({
 					filterByQuery: jest.fn(),
@@ -139,10 +139,10 @@ describe("SearchScreen", () => {
 		describe("refreshSearch", () => {
 			it("filters the items correctly", () => {
 				// arrange
-				const mockModel = TypeMoq.Mock.ofType<TestModel>();
+				const mockModel = Mock.ofType<TestModel>();
 				const items = ["a", "b", "c", "ab", "bc"];
 
-				const mockFilter = TypeMoq.Mock.ofType<Filter<string>>();
+				const mockFilter = Mock.ofType<Filter<string>>();
 				// ["ab", "bc"]
 				const mockFilterFunc = jest.fn((value: string) => value.length > 1);
 				const filters: Filter<string>[] = [mockFilter.object];

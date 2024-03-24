@@ -1,5 +1,5 @@
-import { MsgSource, UpdateReturnType, cmd } from "react-elmish";
-import { ValidationError, ValidationKey, getError } from "../Validation";
+import { cmd, type MsgSource, type UpdateReturnType } from "react-elmish";
+import { getError, type ValidationError, type ValidationKey } from "../Validation";
 
 type MessageSource = MsgSource<"Form">;
 

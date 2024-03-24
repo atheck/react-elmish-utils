@@ -1,5 +1,5 @@
-import { UpdateMap, UpdateReturnType, cmd } from "react-elmish";
-import { Filter, FilterDefinition, SearchFunc, search } from "./Search";
+import { cmd, type UpdateMap, type UpdateReturnType } from "react-elmish";
+import { search, type Filter, type FilterDefinition, type SearchFunc } from "./Search";
 
 type Message<TData> =
 	| { name: "queryChanged"; query: string }

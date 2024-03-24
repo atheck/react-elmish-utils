@@ -1,6 +1,6 @@
-import { UpdateMap, cmd } from "react-elmish";
-import { Model, Options } from "../Form";
-import { ValidationError, ValidationKey, getError } from "../Validation";
+import { cmd, type UpdateMap } from "react-elmish";
+import type { Model, Options } from "../Form";
+import { getError, type ValidationError, type ValidationKey } from "../Validation";
 
 type Message<TValues, TValidationKeys extends ValidationKey = keyof TValues> =
 	| { name: "valueChanged"; value: Partial<TValues> }
