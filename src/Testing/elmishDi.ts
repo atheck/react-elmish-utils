@@ -1,4 +1,4 @@
-import type { InitResult, Message, UpdateReturnType } from "react-elmish";
+import type { InitResult, Message, UpdateFunctionOptions, UpdateReturnType } from "react-elmish";
 import {
 	execCmd,
 	getCreateModelAndProps,
@@ -9,6 +9,7 @@ import {
 	type RenderWithModelOptions,
 	type UpdateArgsFactory,
 } from "react-elmish/dist/Testing";
+import { createDefer } from "react-elmish/dist/createDefer";
 import type { Subscription } from "react-elmish/dist/useElmish";
 import type { ElmishState } from "../ElmishDi";
 import { setFakeDependencies } from "../Internal";
@@ -40,13 +41,24 @@ function getElmishState<TProps, TModel, TMessage extends Message, TDependencies>
 		return {
 			init,
 			update(msg, model, props) {
-				return update(model, msg, props);
+				const [defer, getDeferred] = createDefer<TModel, TMessage>();
+				const options: UpdateFunctionOptions<TModel, TMessage> = { defer };
+
+				const [updatedModel, ...commands] = update(model, msg, props, options);
+
+				const [deferredModel, deferredCommands] = getDeferred();
+
+				return [{ ...deferredModel, ...updatedModel }, ...commands, ...deferredCommands];
 			},
 			async updateAndExecCmd(msg, model, props) {
-				const [updatedModel, cmd] = update(model, msg, props);
-				const messages = await execCmd(cmd);
+				const [defer, getDeferred] = createDefer<TModel, TMessage>();
+				const options: UpdateFunctionOptions<TModel, TMessage> = { defer };
 
-				return [updatedModel, messages];
+				const [updatedModel, ...commands] = update(model, msg, props, options);
+				const [deferredModel, deferredCommands] = getDeferred();
+				const messages = await execCmd(...commands, ...deferredCommands);
+
+				return [{ ...deferredModel, ...updatedModel }, messages];
 			},
 			subscription,
 			createUpdateArgs,
