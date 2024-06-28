@@ -58,6 +58,7 @@ interface Search<TModel, TProps, TData> {
 	/**
 	 * Object to create messages.
 	 */
+	// biome-ignore lint/style/useNamingConvention: This is an elmish naming convention.
 	Msg: Msg<TData>;
 	/**
 	 * Initializes the search screen model.

@@ -20,7 +20,7 @@ interface Filter<TData> extends FilterDefinition<TData> {
 	active: boolean;
 }
 
-type SearchFunc<T> = (item: T, query: string) => boolean;
+type SearchFunc<TData> = (item: TData, query: string) => boolean;
 
 interface SearchOptions<TData> {
 	/**
@@ -58,7 +58,7 @@ function search<TData>({ query, items, filters, filterByQuery }: SearchOptions<T
 	return visibleItems;
 }
 
-function filterItems<T>(items: T[], filters?: Filter<T>[]): T[] {
+function filterItems<TData>(items: TData[], filters?: Filter<TData>[]): TData[] {
 	if (!filters || filters.every((filter) => !filter.active)) {
 		return items;
 	}

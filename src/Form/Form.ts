@@ -121,6 +121,7 @@ interface Form<TModel, TProps, TValues, TValidationKeys extends ValidationKey = 
 	/**
 	 * Object to call Form messages.
 	 */
+	// biome-ignore lint/style/useNamingConvention: This is an elmish naming convention.
 	Msg: Msg<TValues, TValidationKeys>;
 
 	/**

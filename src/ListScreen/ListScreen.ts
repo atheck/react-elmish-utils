@@ -20,7 +20,7 @@ interface Model<TData, TSortKey extends string = string> {
 	sortDirection: SortDirection;
 }
 
-type SortFunc<T> = (item1: T, item2: T) => number;
+type SortFunc<TData> = (item1: TData, item2: TData) => number;
 
 interface Sorter<TData, TSortKey extends string = string> {
 	key: TSortKey;
@@ -86,6 +86,7 @@ interface Msg<TData, TSortKey extends string = string> {
 }
 
 interface List<TModel, TProps, TData, TSortKey extends string = string> {
+	// biome-ignore lint/style/useNamingConvention: This is an elmish naming convention.
 	Msg: Msg<TData, TSortKey>;
 	init: () => Model<TData, TSortKey>;
 	updateMap: UpdateMap<TProps, Model<TData, TSortKey> & TModel, Message<TData, TSortKey>>;
