@@ -9,6 +9,7 @@ import {
 	type RenderWithModelOptions,
 	type UpdateArgsFactory,
 } from "react-elmish/dist/Testing";
+import { createCallBase } from "react-elmish/dist/createCallBase";
 import { createDefer } from "react-elmish/dist/createDefer";
 import type { Subscription } from "react-elmish/dist/useElmish";
 import type { ElmishState } from "../ElmishDi";
@@ -21,8 +22,18 @@ type ModelAndPropsFactory<TProps, TModel> = (
 
 interface ElmishStateResult<TProps, TModel, TMessage extends Message> {
 	init: (props: TProps) => InitResult<TModel, TMessage>;
-	update: (msg: TMessage, model: TModel, props: TProps) => UpdateReturnType<TModel, TMessage>;
-	updateAndExecCmd: (msg: TMessage, model: TModel, props: TProps) => Promise<[Partial<TModel>, (TMessage | null)[]]>;
+	update: (
+		msg: TMessage,
+		model: TModel,
+		props: TProps,
+		optionsTemplate?: Partial<UpdateFunctionOptions<TProps, TModel, TMessage>>,
+	) => UpdateReturnType<TModel, TMessage>;
+	updateAndExecCmd: (
+		msg: TMessage,
+		model: TModel,
+		props: TProps,
+		optionsTemplate?: Partial<UpdateFunctionOptions<TProps, TModel, TMessage>>,
+	) => Promise<[Partial<TModel>, (TMessage | null)[]]>;
 	subscription?: Subscription<TProps, TModel, TMessage>;
 	createUpdateArgs: UpdateArgsFactory<TProps, TModel, TMessage>;
 	createModelAndProps: ModelAndPropsFactory<TProps, TModel>;
@@ -40,9 +51,11 @@ function getElmishState<TProps, TModel, TMessage extends Message, TDependencies>
 	if (typeof update === "function") {
 		return {
 			init,
-			update(msg, model, props) {
+			// eslint-disable-next-line max-params
+			update(msg, model, props, optionsTemplate) {
 				const [defer, getDeferred] = createDefer<TModel, TMessage>();
-				const options: UpdateFunctionOptions<TModel, TMessage> = { defer };
+				const callBase = createCallBase(msg, model, props, { defer });
+				const options: UpdateFunctionOptions<TProps, TModel, TMessage> = { defer, callBase, ...optionsTemplate };
 
 				const [updatedModel, ...commands] = update(model, msg, props, options);
 
@@ -50,9 +63,11 @@ function getElmishState<TProps, TModel, TMessage extends Message, TDependencies>
 
 				return [{ ...deferredModel, ...updatedModel }, ...commands, ...deferredCommands];
 			},
-			async updateAndExecCmd(msg, model, props) {
+			// eslint-disable-next-line max-params
+			async updateAndExecCmd(msg, model, props, optionsTemplate) {
 				const [defer, getDeferred] = createDefer<TModel, TMessage>();
-				const options: UpdateFunctionOptions<TModel, TMessage> = { defer };
+				const callBase = createCallBase(msg, model, props, { defer });
+				const options: UpdateFunctionOptions<TProps, TModel, TMessage> = { defer, callBase, ...optionsTemplate };
 
 				const [updatedModel, ...commands] = update(model, msg, props, options);
 				const [deferredModel, deferredCommands] = getDeferred();
