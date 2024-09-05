@@ -1,5 +1,5 @@
-import { cmd, type UpdateMap, type UpdateReturnType } from "react-elmish";
-import { search, type Filter, type FilterDefinition, type SearchFunc } from "./Search";
+import { type UpdateMap, type UpdateReturnType, cmd } from "react-elmish";
+import { type Filter, type FilterDefinition, type SearchFunc, search } from "./Search";
 
 type Message<TData> =
 	| { name: "queryChanged"; query: string }
@@ -34,6 +34,10 @@ interface Options<TData> {
 	 * Optional list of filter definitions.
 	 */
 	filters?: FilterDefinition<TData>[];
+	/**
+	 * If set to true, all items are shown if the query is empty and no filters are set.
+	 */
+	showAllItemsByDefault?: boolean;
 }
 
 type CompositeModel<TModel, TData> = Model<TData> & TModel;
@@ -135,6 +139,7 @@ function createSearch<TModel, TProps, TData>(options: Options<TData>): Search<TM
 					items: model.items,
 					filters: model.filters,
 					filterByQuery: options.filterByQuery,
+					showAllItemsByDefault: options.showAllItemsByDefault ?? false,
 				});
 
 				return [{ visibleItems } as Partial<CompositeModel<TModel, TData>>];

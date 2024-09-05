@@ -39,6 +39,10 @@ interface SearchOptions<TData> {
 	 * The function to filter one item of the list by the given query string.
 	 */
 	filterByQuery: SearchFunc<TData>;
+	/**
+	 * If set to true, all items are shown if the query is empty and no filters are set.
+	 */
+	showAllItemsByDefault: boolean;
 }
 
 /**
@@ -46,8 +50,8 @@ interface SearchOptions<TData> {
  * @param param0 The options object.
  * @returns The list of items matching the given search query and active filters.
  */
-function search<TData>({ query, items, filters, filterByQuery }: SearchOptions<TData>): TData[] {
-	if (areQueryAndFiltersEmpty(query, filters)) {
+function search<TData>({ query, items, filters, filterByQuery, showAllItemsByDefault }: SearchOptions<TData>): TData[] {
+	if (!showAllItemsByDefault && areQueryAndFiltersEmpty(query, filters)) {
 		return [];
 	}
 

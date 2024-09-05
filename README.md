@@ -595,6 +595,7 @@ You can provide options when creating a list:
 | --- | --- |
 | `filterByQuery` | A function to filter the items by the query string. |
 | `filters` | Optional array of `FilterDefinition`s. |
+| `showAllItemsByDefault` | If true, all items are shown when the query string is empty and no filters are set. (optional, false by default) |
 
 #### Filtering
 
