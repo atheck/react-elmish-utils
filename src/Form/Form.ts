@@ -1,5 +1,5 @@
-import { cmd, type MsgSource, type UpdateReturnType } from "react-elmish";
-import { getError, type ValidationError, type ValidationKey } from "../Validation";
+import { type MsgSource, type UpdateReturnType, cmd } from "react-elmish";
+import { type ValidationError, type ValidationKey, getError } from "../Validation";
 
 type MessageSource = MsgSource<"Form">;
 
@@ -219,7 +219,7 @@ function createForm<TModel, TProps, TValues, TValidationKeys extends ValidationK
 				case "Validate":
 					return [
 						{ errors: [], validated: true },
-						cmd.ofPromise.perform(validate, (errors) => Msg.validated(errors, msg.msg), model, props),
+						cmd.ofSuccess(validate, (errors) => Msg.validated(errors, msg.msg), model, props),
 					];
 
 				case "Validated": {

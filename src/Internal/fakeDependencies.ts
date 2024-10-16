@@ -2,7 +2,7 @@ import type { Nullable } from "react-elmish/dist/Types";
 
 let currentFakeDependencies: Nullable<unknown> = null;
 
-function setFakeDependencies<TDependencies>(dependencies: TDependencies): void {
+function setFakeDependencies(dependencies: unknown): void {
 	currentFakeDependencies = dependencies;
 }
 

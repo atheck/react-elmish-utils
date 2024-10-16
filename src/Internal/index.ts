@@ -1,3 +1,1 @@
-import { getCurrentFakeDependenciesOnce, setFakeDependencies } from "./fakeDependencies";
-
-export { getCurrentFakeDependenciesOnce, setFakeDependencies };
+export { getCurrentFakeDependenciesOnce, setFakeDependencies } from "./fakeDependencies";

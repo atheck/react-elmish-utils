@@ -1,4 +1,4 @@
-import { cmd, type UpdateMap } from "react-elmish";
+import { type UpdateMap, cmd } from "react-elmish";
 
 type SortDirection = "asc" | "desc";
 
@@ -222,7 +222,7 @@ function getSorterByKey<TData, TSortKey extends string>(
 	return null;
 }
 
-function sortDescending<TData>(array: TData[], compareFn?: ((a: TData, b: TData) => number) | undefined): TData[] {
+function sortDescending<TData>(array: TData[], compareFn?: (a: TData, b: TData) => number): TData[] {
 	if (compareFn) {
 		return array.sort((data1: TData, data2: TData) => compareFn(data2, data1));
 	}

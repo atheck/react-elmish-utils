@@ -3,6 +3,13 @@
 	"extends": [
 		"./node_modules/eslint-config-heck/biomeLinting.json"
 	],
+	"linter": {
+		"rules": {
+			"performance": {
+				"noBarrelFile": "off"
+			}
+		}
+	},
 	"formatter": {
 		"enabled": true,
 		"lineWidth": 130

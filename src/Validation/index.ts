@@ -1,4 +1,4 @@
-import {
+export {
 	getError,
 	runValidation,
 	type ValidationError,
@@ -6,7 +6,3 @@ import {
 	type Validator,
 	type ValidatorFunc,
 } from "./Validation";
-
-export type { ValidationError, ValidationKey, Validator, ValidatorFunc };
-
-export { getError, runValidation };

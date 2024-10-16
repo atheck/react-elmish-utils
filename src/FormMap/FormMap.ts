@@ -1,6 +1,6 @@
-import { cmd, type UpdateMap } from "react-elmish";
+import { type UpdateMap, cmd } from "react-elmish";
 import type { Model, Options } from "../Form";
-import { getError, type ValidationError, type ValidationKey } from "../Validation";
+import { type ValidationError, type ValidationKey, getError } from "../Validation";
 
 type Message<TValues, TValidationKeys extends ValidationKey = keyof TValues> =
 	| { name: "valueChanged"; value: Partial<TValues> }
@@ -165,7 +165,7 @@ function createFormMap<TModel, TProps, TValues, TValidationKeys extends Validati
 						errors: noErrors,
 						validated: true,
 					} as Partial<Model<TValues, TValidationKeys> & TModel>,
-					cmd.ofPromise.perform(validate, (errors) => Msg.validated(errors, msg), model, props),
+					cmd.ofSuccess(validate, (errors) => Msg.validated(errors, msg), model, props),
 				];
 			},
 
