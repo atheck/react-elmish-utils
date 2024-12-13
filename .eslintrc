@@ -1,6 +1,0 @@
-{
-    "extends": ["heck/nodeWithBiome", "heck/complexity"],
-    "rules": {
-        "react-hooks/exhaustive-deps": "off"
-    }
-}

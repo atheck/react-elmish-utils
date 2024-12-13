@@ -99,7 +99,7 @@ function createSearch<TModel, TProps, TData>(options: Options<TData>): Search<TM
 
 		const filterIndex = model.filters.indexOf(filter);
 
-		if (filterIndex < 0) {
+		if (filterIndex === -1) {
 			return [{}];
 		}
 
