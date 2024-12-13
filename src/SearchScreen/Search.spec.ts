@@ -1,4 +1,4 @@
-import { type Filter, search } from "./Search";
+import { type FilterGroupDefinition, search } from "./Search";
 
 describe("search", () => {
 	it("returns an empty array if search string is empty, without filters, and not all items should be returned", () => {
@@ -26,10 +26,12 @@ describe("search", () => {
 	it("returns an empty array if search string is empty and no filters are active and not all items should be returned", () => {
 		// arrange
 		const items = [1, 2, 3, 4, 5];
-		const filters: Filter<number>[] = [{ name: "bigger than 3", active: false, filter: (value) => value > 3 }];
+		const filterGroups: FilterGroupDefinition<number>[] = [
+			{ filters: [{ name: "bigger than 3", active: false, filter: (value) => value > 3 }] },
+		];
 
 		// act
-		const result = search({ query: "", items, filters, filterByQuery: () => true, showAllItemsByDefault: false });
+		const result = search({ query: "", items, filterGroups, filterByQuery: () => true, showAllItemsByDefault: false });
 
 		// assert
 		expect(result).toHaveLength(0);
@@ -38,10 +40,12 @@ describe("search", () => {
 	it("returns all items if search string is empty and no filters are active and all items should be returned", () => {
 		// arrange
 		const items = [1, 2, 3, 4, 5];
-		const filters: Filter<number>[] = [{ name: "bigger than 3", active: false, filter: (value) => value > 3 }];
+		const filterGroups: FilterGroupDefinition<number>[] = [
+			{ filters: [{ name: "bigger than 3", active: false, filter: (value) => value > 3 }] },
+		];
 
 		// act
-		const result = search({ query: "", items, filters, filterByQuery: () => true, showAllItemsByDefault: true });
+		const result = search({ query: "", items, filterGroups, filterByQuery: () => true, showAllItemsByDefault: true });
 
 		// assert
 		expect(result).toStrictEqual(items);
@@ -51,10 +55,12 @@ describe("search", () => {
 		it("returns correct result if search string is empty and filters are active", () => {
 			// arrange
 			const items = [1, 2, 3, 4, 5];
-			const filters: Filter<number>[] = [{ name: "bigger than 3", active: true, filter: (value) => value > 3 }];
+			const filterGroups: FilterGroupDefinition<number>[] = [
+				{ filters: [{ name: "bigger than 3", active: true, filter: (value) => value > 3 }] },
+			];
 
 			// act
-			const result = search({ query: "", items, filters, filterByQuery: () => true, showAllItemsByDefault });
+			const result = search({ query: "", items, filterGroups, filterByQuery: () => true, showAllItemsByDefault });
 
 			// assert
 			expect(result).toStrictEqual([4, 5]);
@@ -63,13 +69,15 @@ describe("search", () => {
 		it("returns correct result if search string is not empty and filters are active", () => {
 			// arrange
 			const items = ["Berlin", "London", "Paris", "Prag", "Tsipras"];
-			const filters: Filter<string>[] = [{ name: "starts with P", active: true, filter: (value) => value.startsWith("P") }];
+			const filterGroups: FilterGroupDefinition<string>[] = [
+				{ filters: [{ name: "starts with P", active: true, filter: (value) => value.startsWith("P") }] },
+			];
 
 			// act
 			const result = search({
 				query: "pr",
 				items,
-				filters,
+				filterGroups,
 				filterByQuery: (item, query) => item.toLowerCase().includes(query),
 				showAllItemsByDefault,
 			});
@@ -78,16 +86,64 @@ describe("search", () => {
 			expect(result).toStrictEqual(["Prag"]);
 		});
 
+		it("returns correct result if multiple filters from the same group are active", () => {
+			// arrange
+			const items = ["Berlin", "London", "Paris", "Prag", "Tsipras"];
+			const filterGroups: FilterGroupDefinition<string>[] = [
+				{
+					filters: [
+						{ name: "Shorter than 6", active: true, filter: (value) => value.length < 6 },
+						{ name: "Includes n", active: true, filter: (value) => value.includes("n") },
+					],
+				},
+			];
+
+			// act
+			const result = search({
+				query: "",
+				items,
+				filterGroups,
+				filterByQuery: (item, query) => item.toLowerCase().includes(query),
+				showAllItemsByDefault,
+			});
+
+			// assert
+			expect(result).toStrictEqual(["Berlin", "London", "Paris", "Prag"]);
+		});
+
+		it("returns correct result if multiple filters from different groups are active", () => {
+			// arrange
+			const items = ["Berlin", "London", "Paris", "Prag", "Tsipras"];
+			const filterGroups: FilterGroupDefinition<string>[] = [
+				{ filters: [{ name: "Longer than 4", active: true, filter: (value) => value.length >= 4 }] },
+				{ filters: [{ name: "Includes n", active: true, filter: (value) => value.includes("n") }] },
+			];
+
+			// act
+			const result = search({
+				query: "",
+				items,
+				filterGroups,
+				filterByQuery: (item, query) => item.toLowerCase().includes(query),
+				showAllItemsByDefault,
+			});
+
+			// assert
+			expect(result).toStrictEqual(["Berlin", "London"]);
+		});
+
 		it("returns correct result if search string is not empty and no filters are active", () => {
 			// arrange
 			const items = ["Berlin", "London", "Paris", "Prag", "Tsipras"];
-			const filters: Filter<string>[] = [{ name: "starts with P", active: false, filter: (value) => value.startsWith("P") }];
+			const filterGroups: FilterGroupDefinition<string>[] = [
+				{ filters: [{ name: "starts with P", active: false, filter: (value) => value.startsWith("P") }] },
+			];
 
 			// act
 			const result = search({
 				query: "pr",
 				items,
-				filters,
+				filterGroups,
 				filterByQuery: (item, query) => item.toLowerCase().includes(query),
 				showAllItemsByDefault,
 			});
