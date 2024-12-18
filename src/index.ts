@@ -8,13 +8,15 @@ export {
 	type Msg as ListScreenMsg,
 	type Options as ListScreenOptions,
 	type SortDirection,
-	type SortFunc,
 	type Sorter,
+	type SortFunc,
 } from "./ListScreen";
 export {
 	createSearch,
 	type Filter,
 	type FilterDefinition,
+	type FilterGroup,
+	type FilterGroupDefinition,
 	type Message as SearchScreenMessage,
 	type Model as SearchScreenModel,
 	type Msg as SearchScreenMsg,

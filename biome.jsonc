@@ -10,6 +10,24 @@
 			}
 		}
 	},
+	"overrides": [
+		{
+			// Test files
+			"include": [
+				"**/*.spec.ts",
+				"**/*.spec.tsx",
+				"**/test/**/*.ts",
+				"**/test/**/*.tsx"
+			],
+			"linter": {
+				"rules": {
+					"style": {
+						"noNonNullAssertion": "off"
+					}
+				}
+			}
+		},
+	],
 	"formatter": {
 		"enabled": true,
 		"lineWidth": 130

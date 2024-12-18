@@ -1,5 +1,5 @@
-import { type UpdateMap, type UpdateReturnType, cmd } from "react-elmish";
-import { type Filter, type FilterDefinition, type SearchFunc, search } from "./Search";
+import { type UpdateMap, cmd } from "react-elmish";
+import { type Filter, type FilterGroup, type FilterGroupDefinition, type SearchFunc, search } from "./Search";
 
 type Message<TData> =
 	| { name: "queryChanged"; query: string }
@@ -22,7 +22,7 @@ interface Model<TData> {
 	/**
 	 * Optional list of filters.
 	 */
-	filters?: Filter<TData>[];
+	filterGroups?: FilterGroup<TData>[];
 }
 
 interface Options<TData> {
@@ -33,7 +33,7 @@ interface Options<TData> {
 	/**
 	 * Optional list of filter definitions.
 	 */
-	filters?: FilterDefinition<TData>[];
+	filterGroups?: FilterGroupDefinition<TData>[];
 	/**
 	 * If set to true, all items are shown if the query is empty and no filters are set.
 	 */
@@ -89,28 +89,6 @@ function createSearch<TModel, TProps, TData>(options: Options<TData>): Search<TM
 		refreshSearch: (): Message<TData> => ({ name: "refreshSearch" }),
 	};
 
-	const handleToggleFilter = (
-		model: CompositeModel<TModel, TData>,
-		filter: Filter<TData>,
-	): UpdateReturnType<CompositeModel<TModel, TData>, Message<TData>> => {
-		if (!model.filters) {
-			return [{}];
-		}
-
-		const filterIndex = model.filters.indexOf(filter);
-
-		if (filterIndex === -1) {
-			return [{}];
-		}
-
-		model.filters.splice(filterIndex, 1, {
-			...filter,
-			active: !filter.active,
-		});
-
-		return [{ filters: [...model.filters] } as Partial<CompositeModel<TModel, TData>>, cmd.ofMsg(Msg.refreshSearch())];
-	};
-
 	return {
 		Msg,
 		init(): Model<TData> {
@@ -118,9 +96,9 @@ function createSearch<TModel, TProps, TData>(options: Options<TData>): Search<TM
 				query: "",
 				items: [],
 				visibleItems: [],
-				filters: options.filters?.map((filterDefinition) => ({
-					...filterDefinition,
-					active: filterDefinition.active ?? false,
+				filterGroups: options.filterGroups?.map((group) => ({
+					...group,
+					filters: group.filters.map((filter) => ({ ...filter, active: filter.active ?? false })),
 				})),
 			};
 		},
@@ -129,15 +107,43 @@ function createSearch<TModel, TProps, TData>(options: Options<TData>): Search<TM
 				return [{ query } as Partial<CompositeModel<TModel, TData>>, cmd.ofMsg(Msg.refreshSearch())];
 			},
 
-			toggleFilter(msg, model) {
-				return handleToggleFilter(model, msg.filter);
+			toggleFilter({ filter }, { filterGroups }) {
+				if (!filterGroups) {
+					return [{}];
+				}
+
+				filter.active = !filter.active;
+
+				const updatedGroups = filterGroups.map((group) => {
+					if (!group.filters.includes(filter)) {
+						return group;
+					}
+
+					if (filter.active && group.toggleMode) {
+						for (const groupFilter of group.filters) {
+							groupFilter.active = groupFilter === filter;
+						}
+					}
+
+					if (!filter.active && !group.noneActiveAllowed) {
+						const firstActiveFilter = group.filters.find((current) => current.active);
+
+						if (!firstActiveFilter && group.filters[0]) {
+							group.filters[0].active = true;
+						}
+					}
+
+					return group;
+				});
+
+				return [{ filterGroups: updatedGroups } as Partial<CompositeModel<TModel, TData>>, cmd.ofMsg(Msg.refreshSearch())];
 			},
 
 			refreshSearch(_msg, model) {
 				const visibleItems = search({
 					query: model.query,
 					items: model.items,
-					filters: model.filters,
+					filterGroups: model.filterGroups,
 					filterByQuery: options.filterByQuery,
 					showAllItemsByDefault: options.showAllItemsByDefault ?? false,
 				});
