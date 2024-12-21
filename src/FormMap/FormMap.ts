@@ -77,13 +77,21 @@ interface FormMap<TModel, TProps, TValues, TValidationKeys extends ValidationKey
 	getError: (key: TValidationKeys, errors: ValidationError<TValidationKeys>[]) => string | null;
 }
 
+interface FormMapOptions<TModel, TProps, TValues, TValidationKeys extends ValidationKey = keyof TValues>
+	extends Options<TModel, TProps, TValues, TValidationKeys> {
+	/**
+	 * If true, all string values will be trimmed before they are validated and accepted.
+	 */
+	trimValues?: boolean;
+}
+
 /**
  * Creates a Form object.
  * @param options Options to pass to the Form.
  * @returns The created Form object.
  */
 function createFormMap<TModel, TProps, TValues, TValidationKeys extends ValidationKey = keyof TValues>(
-	options: Options<TModel, TProps, TValues, TValidationKeys>,
+	options: FormMapOptions<TModel, TProps, TValues, TValidationKeys>,
 ): FormMap<TModel, TProps, TValues, TValidationKeys> {
 	let reValidating = false;
 	const validate = async (
@@ -142,7 +150,9 @@ function createFormMap<TModel, TProps, TValues, TValidationKeys extends Validati
 			},
 
 			accept(_msg, model, props) {
-				options.onAccept?.(model, props);
+				const trimmedValues = options.trimValues ? trimValues(model.values) : model.values;
+
+				options.onAccept?.({ ...model, values: trimmedValues }, props);
 
 				return [{}];
 			},
@@ -158,19 +168,21 @@ function createFormMap<TModel, TProps, TValues, TValidationKeys extends Validati
 			},
 
 			validate({ msg }, model, props) {
-				const noErrors: ValidationError<TValidationKeys>[] = [];
+				const trimmedValues = options.trimValues ? trimValues(model.values) : model.values;
 
 				return [
 					{
-						errors: noErrors,
+						errors: [],
 						validated: true,
 					} as Partial<Model<TValues, TValidationKeys> & TModel>,
-					cmd.ofSuccess(validate, (errors) => Msg.validated(errors, msg), model, props),
+					cmd.ofSuccess(validate, (errors) => Msg.validated(errors, msg), { ...model, values: trimmedValues }, props),
 				];
 			},
 
 			validated({ errors, msg }, model, props) {
-				options.onValidated?.(errors, { ...model, reValidating }, props);
+				const trimmedValues = options.trimValues ? trimValues(model.values) : model.values;
+
+				options.onValidated?.(errors, { ...model, values: trimmedValues, reValidating }, props);
 				reValidating = false;
 
 				if (errors.length > 0) {
@@ -199,8 +211,26 @@ function createFormMap<TModel, TProps, TValues, TValidationKeys extends Validati
 			return getError<TValidationKeys>(key, errors);
 		},
 	};
+
+	function trimValues(values: TValues): TValues {
+		if (typeof values !== "object" || values === null) {
+			return values;
+		}
+
+		const mappedValues = values as Record<string, unknown>;
+
+		return Object.fromEntries(
+			Object.keys(mappedValues).map((key) => {
+				if (typeof mappedValues[key] === "string") {
+					return [key, mappedValues[key].trim()];
+				}
+
+				return [key, mappedValues[key]];
+			}),
+		) as TValues;
+	}
 }
 
-export type { FormMap, Message };
+export type { FormMap, FormMapOptions, Message };
 
 export { createFormMap };

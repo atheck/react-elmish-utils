@@ -168,6 +168,7 @@ The `createFormMap` function takes an `Options` object:
 | `onValidated` | (optional) This function is called after the validation. |
 | `onCancel` | (optional) This function is called if the form should be cancelled. You can add code here to cancel the form. |
 | `onAccept` | (optional) This function is called if the form should be accepted. You can add code here to accept the form. |
+| `trimValues` | (optional) If true, values of type `string` are trimmed before they are validated and accepted. (default: false) |
 
 #### Hook into or overwrite messages
 
