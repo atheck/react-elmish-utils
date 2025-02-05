@@ -5,7 +5,7 @@
   "author": "atheck",
   "license": "MIT",
   "scripts": {
-    "install-peers": "npm install --no-save react-elmish react",
+    "install-peers": "npm install --no-save react-elmish react@18",
     "prebuild": "npm run install-peers",
     "build": "npm run build:types && npm run build:js",
     "build:types": "tsc --emitDeclarationOnly --project ./src/tsconfig.build.json",
