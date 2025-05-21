@@ -1,4 +1,4 @@
-import { getUpdateAndExecCmdFn, getUpdateFn } from "react-elmish/dist/Testing";
+import { getUpdateAndExecCmdFn, getUpdateFn } from "react-elmish/testing";
 import type { Model } from "../Form";
 import { type FormMap, createFormMap } from "./FormMap";
 

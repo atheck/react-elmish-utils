@@ -1,17 +1,15 @@
-import type { InitResult, Message, UpdateFunctionOptions, UpdateReturnType } from "react-elmish";
+import type { InitResult, Message, Subscription, UpdateFunctionOptions, UpdateReturnType } from "react-elmish";
+import { createCallBase, createDefer } from "react-elmish/extend";
 import {
+	type RenderWithModelOptions,
+	type UpdateArgsFactory,
 	execCmd,
 	getCreateModelAndProps,
 	getCreateUpdateArgs,
 	getUpdateAndExecCmdFn,
 	getUpdateFn,
 	renderWithModel,
-	type RenderWithModelOptions,
-	type UpdateArgsFactory,
-} from "react-elmish/dist/Testing";
-import { createCallBase } from "react-elmish/dist/createCallBase";
-import { createDefer } from "react-elmish/dist/createDefer";
-import type { Subscription } from "react-elmish/dist/useElmish";
+} from "react-elmish/testing";
 import type { ElmishState } from "../ElmishDi";
 import { setFakeDependencies } from "../Internal";
 
@@ -22,12 +20,14 @@ type ModelAndPropsFactory<TProps, TModel> = (
 
 interface ElmishStateResult<TProps, TModel, TMessage extends Message> {
 	init: (props: TProps) => InitResult<TModel, TMessage>;
+	// eslint-disable-next-line max-params
 	update: (
 		msg: TMessage,
 		model: TModel,
 		props: TProps,
 		optionsTemplate?: Partial<UpdateFunctionOptions<TProps, TModel, TMessage>>,
 	) => UpdateReturnType<TModel, TMessage>;
+	// eslint-disable-next-line max-params
 	updateAndExecCmd: (
 		msg: TMessage,
 		model: TModel,

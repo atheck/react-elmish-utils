@@ -3,11 +3,12 @@ import {
 	type Dispatch,
 	type ElmOptions,
 	type Message,
+	type UpdateMap,
 	type UseElmishOptions as UseElmishOptionsBase,
 	init as initElmish,
 	useElmish as useElmishBase,
 } from "react-elmish";
-import type { UpdateFunction, UpdateMap } from "react-elmish/dist/Types";
+import type { UpdateFunction } from "react-elmish/extend";
 import { getCurrentFakeDependenciesOnce } from "../Internal";
 
 interface ElmishStateFunction<TProps, TModel, TMessage extends Message> {

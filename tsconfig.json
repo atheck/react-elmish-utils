@@ -4,8 +4,11 @@
     "esModuleInterop": true,
     "noImplicitAny": true,
     "isolatedModules": true,
-    "lib": ["ESNext", "DOM"],
-    "moduleResolution": "node",
+    "lib": [
+      "ESNext",
+      "DOM"
+    ],
+    "moduleResolution": "node16",
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "target": "esnext",
@@ -13,13 +16,15 @@
     "downlevelIteration": true,
     "importHelpers": true,
     "resolveJsonModule": true,
-    "module": "esnext",
+    "module": "Node16",
     "declaration": true,
   },
   "typeAcquisition": {
     "include": [
-        "jest"
+      "jest"
     ]
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }

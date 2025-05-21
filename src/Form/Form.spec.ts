@@ -1,5 +1,5 @@
-import { execCmd } from "react-elmish/dist/Testing";
-import { createForm, type Form, type Model } from "./Form";
+import { execCmd } from "react-elmish/testing";
+import { type Form, type Model, createForm } from "./Form";
 
 interface TestFormValues {
 	value1: string;

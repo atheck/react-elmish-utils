@@ -1,6 +1,6 @@
-import { execCmd, getUpdateFn } from "react-elmish/dist/Testing";
+import { execCmd, getUpdateFn } from "react-elmish/testing";
 import { Mock } from "typemoq";
-import { createList, type Model, type Sorter } from ".";
+import { type Model, type Sorter, createList } from ".";
 
 const defaultSorter: Sorter<number>[] = [
 	{

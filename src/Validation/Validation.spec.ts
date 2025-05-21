@@ -1,4 +1,4 @@
-import { getError, runValidation, type ValidationError, type Validator } from ".";
+import { type ValidationError, type Validator, getError, runValidation } from ".";
 
 describe("Validation", () => {
 	describe("getError", () => {

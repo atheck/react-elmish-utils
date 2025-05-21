@@ -1,4 +1,4 @@
-import { execCmd, getUpdateFn } from "react-elmish/dist/Testing";
+import { execCmd, getUpdateFn } from "react-elmish/testing";
 import { type Filter, type FilterDefinition, type FilterGroupDefinition, type Model as SearchModel, createSearch } from ".";
 
 type TestModel = SearchModel<string>;

@@ -5,6 +5,6 @@ export {
 	type Msg,
 	type Options,
 	type SortDirection,
-	type SortFunc,
 	type Sorter,
+	type SortFunc,
 } from "./ListScreen";
