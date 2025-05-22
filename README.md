@@ -53,7 +53,7 @@ You need to pass the `createState` function to the `useElmish` hook.
 
 #### Testing
 
-To test your `init`, `update`, and subscriptions functions you can use the `getElmishState` or `getElmishStateFactory` functions from `react-elmish-utils/dist/Testing`:
+To test your `init`, `update`, and subscriptions functions you can use the `getElmishState` or `getElmishStateFactory` functions from `react-elmish-utils/testing`:
 
 ```ts
 function initProps(): Props {
@@ -68,7 +68,7 @@ const createStateWithDependencies = getElmishStateFactory(createState, initProps
 const { createUpdateArgs, createModelAndProps, init, update, updateAndExecCmd, subscription } = createStateWithDependencies(dependencies);
 ```
 
-To test React components with dependencies you can use the `renderWithDependencies` function from `react-elmish-utils/dist/Testing`:
+To test React components with dependencies you can use the `renderWithDependencies` function from `react-elmish-utils/TEsting`:
 
 ```tsx
 renderWithDependencies(() => <Component />, {
