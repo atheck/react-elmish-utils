@@ -57,7 +57,7 @@
   ],
   "exports": {
     ".": "./dist/index.js",
-    "./testing": "./dist/testing/index.js"
+    "./testing": "./dist/Testing/index.js"
   },
   "types": "dist/index.d.ts"
 }
