@@ -1,4 +1,4 @@
-import { type UpdateMap, cmd } from "react-elmish";
+import { cmd, type UpdateMap } from "react-elmish";
 
 type SortDirection = "asc" | "desc";
 
@@ -109,6 +109,7 @@ function createList<TModel, TProps, TData, TSortKey extends string = string>(
 	};
 
 	return {
+		// biome-ignore lint/style/useNamingConvention: This is an elmish naming convention.
 		Msg,
 		init(): Model<TData, TSortKey> {
 			let currentSorterKey: TSortKey | null = null;

@@ -32,7 +32,7 @@ async function runValidation<TValidationKeys extends ValidationKey = string>(
 	const errors: ValidationError<TValidationKeys>[] = [];
 
 	for (const [key, validatorFunc] of validators) {
-		// eslint-disable-next-line no-await-in-loop
+		// biome-ignore lint/nursery/noAwaitInLoop: Maybe we should use Promise.all here in the future.
 		const message = await validatorFunc();
 
 		if (message) {

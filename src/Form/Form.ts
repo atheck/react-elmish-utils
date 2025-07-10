@@ -1,5 +1,5 @@
-import { type MsgSource, type UpdateReturnType, cmd } from "react-elmish";
-import { type ValidationError, type ValidationKey, getError } from "../Validation";
+import { cmd, type MsgSource, type UpdateReturnType } from "react-elmish";
+import { getError, type ValidationError, type ValidationKey } from "../Validation";
 
 type MessageSource = MsgSource<"Form">;
 
@@ -172,6 +172,7 @@ function createForm<TModel, TProps, TValues, TValidationKeys extends ValidationK
 	};
 
 	return {
+		// biome-ignore lint/style/useNamingConvention: This is an elmish naming convention.
 		Msg,
 		init(props: TProps): Model<TValues, TValidationKeys> {
 			return {

@@ -1,6 +1,6 @@
-import { type UpdateMap, cmd } from "react-elmish";
+import { cmd, type UpdateMap } from "react-elmish";
 import type { Model, Options } from "../Form";
-import { type ValidationError, type ValidationKey, getError } from "../Validation";
+import { getError, type ValidationError, type ValidationKey } from "../Validation";
 
 type Message<TValues, TValidationKeys extends ValidationKey = keyof TValues> =
 	| { name: "valueChanged"; value: Partial<TValues> }
@@ -124,6 +124,7 @@ function createFormMap<TModel, TProps, TValues, TValidationKeys extends Validati
 	};
 
 	return {
+		// biome-ignore lint/style/useNamingConvention: This is an elmish naming convention.
 		Msg,
 		init(props: TProps): Model<TValues, TValidationKeys> {
 			return {

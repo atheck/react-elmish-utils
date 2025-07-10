@@ -1,8 +1,6 @@
 {
 	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-	"extends": [
-		"eslint-config-heck/biomeJsTs"
-	],
+	"extends": ["eslint-config-heck/biomeJsTs"],
 	"linter": {
 		"rules": {
 			"performance": {
@@ -13,12 +11,7 @@
 	"overrides": [
 		{
 			// Test files
-			"include": [
-				"**/*.spec.ts",
-				"**/*.spec.tsx",
-				"**/test/**/*.ts",
-				"**/test/**/*.tsx"
-			],
+			"includes": ["**/*.spec.ts", "**/*.spec.tsx", "**/test/**/*.ts", "**/test/**/*.tsx"],
 			"linter": {
 				"rules": {
 					"style": {
@@ -26,11 +19,18 @@
 					}
 				}
 			}
-		},
+		}
 	],
 	"formatter": {
 		"enabled": true,
 		"lineWidth": 130
+	},
+	"assist": {
+		"actions": {
+			"source": {
+				"organizeImports": "on"
+			}
+		}
 	},
 	"vcs": {
 		"enabled": true,

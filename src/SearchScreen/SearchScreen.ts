@@ -1,4 +1,4 @@
-import { type UpdateMap, cmd } from "react-elmish";
+import { cmd, type UpdateMap } from "react-elmish";
 import { type Filter, type FilterGroup, type FilterGroupDefinition, type SearchFunc, search } from "./Search";
 
 type Message<TData> =
@@ -90,6 +90,7 @@ function createSearch<TModel, TProps, TData>(options: Options<TData>): Search<TM
 	};
 
 	return {
+		// biome-ignore lint/style/useNamingConvention: This is an elmish naming convention.
 		Msg,
 		init(): Model<TData> {
 			return {
