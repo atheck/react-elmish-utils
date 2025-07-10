@@ -2,10 +2,10 @@ import { useMemo } from "react";
 import {
 	type Dispatch,
 	type ElmOptions,
+	init as initElmish,
 	type Message,
 	type UpdateMap,
 	type UseElmishOptions as UseElmishOptionsBase,
-	init as initElmish,
 	useElmish as useElmishBase,
 } from "react-elmish";
 import type { UpdateFunction } from "react-elmish/extend";
@@ -41,22 +41,22 @@ interface ElmishWithDependencies<TDependencies> {
 }
 
 function initWithDependencies<TDependencies>(
-	options: ElmOptions,
+	initializationOptions: ElmOptions,
 	dependencies: TDependencies,
 ): ElmishWithDependencies<TDependencies> {
-	initElmish(options);
+	initElmish(initializationOptions);
 
 	return { useElmish };
 
-	function useElmish<TProps, TModel, TMessage extends Message>({
-		name,
-		props,
-		createState,
-	}: UseElmishOptions<TProps, TModel, TMessage, TDependencies>): [TModel, Dispatch<TMessage>] {
-		// biome-ignore lint/correctness/useExhaustiveDependencies: Wo only want this to run once
+	function useElmish<TProps, TModel, TMessage extends Message>(
+		options: UseElmishOptions<TProps, TModel, TMessage, TDependencies>,
+	): [TModel, Dispatch<TMessage>] {
+		const { createState, ...rest } = options;
+
+		// biome-ignore lint/correctness/useExhaustiveDependencies: We only want this to run once
 		const { init, update, subscription } = useMemo(() => createState(getCurrentFakeDependenciesOnce() ?? dependencies), []);
 
-		return useElmishBase<TProps, TModel, TMessage>({ name, props, init, update, subscription });
+		return useElmishBase<TProps, TModel, TMessage>({ ...rest, init, update, subscription });
 	}
 }
 
