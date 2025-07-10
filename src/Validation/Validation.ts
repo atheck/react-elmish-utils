@@ -29,18 +29,15 @@ function getError<TValidationKeys extends ValidationKey = string>(
 async function runValidation<TValidationKeys extends ValidationKey = string>(
 	...validators: Validator<TValidationKeys>[]
 ): Promise<ValidationError<TValidationKeys>[]> {
-	const errors: ValidationError<TValidationKeys>[] = [];
+	const errors = await Promise.all(
+		validators.map(async ([key, validatorFunc]) => {
+			const message = await validatorFunc();
 
-	for (const [key, validatorFunc] of validators) {
-		// biome-ignore lint/nursery/noAwaitInLoop: Maybe we should use Promise.all here in the future.
-		const message = await validatorFunc();
+			return message ? { key, message } : null;
+		}),
+	);
 
-		if (message) {
-			errors.push({ key, message });
-		}
-	}
-
-	return errors;
+	return errors.filter((error) => error !== null);
 }
 
 export type { ValidationError, ValidationKey, Validator, ValidatorFunc };
