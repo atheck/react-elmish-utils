@@ -140,7 +140,7 @@ function createList<TModel, TProps, TData, TSortKey extends string = string>(
 
 				if (currentSorter) {
 					const items =
-						model.sortDirection === "asc" ? model.items.sort(currentSorter) : sortDescending(model.items, currentSorter);
+						model.sortDirection === "asc" ? model.items.toSorted(currentSorter) : sortDescending(model.items, currentSorter);
 
 					return [{ items } as Partial<Model<TData, TSortKey> & TModel>];
 				}
@@ -225,11 +225,11 @@ function getSorterByKey<TData, TSortKey extends string>(
 
 function sortDescending<TData>(array: TData[], compareFn?: (a: TData, b: TData) => number): TData[] {
 	if (compareFn) {
-		return array.sort((data1: TData, data2: TData) => compareFn(data2, data1));
+		return array.toSorted((data1: TData, data2: TData) => compareFn(data2, data1));
 	}
 
 	// eslint-disable-next-line @typescript-eslint/require-array-sort-compare
-	return array.sort().reverse();
+	return array.toSorted().reverse();
 }
 
 export type { Message, Model, Msg, Options, SortDirection, SortFunc, Sorter };
