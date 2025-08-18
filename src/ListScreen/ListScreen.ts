@@ -223,13 +223,8 @@ function getSorterByKey<TData, TSortKey extends string>(
 	return null;
 }
 
-function sortDescending<TData>(array: TData[], compareFn?: (a: TData, b: TData) => number): TData[] {
-	if (compareFn) {
-		return array.toSorted((data1: TData, data2: TData) => compareFn(data2, data1));
-	}
-
-	// eslint-disable-next-line @typescript-eslint/require-array-sort-compare
-	return array.toSorted().reverse();
+function sortDescending<TData>(array: TData[], compareFn: (a: TData, b: TData) => number): TData[] {
+	return array.toSorted((data1: TData, data2: TData) => compareFn(data2, data1));
 }
 
 export type { Message, Model, Msg, Options, SortDirection, SortFunc, Sorter };
