@@ -5,7 +5,23 @@
 
 Utility functions and types for [react-elmish](https://www.npmjs.com/package/react-elmish).
 
-[[_TOC_]]
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Dependency Injection](#dependency-injection)
+    - [Testing](#testing)
+  - [Form](#form)
+    - [FormMap Example](#formmap-example)
+    - [Hook into or overwrite messages](#hook-into-or-overwrite-messages)
+    - [Form Example](#form-example)
+    - [Hook into or overwrite messages](#hook-into-or-overwrite-messages-1)
+  - [Validation](#validation)
+    - [Example: Use validation in FormMap](#example-use-validation-in-formmap)
+  - [List screen](#list-screen)
+    - [List Options](#list-options)
+    - [Sorting](#sorting)
+  - [Search screen](#search-screen)
+    - [Search Options](#search-options)
+    - [Filtering](#filtering)
 
 ## Installation
 
@@ -62,11 +78,13 @@ function initProps(): Props {
     };
 }
 
-const { createUpdateArgs, createModelAndProps, init, update, updateAndExecCmd, subscription } = getElmishState(createState, initProps, dependencies);
+const { createUpdateArgs, createModelAndProps, init, update, updateAndExecCmd, consecutiveUpdate, subscription } = getElmishState(createState, initProps, dependencies);
 // or
 const createStateWithDependencies = getElmishStateFactory(createState, initProps);
-const { createUpdateArgs, createModelAndProps, init, update, updateAndExecCmd, subscription } = createStateWithDependencies(dependencies);
+const { createUpdateArgs, createModelAndProps, init, update, updateAndExecCmd, consecutiveUpdate, subscription } = createStateWithDependencies(dependencies);
 ```
+
+**Note:** The `consecutiveUpdate` function is only available if you use an `UpdateMap`.
 
 To test React components with dependencies you can use the `renderWithDependencies` function from `react-elmish-utils/TEsting`:
 

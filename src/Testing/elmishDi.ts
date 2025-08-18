@@ -1,7 +1,9 @@
+/* eslint-disable max-params */
 import type { InitResult, Message, Subscription, UpdateFunctionOptions, UpdateReturnType } from "react-elmish";
 import { createCallBase, createDefer } from "react-elmish/extend";
 import {
 	execCmd,
+	getConsecutiveUpdateFn,
 	getCreateModelAndProps,
 	getCreateUpdateArgs,
 	getUpdateAndExecCmdFn,
@@ -20,20 +22,24 @@ type ModelAndPropsFactory<TProps, TModel> = (
 
 interface ElmishStateResult<TProps, TModel, TMessage extends Message> {
 	init: (props: TProps) => InitResult<TModel, TMessage>;
-	// eslint-disable-next-line max-params
 	update: (
 		msg: TMessage,
 		model: TModel,
 		props: TProps,
 		optionsTemplate?: Partial<UpdateFunctionOptions<TProps, TModel, TMessage>>,
 	) => UpdateReturnType<TModel, TMessage>;
-	// eslint-disable-next-line max-params
 	updateAndExecCmd: (
 		msg: TMessage,
 		model: TModel,
 		props: TProps,
 		optionsTemplate?: Partial<UpdateFunctionOptions<TProps, TModel, TMessage>>,
 	) => Promise<[Partial<TModel>, (TMessage | null)[]]>;
+	consecutiveUpdate: (
+		msg: TMessage,
+		model: TModel,
+		props: TProps,
+		optionsTemplate?: Partial<UpdateFunctionOptions<TProps, TModel, TMessage>>,
+	) => Promise<Partial<TModel>>;
 	subscription?: Subscription<TProps, TModel, TMessage>;
 	createUpdateArgs: UpdateArgsFactory<TProps, TModel, TMessage>;
 	createModelAndProps: ModelAndPropsFactory<TProps, TModel>;
@@ -51,7 +57,6 @@ function getElmishState<TProps, TModel, TMessage extends Message, TDependencies>
 	if (typeof update === "function") {
 		return {
 			init,
-			// eslint-disable-next-line max-params
 			update(msg, model, props, optionsTemplate) {
 				const [defer, getDeferred] = createDefer<TModel, TMessage>();
 				const callBase = createCallBase(msg, model, props, { defer });
@@ -63,7 +68,6 @@ function getElmishState<TProps, TModel, TMessage extends Message, TDependencies>
 
 				return [{ ...deferredModel, ...updatedModel }, ...commands, ...deferredCommands];
 			},
-			// eslint-disable-next-line max-params
 			async updateAndExecCmd(msg, model, props, optionsTemplate) {
 				const [defer, getDeferred] = createDefer<TModel, TMessage>();
 				const callBase = createCallBase(msg, model, props, { defer });
@@ -75,6 +79,9 @@ function getElmishState<TProps, TModel, TMessage extends Message, TDependencies>
 
 				return [{ ...deferredModel, ...updatedModel }, messages];
 			},
+			consecutiveUpdate() {
+				throw new Error("Not implemented for update functions.");
+			},
 			subscription,
 			createUpdateArgs,
 			createModelAndProps,
@@ -83,11 +90,13 @@ function getElmishState<TProps, TModel, TMessage extends Message, TDependencies>
 
 	const updateFn = getUpdateFn(update);
 	const updateAndExecCmd = getUpdateAndExecCmdFn(update);
+	const consecutiveUpdate = getConsecutiveUpdateFn(update);
 
 	return {
 		init,
 		update: updateFn,
 		updateAndExecCmd,
+		consecutiveUpdate,
 		subscription,
 		createUpdateArgs,
 		createModelAndProps,
