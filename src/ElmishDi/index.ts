@@ -1,1 +1,1 @@
-export { initWithDependencies, type ElmishState, type ElmishStateFunction, type ElmishStateMap } from "./elmishDi";
+export { type ElmishState, type ElmishStateFunction, type ElmishStateMap, initWithDependencies } from "./elmishDi";

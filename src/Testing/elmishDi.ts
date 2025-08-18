@@ -1,14 +1,14 @@
 import type { InitResult, Message, Subscription, UpdateFunctionOptions, UpdateReturnType } from "react-elmish";
 import { createCallBase, createDefer } from "react-elmish/extend";
 import {
-	type RenderWithModelOptions,
-	type UpdateArgsFactory,
 	execCmd,
 	getCreateModelAndProps,
 	getCreateUpdateArgs,
 	getUpdateAndExecCmdFn,
 	getUpdateFn,
+	type RenderWithModelOptions,
 	renderWithModel,
+	type UpdateArgsFactory,
 } from "react-elmish/testing";
 import type { ElmishState } from "../ElmishDi";
 import { setFakeDependencies } from "../Internal";

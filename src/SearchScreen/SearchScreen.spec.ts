@@ -1,5 +1,5 @@
 import { execCmd, getUpdateFn } from "react-elmish/testing";
-import { type Filter, type FilterDefinition, type FilterGroupDefinition, type Model as SearchModel, createSearch } from ".";
+import { createSearch, type Filter, type FilterDefinition, type FilterGroupDefinition, type Model as SearchModel } from ".";
 
 type TestModel = SearchModel<string>;
 
