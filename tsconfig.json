@@ -13,14 +13,11 @@
     "noUncheckedIndexedAccess": true,
     "target": "esnext",
     "strictNullChecks": true,
-    "downlevelIteration": true,
     "importHelpers": true,
     "resolveJsonModule": true,
     "module": "Node16",
     "declaration": true,
-  },
-  "typeAcquisition": {
-    "include": [
+    "types": [
       "jest"
     ]
   },

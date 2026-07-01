@@ -99,7 +99,7 @@ function createFormMap<TModel, TProps, TValues, TValidationKeys extends Validati
 		props: TProps,
 	): Promise<ValidationError<TValidationKeys>[]> => {
 		if (options.validate) {
-			return options.validate({ ...model, reValidating }, props);
+			return await options.validate({ ...model, reValidating }, props);
 		}
 
 		return [];
@@ -221,12 +221,12 @@ function createFormMap<TModel, TProps, TValues, TValidationKeys extends Validati
 		const mappedValues = values as Record<string, unknown>;
 
 		return Object.fromEntries(
-			Object.keys(mappedValues).map((key) => {
-				if (typeof mappedValues[key] === "string") {
-					return [key, mappedValues[key].trim()];
+			Object.entries(mappedValues).map(([key, value]) => {
+				if (typeof value === "string") {
+					return [key, value.trim()];
 				}
 
-				return [key, mappedValues[key]];
+				return [key, value];
 			}),
 		) as TValues;
 	}

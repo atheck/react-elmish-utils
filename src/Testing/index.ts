@@ -1,5 +1,5 @@
+export type { ElmishStateResult } from "./elmishDi";
 export {
-	type ElmishStateResult,
 	getElmishState,
 	getElmishStateFactory,
 	renderWithDependencies,

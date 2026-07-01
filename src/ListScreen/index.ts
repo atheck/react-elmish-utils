@@ -1,10 +1,10 @@
-export {
-	createList,
-	type Message,
-	type Model,
-	type Msg,
-	type Options,
-	type SortDirection,
-	type Sorter,
-	type SortFunc,
+export type {
+	Message,
+	Model,
+	Msg,
+	Options,
+	SortDirection,
+	Sorter,
+	SortFunc,
 } from "./ListScreen";
+export { createList } from "./ListScreen";

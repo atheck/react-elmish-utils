@@ -1,4 +1,3 @@
-/* eslint-disable max-params */
 import type { InitResult, Message, Subscription, UpdateFunctionOptions, UpdateReturnType } from "react-elmish";
 import { createCallBase, createDefer } from "react-elmish/extend";
 import {

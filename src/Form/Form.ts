@@ -147,7 +147,7 @@ function createForm<TModel, TProps, TValues, TValidationKeys extends ValidationK
 		props: TProps,
 	): Promise<ValidationError<TValidationKeys>[]> => {
 		if (options.validate) {
-			return options.validate({ ...model, reValidating }, props);
+			return await options.validate({ ...model, reValidating }, props);
 		}
 
 		return [];

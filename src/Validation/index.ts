@@ -1,8 +1,10 @@
+export type {
+	ValidationError,
+	ValidationKey,
+	Validator,
+	ValidatorFunc,
+} from "./Validation";
 export {
 	getError,
 	runValidation,
-	type ValidationError,
-	type ValidationKey,
-	type Validator,
-	type ValidatorFunc,
 } from "./Validation";

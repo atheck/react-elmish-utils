@@ -1,10 +1,15 @@
 {
 	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-	"extends": ["eslint-config-heck/biomeJsTs"],
+	"extends": [
+		"eslint-config-heck/biomeJsTs"
+	],
 	"linter": {
 		"rules": {
 			"performance": {
 				"noBarrelFile": "off"
+			},
+			"suspicious": {
+				"noUnnecessaryConditions": "off"
 			}
 		}
 	},

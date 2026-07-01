@@ -1,1 +1,2 @@
-export { createFormMap, type FormMap, type FormMapOptions, type Message } from "./FormMap";
+export type { FormMap, FormMapOptions, Message } from "./FormMap";
+export { createFormMap } from "./FormMap";

@@ -1,1 +1,2 @@
-export { createForm, type Form, type Message, type Model, type Options } from "./Form";
+export type { Form, Message, Model, Options } from "./Form";
+export { createForm } from "./Form";
