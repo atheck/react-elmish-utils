@@ -7,6 +7,7 @@ Utility functions and types for [react-elmish](https://www.npmjs.com/package/rea
 
 - [Installation](#installation)
 - [Usage](#usage)
+  - [Immutable API](#immutable-api)
   - [Dependency Injection](#dependency-injection)
     - [Testing](#testing)
   - [Form](#form)
@@ -28,6 +29,43 @@ Utility functions and types for [react-elmish](https://www.npmjs.com/package/rea
 `npm install react-elmish-utils`
 
 ## Usage
+
+### Immutable API
+
+`react-elmish` ships two flavors of its API: the default one where `update` functions return a partial model, and an [immutable one](https://www.npmjs.com/package/react-elmish) where `update` functions mutate an [immer](https://www.npmjs.com/package/immer) draft and return only commands.
+
+Every utility of this package is available for both flavors. To use the immutable variants, import from the `react-elmish-utils/immutable` (and `react-elmish-utils/immutable/testing`) entry points instead of the default ones:
+
+```ts
+// Default (mutable) API
+import { createForm, createList, createSearch, initWithDependencies } from "react-elmish-utils";
+import { getElmishState } from "react-elmish-utils/testing";
+
+// Immutable API
+import { createForm, createList, createSearch, initWithDependencies } from "react-elmish-utils/immutable";
+import { getElmishState } from "react-elmish-utils/immutable/testing";
+```
+
+The public surface (options, messages, `Msg` factories, models) is identical. Only the shape of the `update`/`updateMap` you write yourself differs — the immutable variants integrate with the immer based `update` functions of `react-elmish/immutable`:
+
+```ts
+import { createList, type ListScreenMessage, type ListScreenModel } from "react-elmish-utils/immutable";
+import { cmd, type UpdateMap } from "react-elmish/immutable";
+
+const list = createList<Model, Props, Item>();
+
+const update: UpdateMap<Props, Model, Message> = {
+    ...list.updateMap,
+    // your own messages mutate the draft directly and return only commands
+    myMessage(_msg, model) {
+        model.title = "changed";
+
+        return [];
+    },
+};
+```
+
+> **Note:** The immutable variants require `immer` to be resolvable. It comes transitively with `react-elmish`, so no extra installation is normally needed. `immer` is declared as an optional peer dependency.
 
 ### Dependency Injection
 

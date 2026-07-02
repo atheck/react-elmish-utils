@@ -1,7 +1,8 @@
-import { cmd, type UpdateMap } from "react-elmish";
+import { cmd, type UpdateMap } from "react-elmish/immutable";
 import { createInit, type Model } from "../Form/shared";
+import { createMsg, type FormMapOptions, type Message, type Msg as MsgObject, trimValues } from "../FormMap/shared";
 import { getError, type ValidationError, type ValidationKey } from "../Validation";
-import { createMsg, type FormMapOptions, type Message, type Msg as MsgObject, trimValues } from "./shared";
+import { asWritable, snapshot } from "./draft";
 
 interface FormMap<TModel, TProps, TValues, TValidationKeys extends ValidationKey = keyof TValues> {
 	/**
@@ -31,7 +32,7 @@ interface FormMap<TModel, TProps, TValues, TValidationKeys extends ValidationKey
 }
 
 /**
- * Creates a Form object.
+ * Creates a Form object for the immutable react-elmish API.
  * @param options Options to pass to the Form.
  * @returns The created Form object.
  */
@@ -58,76 +59,78 @@ function createFormMap<TModel, TProps, TValues, TValidationKeys extends Validati
 		init: createInit(options),
 
 		updateMap: {
-			valueChanged({ value }, model, props) {
-				const updatedValue = options.onValueChanged ? options.onValueChanged(value, model, props) : value;
+			valueChanged({ value }, draft, props) {
+				const model = asWritable(draft);
+				const updatedValue = options.onValueChanged ? options.onValueChanged(value, snapshot(draft), props) : value;
 
-				return [
-					{
-						values: { ...model.values, ...updatedValue },
-					} as Partial<Model<TValues, TValidationKeys> & TModel>,
-					cmd.ofMsg(Msg.reValidate()),
-				];
+				Object.assign(model.values as Record<string, unknown>, updatedValue);
+
+				return [cmd.ofMsg(Msg.reValidate())];
 			},
 
 			acceptRequest() {
-				return [{}, cmd.ofMsg(Msg.validate(Msg.accept()))];
+				return [cmd.ofMsg(Msg.validate(Msg.accept()))];
 			},
 
-			accept(_msg, model, props) {
-				const trimmedValues = options.trimValues ? trimValues(model.values) : model.values;
+			accept(_msg, draft, props) {
+				const state = snapshot(draft);
+				const trimmedValues = options.trimValues ? trimValues(state.values) : state.values;
 
-				options.onAccept?.({ ...model, values: trimmedValues }, props);
+				options.onAccept?.({ ...state, values: trimmedValues }, props);
 
-				return [{}];
+				return [];
 			},
 
 			cancelRequest() {
-				return [{}, cmd.ofMsg(Msg.cancel())];
+				return [cmd.ofMsg(Msg.cancel())];
 			},
 
-			cancel(_msg, model, props) {
-				options.onCancel?.(model, props);
+			cancel(_msg, draft, props) {
+				options.onCancel?.(snapshot(draft), props);
 
-				return [{}];
+				return [];
 			},
 
-			validate({ msg }, model, props) {
-				const trimmedValues = options.trimValues ? trimValues(model.values) : model.values;
+			validate({ msg }, draft, props) {
+				const model = asWritable(draft);
+				const state = snapshot(draft);
+				const trimmedValues = options.trimValues ? trimValues(state.values) : state.values;
 
-				return [
-					{
-						errors: [],
-						validated: true,
-					} as Partial<Model<TValues, TValidationKeys> & TModel>,
-					cmd.ofSuccess(validate, (errors) => Msg.validated(errors, msg), { ...model, values: trimmedValues }, props),
-				];
+				model.errors = [];
+				model.validated = true;
+
+				return [cmd.ofSuccess(validate, (errors) => Msg.validated(errors, msg), { ...state, values: trimmedValues }, props)];
 			},
 
-			validated({ errors, msg }, model, props) {
-				const trimmedValues = options.trimValues ? trimValues(model.values) : model.values;
+			validated({ errors, msg }, draft, props) {
+				const model = asWritable(draft);
+				const state = snapshot(draft);
+				const trimmedValues = options.trimValues ? trimValues(state.values) : state.values;
 
-				options.onValidated?.(errors, { ...model, values: trimmedValues, reValidating }, props);
+				options.onValidated?.(errors, { ...state, values: trimmedValues, reValidating }, props);
 				reValidating = false;
 
 				if (errors.length > 0) {
-					return [{ errors } as Partial<Model<TValues, TValidationKeys> & TModel>];
+					model.errors = errors;
+
+					return [];
 				}
 
 				if (msg) {
-					return [{}, cmd.ofMsg(msg)];
+					return [cmd.ofMsg(msg)];
 				}
 
-				return [{}];
+				return [];
 			},
 
-			reValidate(_msg, { validated }) {
-				if (validated) {
+			reValidate(_msg, model) {
+				if (model.validated) {
 					reValidating = true;
 
-					return [{}, cmd.ofMsg(Msg.validate())];
+					return [cmd.ofMsg(Msg.validate())];
 				}
 
-				return [{}];
+				return [];
 			},
 		},
 
@@ -137,7 +140,6 @@ function createFormMap<TModel, TProps, TValues, TValidationKeys extends Validati
 	};
 }
 
-export type { FormMapOptions, Message } from "./shared";
 export type { FormMap };
 
 export { createFormMap };

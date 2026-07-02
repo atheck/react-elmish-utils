@@ -1,69 +1,21 @@
 import { cmd, type UpdateMap } from "react-elmish";
-import { type Filter, type FilterGroup, type FilterGroupDefinition, type SearchFunc, search } from "./Search";
-
-type Message<TData> =
-	| { name: "queryChanged"; query: string }
-	| { name: "toggleFilter"; filter: Filter<TData> }
-	| { name: "refreshSearch" };
-
-/**
- * Model for a screen to search and filter items.
- */
-interface Model<TData> {
-	/**
-	 * The query string.
-	 */
-	query: string;
-	items: TData[];
-	/**
-	 * Contains all visible items.
-	 */
-	visibleItems: TData[];
-	/**
-	 * Optional list of filters.
-	 */
-	filterGroups?: FilterGroup<TData>[];
-}
-
-interface Options<TData> {
-	/**
-	 * The function to filter one item of the list by the given query string.
-	 */
-	filterByQuery: SearchFunc<TData>;
-	/**
-	 * Optional list of filter definitions.
-	 */
-	filterGroups?: FilterGroupDefinition<TData>[];
-	/**
-	 * If set to true, all items are shown if the query is empty and no filters are set.
-	 */
-	showAllItemsByDefault?: boolean;
-}
-
-type CompositeModel<TModel, TData> = Model<TData> & TModel;
-
-interface Msg<TData> {
-	/**
-	 * Updates the query string.
-	 */
-	queryChanged: (query: string) => Message<TData>;
-	/**
-	 * Toggles the given filter.
-	 */
-	toggleFilter: (filter: Filter<TData>) => Message<TData>;
-	/**
-	 * Refreshes the search result.
-	 * Dispatch this message when the items changed.
-	 */
-	refreshSearch: () => Message<TData>;
-}
+import { search } from "./Search";
+import {
+	type CompositeModel,
+	createInit,
+	createMsg,
+	type Message,
+	type Model,
+	type Msg as MsgObject,
+	type Options,
+} from "./shared";
 
 interface Search<TModel, TProps, TData> {
 	/**
 	 * Object to create messages.
 	 */
 	// biome-ignore lint/style/useNamingConvention: This is an elmish naming convention.
-	Msg: Msg<TData>;
+	Msg: MsgObject<TData>;
 	/**
 	 * Initializes the search screen model.
 	 * Call this in your init function.
@@ -83,26 +35,12 @@ interface Search<TModel, TProps, TData> {
  * @returns The created search object.
  */
 function createSearch<TModel, TProps, TData>(options: Options<TData>): Search<TModel, TProps, TData> {
-	const Msg: Msg<TData> = {
-		queryChanged: (query: string): Message<TData> => ({ name: "queryChanged", query }),
-		toggleFilter: (filter: Filter<TData>): Message<TData> => ({ name: "toggleFilter", filter }),
-		refreshSearch: (): Message<TData> => ({ name: "refreshSearch" }),
-	};
+	const Msg = createMsg<TData>();
 
 	return {
 		// biome-ignore lint/style/useNamingConvention: This is an elmish naming convention.
 		Msg,
-		init(): Model<TData> {
-			return {
-				query: "",
-				items: [],
-				visibleItems: [],
-				filterGroups: options.filterGroups?.map((group) => ({
-					...group,
-					filters: group.filters.map((filter) => ({ ...filter, active: filter.active ?? false })),
-				})),
-			};
-		},
+		init: createInit(options),
 		updateMap: {
 			queryChanged({ query }) {
 				return [{ query } as Partial<CompositeModel<TModel, TData>>, cmd.ofMsg(Msg.refreshSearch())];
@@ -155,6 +93,6 @@ function createSearch<TModel, TProps, TData>(options: Options<TData>): Search<TM
 	};
 }
 
-export type { Message, Model, Msg, Options };
+export type { Message, Model, Msg, Options } from "./shared";
 
 export { createSearch };

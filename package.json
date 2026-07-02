@@ -5,7 +5,7 @@
   "author": "atheck",
   "license": "MIT",
   "scripts": {
-    "install-peers": "npm install --no-save react-elmish@^10.1.1 react@19",
+    "install-peers": "npm install --no-save react-elmish@^10.7.0 react@19",
     "prebuild": "npm run install-peers",
     "build": "npm run build:types && npm run build:js",
     "build:types": "tsc --emitDeclarationOnly --project ./src/tsconfig.build.json",
@@ -38,8 +38,14 @@
     "typescript": "6.0.3"
   },
   "peerDependencies": {
+    "immer": ">=11.0.0",
     "react": ">=18.0.0",
-    "react-elmish": ">=10.3.0"
+    "react-elmish": ">=10.7.0"
+  },
+  "peerDependenciesMeta": {
+    "immer": {
+      "optional": true
+    }
   },
   "homepage": "https://github.com/atheck/react-elmish-utils",
   "repository": {
@@ -58,7 +64,9 @@
   ],
   "exports": {
     ".": "./dist/index.js",
-    "./testing": "./dist/Testing/index.js"
+    "./testing": "./dist/Testing/index.js",
+    "./immutable": "./dist/immutable/index.js",
+    "./immutable/testing": "./dist/immutable/Testing/index.js"
   },
   "types": "dist/index.d.ts"
 }

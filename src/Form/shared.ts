@@ -1,0 +1,147 @@
+import type { MsgSource } from "react-elmish";
+import type { ValidationError, ValidationKey } from "../Validation";
+
+type MessageSource = MsgSource<"Form">;
+
+type Message<TValues, TValidationKeys extends ValidationKey = keyof TValues> = (
+	| { name: "ValueChanged"; value: Partial<TValues> }
+	| { name: "AcceptRequest" }
+	| { name: "Accept" }
+	| { name: "CancelRequest" }
+	| { name: "Cancel" }
+	| { name: "Validate"; msg?: Message<TValues, TValidationKeys> }
+	| { name: "Validated"; errors: ValidationError<TValidationKeys>[]; msg?: Message<TValues, TValidationKeys> }
+	| { name: "ReValidate" }
+) &
+	MessageSource;
+
+const Source: MessageSource = { source: "Form" };
+
+interface Model<TValues, TValidationKeys extends ValidationKey = keyof TValues> {
+	values: TValues;
+	errors: ValidationError<TValidationKeys>[];
+	validated: boolean;
+}
+
+interface Options<TModel, TProps, TValues, TValidationKeys extends ValidationKey = keyof TValues> {
+	/**
+	 * Is called to create the initial form values.
+	 * @returns The initial form values.
+	 */
+	initValues: (props: TProps) => TValues;
+	/**
+	 * Is called to validate all inputs of the Form.
+	 * @returns An array of validation errors, or an empty array if all inputs are valid.
+	 */
+	validate?: (
+		model: Model<TValues, TValidationKeys> & TModel & { reValidating: boolean },
+		props: TProps,
+	) => Promise<ValidationError<TValidationKeys>[]>;
+	/**
+	 * This callback is called when one ore more values were changed.
+	 * @remarks
+	 * In this function you can manipulate the values of the form.
+	 */
+	onValueChanged?: (values: Partial<TValues>, model: Model<TValues, TValidationKeys> & TModel, props: TProps) => Partial<TValues>;
+	/**
+	 * This callback is called after the validation.
+	 */
+	onValidated?: (
+		errors: ValidationError<TValidationKeys>[],
+		model: Model<TValues, TValidationKeys> & TModel & { reValidating: boolean },
+		props: TProps,
+	) => void;
+	/**
+	 * This callback is called when the form should be cancelled.
+	 * @param model The current model.
+	 * @param props The props.
+	 */
+	onCancel?: (model: Model<TValues, TValidationKeys> & TModel, props: TProps) => void;
+	/**
+	 * This callback is called when the form should be accepted.
+	 * @param model The current model.
+	 * @param props The props.
+	 */
+	onAccept?: (model: Model<TValues, TValidationKeys> & TModel, props: TProps) => void;
+}
+
+interface Msg<TValues, TValidationKeys extends ValidationKey = keyof TValues> {
+	/**
+	 * Updates the modified value.
+	 */
+	valueChanged: (value: Partial<TValues>) => Message<TValues, TValidationKeys>;
+	/**
+	 * Requests to accept the Form.
+	 */
+	acceptRequest: () => Message<TValues, TValidationKeys>;
+	/**
+	 * Accepts the Form.
+	 */
+	accept: () => Message<TValues, TValidationKeys>;
+	/**
+	 * Requests to cancel the Form.
+	 */
+	cancelRequest: () => Message<TValues, TValidationKeys>;
+	/**
+	 * Cancels the Form.
+	 */
+	cancel: () => Message<TValues, TValidationKeys>;
+	/**
+	 * Validates all inputs.
+	 */
+	validate: (msg?: Message<TValues, TValidationKeys>) => Message<TValues, TValidationKeys>;
+	/**
+	 * All inputs validated.
+	 */
+	validated: (
+		errors: ValidationError<TValidationKeys>[],
+		msg?: Message<TValues, TValidationKeys>,
+	) => Message<TValues, TValidationKeys>;
+	/**
+	 * Runs the validation again if it has already been performed.
+	 */
+	reValidate: () => Message<TValues, TValidationKeys>;
+}
+
+/**
+ * Creates the `Msg` object with the Form message creators.
+ * @returns The `Msg` object.
+ */
+function createMsg<TValues, TValidationKeys extends ValidationKey = keyof TValues>(): Msg<TValues, TValidationKeys> {
+	return {
+		valueChanged: (value: Partial<TValues>): Message<TValues, TValidationKeys> => ({ name: "ValueChanged", value, ...Source }),
+		acceptRequest: (): Message<TValues, TValidationKeys> => ({ name: "AcceptRequest", ...Source }),
+		accept: (): Message<TValues, TValidationKeys> => ({ name: "Accept", ...Source }),
+		cancelRequest: (): Message<TValues, TValidationKeys> => ({ name: "CancelRequest", ...Source }),
+		cancel: (): Message<TValues, TValidationKeys> => ({ name: "Cancel", ...Source }),
+		validate: (msg?: Message<TValues, TValidationKeys>): Message<TValues, TValidationKeys> => ({
+			name: "Validate",
+			msg,
+			...Source,
+		}),
+		validated: (
+			errors: ValidationError<TValidationKeys>[],
+			msg?: Message<TValues, TValidationKeys>,
+		): Message<TValues, TValidationKeys> => ({ name: "Validated", errors, msg, ...Source }),
+		reValidate: (): Message<TValues, TValidationKeys> => ({ name: "ReValidate", ...Source }),
+	};
+}
+
+/**
+ * Creates the initial Form model.
+ * @param options The Form options.
+ * @returns The `init` function.
+ */
+function createInit<TModel, TProps, TValues, TValidationKeys extends ValidationKey = keyof TValues>(
+	options: Options<TModel, TProps, TValues, TValidationKeys>,
+): (props: TProps) => Model<TValues, TValidationKeys> {
+	return (props: TProps): Model<TValues, TValidationKeys> => ({
+		errors: [],
+		validated: false,
+		values: options.initValues(props),
+	});
+}
+
+export type { Message, MessageSource, Model, Msg, Options };
+
+export { createInit, createMsg, Source };

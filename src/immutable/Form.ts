@@ -1,6 +1,8 @@
-import { cmd, type UpdateReturnType } from "react-elmish";
+import type { Draft } from "immer";
+import { cmd, type UpdateReturnType } from "react-elmish/immutable";
+import { createInit, createMsg, type Message, type Model, type Msg as MsgObject, type Options } from "../Form/shared";
 import { getError, type ValidationError, type ValidationKey } from "../Validation";
-import { createInit, createMsg, type Message, type Model, type Msg as MsgObject, type Options } from "./shared";
+import { asWritable, snapshot } from "./draft";
 
 interface Form<TModel, TProps, TValues, TValidationKeys extends ValidationKey = keyof TValues> {
 	/**
@@ -12,10 +14,10 @@ interface Form<TModel, TProps, TValues, TValidationKeys extends ValidationKey = 
 	 * Updates the Form model.
 	 */
 	update: (
-		model: Model<TValues, TValidationKeys> & TModel,
+		model: Draft<Model<TValues, TValidationKeys> & TModel>,
 		msg: Message<TValues, TValidationKeys>,
 		props: TProps,
-	) => UpdateReturnType<Model<TValues, TValidationKeys>, Message<TValues, TValidationKeys>>;
+	) => UpdateReturnType<Message<TValues, TValidationKeys>>;
 
 	/**
 	 * Object to call Form messages.
@@ -33,7 +35,7 @@ interface Form<TModel, TProps, TValues, TValidationKeys extends ValidationKey = 
 }
 
 /**
- * Creates a Form object.
+ * Creates a Form object for the immutable react-elmish API.
  * @param options Options to pass to the Form.
  * @returns The created Form object.
  */
@@ -60,69 +62,71 @@ function createForm<TModel, TProps, TValues, TValidationKeys extends ValidationK
 		init: createInit(options),
 
 		update(
-			model: Model<TValues, TValidationKeys> & TModel,
+			draft: Draft<Model<TValues, TValidationKeys> & TModel>,
 			msg: Message<TValues, TValidationKeys>,
 			props: TProps,
-		): UpdateReturnType<Model<TValues, TValidationKeys>, Message<TValues, TValidationKeys>> {
+		): UpdateReturnType<Message<TValues, TValidationKeys>> {
+			const model = asWritable(draft);
+
 			switch (msg.name) {
 				case "ValueChanged": {
-					const value = options.onValueChanged ? options.onValueChanged(msg.value, model, props) : msg.value;
+					const value = options.onValueChanged ? options.onValueChanged(msg.value, snapshot(draft), props) : msg.value;
 
-					return [
-						{
-							values: { ...model.values, ...value },
-						},
-						cmd.ofMsg(Msg.reValidate()),
-					];
+					Object.assign(model.values as Record<string, unknown>, value);
+
+					return [cmd.ofMsg(Msg.reValidate())];
 				}
 
 				case "AcceptRequest":
-					return [{}, cmd.ofMsg(Msg.validate(Msg.accept()))];
+					return [cmd.ofMsg(Msg.validate(Msg.accept()))];
 
 				case "Accept": {
-					options.onAccept?.(model, props);
+					options.onAccept?.(snapshot(draft), props);
 
-					return [{}];
+					return [];
 				}
 
 				case "CancelRequest":
-					return [{}, cmd.ofMsg(Msg.cancel())];
+					return [cmd.ofMsg(Msg.cancel())];
 
 				case "Cancel": {
-					options.onCancel?.(model, props);
+					options.onCancel?.(snapshot(draft), props);
 
-					return [{}];
+					return [];
 				}
 
-				case "Validate":
-					return [
-						{ errors: [], validated: true },
-						cmd.ofSuccess(validate, (errors) => Msg.validated(errors, msg.msg), model, props),
-					];
+				case "Validate": {
+					const state = snapshot(draft);
+
+					model.errors = [];
+					model.validated = true;
+
+					return [cmd.ofSuccess(validate, (errors) => Msg.validated(errors, msg.msg), state, props)];
+				}
 
 				case "Validated": {
-					options.onValidated?.(msg.errors, { ...model, reValidating }, props);
+					options.onValidated?.(msg.errors, { ...snapshot(draft), reValidating }, props);
 					reValidating = false;
 
 					if (msg.errors.length > 0) {
-						return [{ errors: msg.errors }];
+						model.errors = msg.errors;
 					}
 
-					if (msg.msg) {
-						return [{}, cmd.ofMsg(msg.msg)];
+					if (msg.msg && msg.errors.length === 0) {
+						return [cmd.ofMsg(msg.msg)];
 					}
 
-					return [{}];
+					return [];
 				}
 
 				case "ReValidate": {
 					if (model.validated) {
 						reValidating = true;
 
-						return [{}, cmd.ofMsg(Msg.validate())];
+						return [cmd.ofMsg(Msg.validate())];
 					}
 
-					return [{}];
+					return [];
 				}
 			}
 		},
@@ -133,7 +137,6 @@ function createForm<TModel, TProps, TValues, TValidationKeys extends ValidationK
 	};
 }
 
-export type { Message, Model, Options } from "./shared";
 export type { Form };
 
 export { createForm };
