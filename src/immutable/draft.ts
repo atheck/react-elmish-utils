@@ -22,7 +22,7 @@ function asWritable<TModel>(model: Draft<TModel>): TModel {
  * @returns A plain snapshot of the current draft state.
  */
 function snapshot<TModel>(model: Draft<TModel>): TModel {
-	return current(model) as unknown as TModel;
+	return current(model);
 }
 
 export { asWritable, snapshot };
